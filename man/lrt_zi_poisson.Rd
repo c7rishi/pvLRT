@@ -2,7 +2,8 @@
 % Please edit documentation in R/lrt_zi_poisson.R
 \name{lrt_zi_poisson}
 \alias{lrt_zi_poisson}
-\title{Pseudo Likelihood Ratio Test for determining significant AE-Drug pairs}
+\title{Pseudo Likelihood Ratio Test for determining significant AE-Drug pairs under
+zero-inflated Poisson model}
 \usage{
 lrt_zi_poisson(contin_table, nsim = 10000, omega_est_vec = NULL, ...)
 }
@@ -16,5 +17,6 @@ for I AE and J Drugs}
 If NULL, then estimated from the data under a Gamma process assumption.}
 }
 \description{
-Pseudo Likelihood Ratio Test for determining significant AE-Drug pairs
+Pseudo Likelihood Ratio Test for determining significant AE-Drug pairs under
+zero-inflated Poisson model
 }

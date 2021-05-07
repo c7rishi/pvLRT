@@ -184,7 +184,8 @@
 }
 
 
-#' Pseudo Likelihood Ratio Test for determining significant AE-Drug pairs
+#' Pseudo Likelihood Ratio Test for determining significant AE-Drug pairs under
+#' zero-inflated Poisson model
 #' @inheritParams lrt_vanilla_poisson
 #' @param omega_est_vec vector (for all drugs) of estimates of the zero-inflation.
 #' If NULL, then estimated from the data under a Gamma process assumption.
