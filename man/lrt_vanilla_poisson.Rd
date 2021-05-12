@@ -4,7 +4,13 @@
 \alias{lrt_vanilla_poisson}
 \title{Likelihood Ratio Test for determining significant AE-Drug pairs}
 \usage{
-lrt_vanilla_poisson(contin_table, nsim = 10000, ...)
+lrt_vanilla_poisson(
+  contin_table,
+  nsim = 10000,
+  drug_class_idx = as.list(1:ncol(contin_table)),
+  test_drug_idx = 1:ncol(contin_table),
+  ...
+)
 }
 \arguments{
 \item{contin_table}{IxJ contingency table showing pairwise counts of adverse effects

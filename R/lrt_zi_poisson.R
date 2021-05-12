@@ -98,6 +98,23 @@
 #   all_res
 # }
 
+# .compute_mlr <- function(lr_mat, dt_drug_by_class, I, dim_names) {
+#   mlr_stat <- class <- NULL
+#
+#   dt_drug_class_id <- data.table::copy(dt_drug_class_idx)
+#
+#   dt_drug_by_class[
+#     ,
+#     mlr_stat := apply(lr_mat, 2, max)[drug]
+#   ][,
+#     mlr_stat := max(mlr_stat),
+#     by = class
+#   ]
+#
+#   tcrossprod(rep(1, I), dt_drug_by_class$mlr_stat) %>%
+#     `dimnames<-`(dim_names)
+# }
+
 
 .lr_stat_pseudo_lik_1tab_zip <- function(n_ij_mat,
                                          n_i_0_all = rowSums(n_ij_mat),
@@ -193,6 +210,8 @@
 lrt_zi_poisson <- function(contin_table,
                            nsim = 1e4,
                            omega_est_vec = NULL,
+                           drug_class_idx = as.list(1:ncol(contin_table)),
+                           test_drug_idx = 1:ncol(contin_table),
                            ...)
 {
   I <- nrow(contin_table)
@@ -205,9 +224,21 @@ lrt_zi_poisson <- function(contin_table,
   Eij_mat <- (tcrossprod(n_i_0_all, n_0_j_all)/n_0_0) %>%
     `dimnames<-`(dimnames(contin_table))
 
+  # .N <- drug <- class <- NULL
+
+
+  # dt_drug_class_idx <- data.table(
+  #   drug = drug_class_idx
+  # )[,
+  #   class := 1:.N
+  # ][,
+  #   .(drug = unlist(drug)),
+  #   by = list(class)
+  # ][,
+  #   mlr_stat := NA
+  # ]
 
   # browser()
-
 
   cat("Calculating observed LR stat...\n")
 
@@ -219,6 +250,7 @@ lrt_zi_poisson <- function(contin_table,
     # n_0_j_all = n_0_j.all,
     n_0_0 = n_0_0,
     use_stan = use_stan,
+    test_j_idx = test_drug_idx,
     omega_est_vec = omega_est_vec
   )
   lr_stat_obs <- lr_stat_obs_obj$log_lrt
@@ -226,7 +258,12 @@ lrt_zi_poisson <- function(contin_table,
     setNames(colnames(contin_table))
 
 
-  mlr_obs <- apply(lr_stat_obs, 2, max)
+  # mlr_obs <- .compute_mlr(
+  #   lr_mat = lr_stat_obs,
+  #   dt_drug_by_class = dt_drug_class_idx,
+  #   I = I,
+  #   dim_names = dimnames(contin_table)
+  # )
 
 
   # generate random contingency tables
@@ -281,7 +318,8 @@ lrt_zi_poisson <- function(contin_table,
     rand_contin_tab_list,
     lr_stat_func,
     n_0_0 = n_0_0,
-    omega_est_vec = omega_est_vec
+    omega_est_vec = omega_est_vec,
+    test_j_idx = test_drug_idx
   ) %>%
     lapply("[[", "log_lrt") %>%
     c(list(lr_stat_obs))
@@ -289,13 +327,28 @@ lrt_zi_poisson <- function(contin_table,
   mlr_stat_null <- lapply(
     lr_stat_null,
     function(xmat) {
-      n_row <- nrow(xmat)
-      apply(xmat, 2, function(x) rep(max(x), n_row))
+      # n_row <- nrow(xmat)
+
+      col_maxs <- apply(xmat, 2, max)
+      for (ii in 1:length(drug_class_idx)) {
+        drug_class <- drug_class_idx[[ii]]
+        col_maxs[drug_class] <- max(col_maxs[drug_class])
+      }
+      # browser()
+      out <- tcrossprod(rep(1, I), col_maxs) %>%
+        `dimnames<-`(dimnames(contin_table))
+
+      # out <- apply(xmat, 2, function(x) rep(max(x), n_row))
+      # .compute_mlr(
+      #   xmat,
+      #   dt_drug_by_class = dt_drug_class_idx,
+      #   I = I,
+      #   dim_names = dimnames(contin_table)
+      # )
+      out
     }
   )
 
-
-  # browser()
 
   cat("calculating simulated p for lr test...\n")
   lr_stat_pvalue <- mlr_stat_null %>%

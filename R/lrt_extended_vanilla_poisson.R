@@ -1,8 +1,9 @@
-.lr_stat_1tab <- function(n_ij_mat,
+# Extended LRT, written by Anran Liu
+
+.lr_extended_stat_1tab <- function(n_ij_mat,
                           n_i_0_all = rowSums(n_ij_mat),
                           n_0_j_all = colSums(n_ij_mat),
                           n_0_0 = sum(n_i_0_all),
-                          test_j_idx = 1:ncol(n_ij_mat),
                           ...) {
 
   `%>%` <- magrittr::`%>%`
@@ -18,6 +19,22 @@
 
   I <- nrow(n_ij_mat)
   J <- ncol(n_ij_mat)
+
+  logLR <- function(N, n_i, n_j, n, I){
+    p_0 <- n_j/n
+    logLR <- c()
+    for (i in 1:I){
+      if (N[i]==0){
+        logLR[i] <- 0
+      } else{
+        p_i <- N[i]/n_i[i]
+        q_i <- (n_j-N[i])/(n-n_i[i])
+        logLR[i] <- (N[i]*log(p_i)+(n_j-N[i])*log(q_i)-n_j*log(p_0))*(p_i>q_i)
+      }
+    }
+    logLR
+  }
+
 
   # N = column of ((nij)) for a specific j
   logLR_vec <- function(N, n_i, n_j, n, I){
@@ -89,20 +106,20 @@
     do.call(cbind, .)
 
 
-  lrt_res
+  lrt_res # LR stats for all columns
 }
 
-#' Likelihood Ratio Test for determining significant AE-Drug pairs
-#' @param contin_table IxJ contingency table showing pairwise counts of adverse effects
-#' for I AE and J Drugs
-#' @param nsim Number of simulated contin_table to use for computing the p-value of the test
-#'
-#' @export
-lrt_vanilla_poisson <- function(contin_table,
-                                nsim = 1e4,
-                                drug_class_idx = as.list(1:ncol(contin_table)),
-                                test_drug_idx = 1:ncol(contin_table),
-                                ...)
+
+#' Pseudo Likelihood Ratio Test for determining significant AE-Drug pairs under
+#' zero-inflated Poisson model
+#' @inheritParams lrt_vanilla_poisson
+#' @param omega_est_vec vector (for all drugs) of estimates of the zero-inflation.
+#' If NULL, then estimated from the data under a Gamma process assumption.
+ext_lr_test_vanilla_poisson <- function(contin_table,
+                                        drug_class_idx,
+                                        nsim = 1e4,
+                                        fisher_p_level = 0.0001,
+                                        return_p.value = FALSE,...)
 {
   I <- nrow(contin_table)
   J <- ncol(contin_table)
@@ -114,16 +131,15 @@ lrt_vanilla_poisson <- function(contin_table,
 
 
   cat("Calculating observed LR stat...\n")
-  lr_stat_obs <- .lr_stat_1tab(
+  lr_stat_obs <- .lr_extended_stat_1tab(
     contin_table,
     # n_i_0_all = n_i_0,
     # n_0_j_all = n_0_j.all,
-    n_0_0 = n_0_0,
-    test_j_idx = test_drug_idx
+    n_0_0 = n_0_0
   )
 
 
-  mlr_obs <- apply(lr_stat_obs, 2, max)
+  mlr_obs <- apply(lr_stat_obs, 2, max) # take max of each column
 
 
   # generate random contingency tables
@@ -136,7 +152,7 @@ lrt_vanilla_poisson <- function(contin_table,
   #   c = n_0_j_all
   # )
 
-  rand_contin_tab_list <- pbapply::pblapply(
+  rand_contin_tab_list <- pbapply::pblapply(               # generate random cont tables
     1:nsim,
     function(this_idx) {
       lapply(
@@ -152,28 +168,29 @@ lrt_vanilla_poisson <- function(contin_table,
   )
 
   cat("simulating null distribution of the lr stat..\n")
-  lr_stat_null <- pbapply::pblapply(
+  lr_stat_null <- pbapply::pblapply(                         # get LR stat of each random table
     rand_contin_tab_list,
-    .lr_stat_1tab,
+    .lr_extended_stat_1tab,
     n_0_0 = n_0_0,
-    test_j_idx = test_drug_idx
   ) %>%
     c(list(lr_stat_obs))
 
-  mlr_stat_null <- lapply(
+  mlr_stat_null <- lapply(                               # vector of MLR
     lr_stat_null,
     function(xmat) {
-      # n_row <- nrow(xmat)
-      # apply(xmat, 2, function(x) rep(max(x), n_row))
-      col_maxs <- apply(xmat, 2, max)
-      for (ii in 1:length(drug_class_idx)) {
-        drug_class <- drug_class_idx[[ii]]
-        col_maxs[drug_class] <- max(col_maxs[drug_class])
-      }
-      out <- tcrossprod(rep(1, I), col_maxs) %>%
-        `dimnames<-`(dimnames(contin_table))
+      n_row <- nrow(xmat)
+      n_col <- ncol(xmat)
+      mat0 <- matrix(0, nrow = n_row, ncol = n_col)
+      mat0[,drug_class_idx] <- max(xmat[,drug_class_idx])
+      mat0[,-drug_class_idx] <- apply(xmat[,-drug_class_idx], 2, function(x) rep(max(x), n_row))
+      mat0
     }
+    # function(xmat) {
+    #   n_row <- nrow(xmat)
+    #   apply(xmat, 2, function(x) rep(max(x), n_row))
+    # }
   )
+
 
 
   # browser()
