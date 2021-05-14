@@ -95,7 +95,24 @@
 #' Likelihood Ratio Test for determining significant AE-Drug pairs
 #' @param contin_table IxJ contingency table showing pairwise counts of adverse effects
 #' for I AE and J Drugs
-#' @param nsim Number of simulated contin_table to use for computing the p-value of the test
+#' @param nsim Number of simulated null contingency table to use for computing the p-value of the test
+#' @param drug_class_idx a list, with the h-th entry providing the h-th group/class of drugs.
+#' By default, each drug forms its own class. If more than one drug is present in a class, an
+#' extended LRT is performed. See examples.
+#'
+#' @param ... Other arguments. Currently unused.
+#'
+#' @examples
+#'
+#' data("lovastatin")
+#' # no grouping -- each drug its own class
+#' test1 <- lrt_vanilla_poisson(lovastatin)
+#'
+#' # grouped drugs --
+#' # group1 : drug 1, drug 2
+#' # group 2: drug 3
+#' drug_groups <- list(c(1, 2), 3)
+#' test2 <- lrt_vanilla_poisson(lovastatin, drug_class_idx = drug_groups)
 #'
 #' @export
 lrt_vanilla_poisson <- function(contin_table,

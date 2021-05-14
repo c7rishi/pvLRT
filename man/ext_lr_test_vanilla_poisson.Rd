@@ -18,7 +18,13 @@ ext_lr_test_vanilla_poisson(
 \item{contin_table}{IxJ contingency table showing pairwise counts of adverse effects
 for I AE and J Drugs}
 
-\item{nsim}{Number of simulated contin_table to use for computing the p-value of the test}
+\item{drug_class_idx}{a list, with the h-th entry providing the h-th group/class of drugs.
+By default, each drug forms its own class. If more than one drug is present in a class, an
+extended LRT is performed. See examples.}
+
+\item{nsim}{Number of simulated null contingency table to use for computing the p-value of the test}
+
+\item{...}{Other arguments. Currently unused.}
 
 \item{omega_est_vec}{vector (for all drugs) of estimates of the zero-inflation.
 If NULL, then estimated from the data under a Gamma process assumption.}

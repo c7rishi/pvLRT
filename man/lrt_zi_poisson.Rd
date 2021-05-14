@@ -18,12 +18,34 @@ lrt_zi_poisson(
 \item{contin_table}{IxJ contingency table showing pairwise counts of adverse effects
 for I AE and J Drugs}
 
-\item{nsim}{Number of simulated contin_table to use for computing the p-value of the test}
+\item{nsim}{Number of simulated null contingency table to use for computing the p-value of the test}
 
 \item{omega_est_vec}{vector (for all drugs) of estimates of the zero-inflation.
-If NULL, then estimated from the data under a Gamma process assumption.}
+If NULL, then estimated from the data under a Gamma process assumption. If
+omega_est_vec = rep(0, ncol(contin_table)), the test reduces to an ordinary
+(non-zero inflated) Poisson test.}
+
+\item{drug_class_idx}{a list, with the h-th entry providing the h-th group/class of drugs.
+By default, each drug forms its own class. If more than one drug is present in a class, an
+extended LRT is performed. See examples.}
+
+\item{...}{Other arguments. Currently unused.}
 }
 \description{
 Pseudo Likelihood Ratio Test for determining significant AE-Drug pairs under
 zero-inflated Poisson model
+}
+\examples{
+
+data("lovastatin")
+# no grouping -- each drug its own class
+test1 <- lrt_zi_poisson(lovastatin)
+
+# grouped drugs --
+# group1 : drug 1, drug 2
+# group 2: drug 3
+drug_groups <- list(c(1, 2), 3)
+test2 <- lrt_zi_poisson(lovastatin, drug_class_idx = drug_groups)
+
+
 }

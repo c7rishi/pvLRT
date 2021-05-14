@@ -12,6 +12,8 @@ RoxygenNote: 7.1.1
 Imports: 
     magrittr,
     stats,
-    data.table
+    pbapply
 Depends: 
-    R (>= 2.10)
+    R (>= 3.10)
+suggests:
+    data.table

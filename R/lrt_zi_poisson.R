@@ -1,121 +1,3 @@
-# .lr_stat_brute_force_1tab_zip <- function(n_ij_mat,
-#                                           n_i_0_all = rowSums(n_ij_mat),
-#                                           n_0_j_all = colSums(n_ij_mat),
-#                                           n_0_0 = sum(n_i_0_all),
-#                                           test_j_idx = 1:ncol(n_ij_mat),
-#                                           ...) {
-#
-#   I <- nrow(n_ij_mat)
-#   J <- ncol(n_ij_mat)
-#   Eij_mat <- tcrossprod(n_i_0_all, n_0_j_all)/n_0_0
-#
-#   # will be updated separately for each pair
-#   lambda_ij_test_indic <- matrix(0, I, J)
-#
-#
-#   # jstar <- 1
-#
-#
-#   # browser()
-#   all_log_lrt <- pbapply::pbmapply(
-#     function(jstar, do_this_test) {
-#       if (do_this_test) {
-#         res <- lapply(
-#           1:I,
-#           function(this_i) {
-#             tmp_lambda_ij_test_indic <- lambda_ij_test_indic
-#             tmp_lambda_ij_test_indic[this_i, jstar] <- 1
-#
-#             stan_dat <- list(
-#               I = I,
-#               J = 1,
-#               n_ij = n_ij_mat[, jstar, drop=F],
-#               E_ij = Eij_mat[, jstar, drop=F],
-#               lambda_1_indic_ij = tmp_lambda_ij_test_indic[, jstar, drop=F]
-#             )
-#             stan_opt_null <- rstan::optimizing(
-#               STAN_MODEL_NULL__,
-#               data = stan_dat
-#             )
-#
-#             stan_opt_alt <- rstan::optimizing(
-#               STAN_MODEL_ALT__,
-#               data = stan_dat
-#             )
-#
-#             # log_lrt <- max(stan_opt_alt$value - stan_opt_null$value, 0)
-#             # attr(log_lrt, "omega_null") <- stan_opt_null$par["omega"]
-#             # attr(log_lrt, "omega_null") <- stan_opt_null$par["omega"]
-#             list(
-#               log_lrt = max(stan_opt_alt$value - stan_opt_null$value, 0),
-#               omega_null = stan_opt_null$par["omega"] %>% unname(),
-#               omega_alt = stan_opt_alt$par["omega"] %>% unname()
-#             )
-#           }
-#         )
-#       } else {
-#         res <- lapply(
-#           1:I,
-#           function(this_i) {
-#             list(
-#               log_lrt = 0,
-#               omega_null = NA,
-#               omega_alt = NA
-#             )
-#           }
-#         )
-#       }
-#       setNames(res, rownames(n_ij_mat))
-#     },
-#     1:J,
-#     1:J %in% test_j_idx,
-#     SIMPLIFY = FALSE
-#   )  %>%
-#     setNames(colnames(n_ij_mat))
-#
-#
-#   all_res <-
-#     c("log_lrt", "omega_null", "omega_alt") %>%
-#     setNames(., .) %>%
-#     lapply(
-#       function(this_elem) {
-#         all_log_lrt %>%
-#           lapply(
-#             function(x) {
-#               x %>%
-#                 lapply("[[", this_elem) %>%
-#                 unlist()
-#             }
-#           ) %>%
-#           do.call(cbind, .)
-#       }
-#     )
-#
-#
-#   # out <- all_res$log_lrt
-#   # attr(out, "omega_null") <- all_res$omega_null
-#   # attr(out, "omega_alt") <- all_res$omega_alt
-#   all_res
-# }
-
-# .compute_mlr <- function(lr_mat, dt_drug_by_class, I, dim_names) {
-#   mlr_stat <- class <- NULL
-#
-#   dt_drug_class_id <- data.table::copy(dt_drug_class_idx)
-#
-#   dt_drug_by_class[
-#     ,
-#     mlr_stat := apply(lr_mat, 2, max)[drug]
-#   ][,
-#     mlr_stat := max(mlr_stat),
-#     by = class
-#   ]
-#
-#   tcrossprod(rep(1, I), dt_drug_by_class$mlr_stat) %>%
-#     `dimnames<-`(dim_names)
-# }
-
-
 .lr_stat_pseudo_lik_1tab_zip <- function(n_ij_mat,
                                          n_i_0_all = rowSums(n_ij_mat),
                                          n_0_j_all = colSums(n_ij_mat),
@@ -205,7 +87,23 @@
 #' zero-inflated Poisson model
 #' @inheritParams lrt_vanilla_poisson
 #' @param omega_est_vec vector (for all drugs) of estimates of the zero-inflation.
-#' If NULL, then estimated from the data under a Gamma process assumption.
+#' If NULL, then estimated from the data under a Gamma process assumption. If
+#' omega_est_vec = rep(0, ncol(contin_table)), the test reduces to an ordinary
+#' (non-zero inflated) Poisson test.
+#'
+#' @examples
+#'
+#' data("lovastatin")
+#' # no grouping -- each drug its own class
+#' test1 <- lrt_zi_poisson(lovastatin)
+#'
+#' # grouped drugs --
+#' # group1 : drug 1, drug 2
+#' # group 2: drug 3
+#' drug_groups <- list(c(1, 2), 3)
+#' test2 <- lrt_zi_poisson(lovastatin, drug_class_idx = drug_groups)
+#'
+#'
 #' @export
 lrt_zi_poisson <- function(contin_table,
                            nsim = 1e4,
@@ -223,22 +121,6 @@ lrt_zi_poisson <- function(contin_table,
 
   Eij_mat <- (tcrossprod(n_i_0_all, n_0_j_all)/n_0_0) %>%
     `dimnames<-`(dimnames(contin_table))
-
-  # .N <- drug <- class <- NULL
-
-
-  # dt_drug_class_idx <- data.table(
-  #   drug = drug_class_idx
-  # )[,
-  #   class := 1:.N
-  # ][,
-  #   .(drug = unlist(drug)),
-  #   by = list(class)
-  # ][,
-  #   mlr_stat := NA
-  # ]
-
-  # browser()
 
   cat("Calculating observed LR stat...\n")
 
@@ -369,20 +251,3 @@ lrt_zi_poisson <- function(contin_table,
   lr_stat_pvalue
 }
 
-
-# lr_test_zip_poisson(obs_mat)
-
-# lovastatin_res1 <- .lr_stat_brute_force_1tab_zip(obs_mat)
-# lovastatin_res2 <- .lr_stat_pseudo_lik_1tab_zip(obs_mat)
-# lovastatin_res %>%
-#   lapply(round, 3)
-
-# cbind(
-#   brute_force = lovastatin_res1$log_lrt[, 3],
-#   pseudo_llik = lovastatin_res2$log_lrt[, 3]
-# ) %>%
-#   as_tibble(
-#     rownames = "AE"
-#   ) %>%
-#   mutate_if(is.numeric, round, 2) %>%
-#   data.table::as.data.table()
