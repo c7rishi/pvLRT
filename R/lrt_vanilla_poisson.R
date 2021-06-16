@@ -105,8 +105,12 @@
 #' @examples
 #'
 #' data("lovastatin")
-#' # no grouping -- each drug its own class
+#'
+#' # no grouping -- each drug forms its own class
 #' test1 <- lrt_vanilla_poisson(lovastatin)
+#' ## extract the observed LRT statistic
+#' attr(test1, "lrstat")
+#'
 #'
 #' # grouped drugs --
 #' # group1 : drug 1, drug 2
@@ -145,7 +149,7 @@ lrt_vanilla_poisson <- function(contin_table,
 
   # generate random contingency tables
   # with fixed row and column sums from multinomial
-  cat("simulating random null contingency tables..\n")
+  cat("\nSimulating null distribution of the LRT statistics & calculating p-values..\n")
 
   # rand_contin_tab_list <- r2dtable(
   #   n = nsim,
@@ -153,59 +157,109 @@ lrt_vanilla_poisson <- function(contin_table,
   #   c = n_0_j_all
   # )
 
-  rand_contin_tab_list <- pbapply::pblapply(
-    1:nsim,
-    function(this_idx) {
-      lapply(
-        n_0_j_all,
-        function(this_n_0_j) {
-          c(rmultinom(n = 1, size = this_n_0_j, prob = n_i_0_all/n_0_0)) %>%
-            setNames(names(n_i_0_all))
-        }
-      ) %>%
-        setNames(names(n_0_j_all)) %>%
-        do.call(cbind, .)
-    }
-  )
-
-  cat("simulating null distribution of the lr stat..\n")
-  lr_stat_null <- pbapply::pblapply(
-    rand_contin_tab_list,
-    .lr_stat_1tab,
-    n_0_0 = n_0_0,
-    test_j_idx = test_drug_idx
-  ) %>%
-    c(list(lr_stat_obs))
-
-  mlr_stat_null <- lapply(
-    lr_stat_null,
-    function(xmat) {
-      # n_row <- nrow(xmat)
-      # apply(xmat, 2, function(x) rep(max(x), n_row))
-      col_maxs <- apply(xmat, 2, max)
-      for (ii in 1:length(drug_class_idx)) {
-        drug_class <- drug_class_idx[[ii]]
-        col_maxs[drug_class] <- max(col_maxs[drug_class])
+  gen_rand_table <- function() {
+    lapply(
+      n_0_j_all,
+      function(this_n_0_j) {
+        c(rmultinom(n = 1, size = this_n_0_j, prob = n_i_0_all/n_0_0)) %>%
+          setNames(names(n_i_0_all))
       }
-      out <- tcrossprod(rep(1, I), col_maxs) %>%
-        `dimnames<-`(dimnames(contin_table))
+    ) %>%
+      setNames(names(n_0_j_all)) %>%
+      do.call(cbind, .)
+  }
+
+
+  calc_mlr <- function(xmat) {
+    # n_row <- nrow(xmat)
+    # apply(xmat, 2, function(x) rep(max(x), n_row))
+    col_maxs <- apply(xmat, 2, max)
+    for (ii in 1:length(drug_class_idx)) {
+      drug_class <- drug_class_idx[[ii]]
+      col_maxs[drug_class] <- max(col_maxs[drug_class])
     }
-  )
+    out <- tcrossprod(rep(1, I), col_maxs) #%>%
+    # `dimnames<-`(dimnames(contin_table))
+  }
+
+  # # rand_contin_tab_list <- pblapply(
+  # #   1:nsim,
+  # #   function(this_idx) {
+  # #     lapply(
+  # #       n_0_j_all,
+  # #       function(this_n_0_j) {
+  # #         c(rmultinom(n = 1, size = this_n_0_j, prob = n_i_0_all/n_0_0)) %>%
+  # #           setNames(names(n_i_0_all))
+  # #       }
+  # #     ) %>%
+  # #       setNames(names(n_0_j_all)) %>%
+  # #       do.call(cbind, .)
+  # #   }
+  # # )
+  #
+  # cat("simulating null distribution of the lr stat..\n")
+  # lr_stat_null <- pblapply(
+  #   rand_contin_tab_list,
+  #   .lr_stat_1tab,
+  #   n_0_0 = n_0_0,
+  #   test_j_idx = test_drug_idx
+  # ) %>%
+  #   c(list(lr_stat_obs))
+  #
+  #
+  #
+  # mlr_stat_null <- lapply(
+  #   lr_stat_null,
+  #   function(xmat)
+  # )
 
 
   # browser()
+  #
+  #   cat("calculating simulated p for lr test...\n")
+  #   lr_stat_pvalue <- mlr_stat_null %>%
+  #     lapply(function(x) c(x > lr_stat_obs)) %>%
+  #     do.call(rbind, .) %>%
+  #     apply(2, mean, na.rm = TRUE) %>%
+  #     matrix(
+  #       nrow = I,
+  #       ncol = J,
+  #       dimnames = dimnames(contin_table)
+  #     )
 
-  cat("calculating simulated p for lr test...\n")
-  lr_stat_pvalue <- mlr_stat_null %>%
-    lapply(function(x) c(x > lr_stat_obs)) %>%
-    do.call(rbind, .) %>%
-    apply(2, mean, na.rm = TRUE) %>%
-    matrix(
-      nrow = I,
-      ncol = J,
-      dimnames = dimnames(contin_table)
-    )
 
+  pb <- progress::progress_bar$new(
+    format = " simulating [:bar] :percent eta: :eta",
+    total = nsim + 1,
+    clear = FALSE,
+    width = 60
+  )
+
+  pval <- matrix(0, I, J) %>%
+    `dimnames<-`(dimnames(contin_table))
+
+  for (ii in 1:(nsim+1)) {
+    rand_mat <- gen_rand_table()
+    # browser()
+    if (ii <= nsim) {
+      lr_stat_null <- .lr_stat_1tab(
+        rand_mat,
+        n_0_0 = n_0_0,
+        test_j_idx = test_drug_idx
+      )
+    } else {
+      lr_stat_null <- lr_stat_obs
+    }
+
+    mlr_stat <- calc_mlr(lr_stat_null)
+    pval <- pval + 1 * (mlr_stat >= lr_stat_obs)
+
+    pb$tick()
+  }
+
+  pval <- pval/(nsim + 1)
+
+  lr_stat_pvalue <- pval
 
   attr(lr_stat_pvalue, "lrstat") <- lr_stat_obs
 

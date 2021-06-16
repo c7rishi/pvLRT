@@ -30,8 +30,12 @@ Likelihood Ratio Test for determining significant AE-Drug pairs
 \examples{
 
 data("lovastatin")
-# no grouping -- each drug its own class
+
+# no grouping -- each drug forms its own class
 test1 <- lrt_vanilla_poisson(lovastatin)
+## extract the observed LRT statistic
+attr(test1, "lrstat")
+
 
 # grouped drugs --
 # group1 : drug 1, drug 2

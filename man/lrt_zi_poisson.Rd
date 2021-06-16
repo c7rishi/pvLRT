@@ -11,6 +11,7 @@ lrt_zi_poisson(
   omega_est_vec = NULL,
   drug_class_idx = as.list(1:ncol(contin_table)),
   test_drug_idx = 1:ncol(contin_table),
+  grouped_omega_est = FALSE,
   ...
 )
 }
@@ -21,13 +22,20 @@ for I AE and J Drugs}
 \item{nsim}{Number of simulated null contingency table to use for computing the p-value of the test}
 
 \item{omega_est_vec}{vector (for all drugs) of estimates of the zero-inflation.
-If NULL, then estimated from the data under a Gamma process assumption. If
-omega_est_vec = rep(0, ncol(contin_table)), the test reduces to an ordinary
-(non-zero inflated) Poisson test.}
+If NULL, then is estimated from the data under a Gamma process assumption. See also the
+description of the argument \code{grouped_omega_est}. If \code{omega_est_vec = rep(0, ncol(contin_table))},
+then test reduces to an ordinary (non-zero inflated) Poisson test.}
 
 \item{drug_class_idx}{a list, with the h-th entry providing the h-th group/class of drugs.
 By default, each drug forms its own class. If more than one drug is present in a class, an
 extended LRT is performed. See examples.}
+
+\item{grouped_omega_est}{Logical. When performing a test with grouped drug classes (extended LRT),
+should the estimated zero-inflation parameter "omega" reflect
+the corresponding grouping? If TRUE, then the estimated omegas are obtained by combining
+columns from the same group, and if FALSE, then omegas are estimated separately for each drug (column)
+irrespective of the groups specified through  \code{drug_class_idx}. Ignore if omega_est_vec is
+non-\code{NULL} (i.e., not estimated).}
 
 \item{...}{Other arguments. Currently unused.}
 }
@@ -38,8 +46,12 @@ zero-inflated Poisson model
 \examples{
 
 data("lovastatin")
-# no grouping -- each drug its own class
+# no grouping -- each drug forms its own class
 test1 <- lrt_zi_poisson(lovastatin)
+## extract the observed LRT statistic
+attr(test1, "lrstat")
+## extract the estimated omegas
+attr(test1, "omega")
 
 # grouped drugs --
 # group1 : drug 1, drug 2

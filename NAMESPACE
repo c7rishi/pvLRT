@@ -3,5 +3,5 @@
 export("%>%")
 export(lrt_vanilla_poisson)
 export(lrt_zi_poisson)
+import(stats)
 importFrom(magrittr,"%>%")
-importFrom(stats,optim)
