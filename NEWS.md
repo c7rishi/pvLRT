@@ -14,3 +14,4 @@ The first development version of the package
 
 # version 0.1.1.2
 * added option 'grouped_est_omega' (logical argument) in lrt_zi_poisson to specify whehter or not do grouped estimation of omega in extended LRT
+* added a check in lrt_zi_poisson and lrt_vanilla_poisson to ensure that drug_class_idx has the same columns as the input contin_table

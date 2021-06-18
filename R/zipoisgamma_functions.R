@@ -4,6 +4,8 @@
 # taken from R package "countreg"
 dzipois <- function(x, lambda, pi, log = FALSE)
 {
+  # if (is.na(pi) | is.null(pi)) browser()
+
   if (any(pi < 0) | any(pi > 1))
     warning("'pi' must be in [0, 1]")
   rval <- log(1 - pi) + dpois(x, lambda = lambda, log = TRUE)
@@ -435,6 +437,9 @@ rzipoisgamma <- function(n = 1, nu = 1, sigma = 1, pi = 0, ...) {
     .["log_sigma"] %>%
     expit() %>%
     unname()
+
+
+  # if (is.na(est_omega) | is.null(est_omega)) browser()
 
   out <- c(
     omega = est_omega,

@@ -33,9 +33,9 @@ extended LRT is performed. See examples.}
 \item{grouped_omega_est}{Logical. When performing a test with grouped drug classes (extended LRT),
 should the estimated zero-inflation parameter "omega" reflect
 the corresponding grouping? If TRUE, then the estimated omegas are obtained by combining
-columns from the same group, and if FALSE, then omegas are estimated separately for each drug (column)
-irrespective of the groups specified through  \code{drug_class_idx}. Ignore if omega_est_vec is
-non-\code{NULL} (i.e., not estimated).}
+columns from the same group, and if FALSE (default), then omegas are estimated separately for each drug (column)
+irrespective of the groups specified through  \code{drug_class_idx}. Ignored if \code{omega_est_vec} is
+supplied/non-\code{NULL} (i.e., not estimated).}
 
 \item{...}{Other arguments. Currently unused.}
 }

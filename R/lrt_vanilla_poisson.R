@@ -133,6 +133,30 @@ lrt_vanilla_poisson <- function(contin_table,
   n_0_j_all <- colSums(contin_table)
 
 
+  stopifnot(
+    is.list(drug_class_idx)
+  )
+
+
+  len_check_1 <- sort(unlist(drug_class_idx)) %>%
+    setdiff(1:ncol(contin_table)) %>%
+    length() %>%
+    {. == 0}
+  if (!len_check_1) {
+    stop("'drug_class_idx' contains more columns than 'contin_table'")
+  }
+
+
+  len_check_2 <- c(1:ncol(contin_table)) %>%
+    setdiff(sort(unlist(drug_class_idx))) %>%
+    length() %>%
+    {. == 0}
+  if (!len_check_2) {
+    stop("'drug_class_idx' does not contain all columns of 'contin_table'")
+  }
+
+
+
 
   cat("Calculating observed LR stat...\n")
   lr_stat_obs <- .lr_stat_1tab(

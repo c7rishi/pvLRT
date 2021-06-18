@@ -18,6 +18,8 @@
   # browser()
 
 
+
+
   if (is.null(omega_est_vec)) {
     # fit unrestricted models separately on each column
     # to get consistent estimator of omega
@@ -57,6 +59,10 @@
           # corresponds to \hat lambda_ij = max(1, n_ij/E_ij)
           alt = pmax(n_ij_mat[, jstar], Eij_mat[, jstar])
         )
+
+
+        # if (any(is.na(unlist(theta_est_vec_list)) | is.null(unlist(theta_est_vec_list)))) browser()
+        # if (any(is.na(unlist(omega_est_vec)) | is.null(unlist(omega_est_vec)))) browser()
 
         log_den_vec_list <- lapply(
           theta_est_vec_list,
@@ -102,9 +108,9 @@
 #' @param grouped_omega_est Logical. When performing a test with grouped drug classes (extended LRT),
 #' should the estimated zero-inflation parameter "omega" reflect
 #' the corresponding grouping? If TRUE, then the estimated omegas are obtained by combining
-#' columns from the same group, and if FALSE, then omegas are estimated separately for each drug (column)
-#' irrespective of the groups specified through  \code{drug_class_idx}. Ignore if omega_est_vec is
-#' non-\code{NULL} (i.e., not estimated).
+#' columns from the same group, and if FALSE (default), then omegas are estimated separately for each drug (column)
+#' irrespective of the groups specified through  \code{drug_class_idx}. Ignored if \code{omega_est_vec} is
+#' supplied/non-\code{NULL} (i.e., not estimated).
 #'
 #' @examples
 #'
@@ -142,7 +148,32 @@ lrt_zi_poisson <- function(contin_table,
   Eij_mat <- (tcrossprod(n_i_0_all, n_0_j_all)/n_0_0) %>%
     `dimnames<-`(dimnames(contin_table))
 
+
+  stopifnot(
+    is.list(drug_class_idx)
+  )
+
+
+  len_check_1 <- sort(unlist(drug_class_idx)) %>%
+    setdiff(1:ncol(contin_table)) %>%
+    length() %>%
+    {. == 0}
+  if (!len_check_1) {
+    stop("'drug_class_idx' contains more columns than 'contin_table'")
+  }
+
+
+  len_check_2 <- c(1:ncol(contin_table)) %>%
+    setdiff(sort(unlist(drug_class_idx))) %>%
+    length() %>%
+    {. == 0}
+  if (!len_check_2) {
+    stop("'drug_class_idx' does not contain all columns of 'contin_table'")
+  }
+
+
   cat("Calculating observed LR stat...\n")
+
 
   lr_stat_func <- .lr_stat_pseudo_lik_1tab_zip
 
