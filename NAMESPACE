@@ -3,5 +3,6 @@
 export("%>%")
 export(lrt_vanilla_poisson)
 export(lrt_zi_poisson)
+export(r_contin_table_zip)
 import(stats)
 importFrom(magrittr,"%>%")

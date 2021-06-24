@@ -22,3 +22,9 @@ The first development version of the package
   - pval_ineq_strict: determines whether to use >= or > in the definition of the p-values of the test
   - skip_null_omega_estimation: determines whether or not to skip estimation of the omega on the null tables for lambda test. Defaults to TRUE, in which case the test effectively reduces to a parametric bootstrap pseudo-likelihood ratio test. NOTE: this changes the default behavior of the function. In previous versions the same null omegas were used in all null tables, which can currently be achieved by setting skip_null_omega = FALSE 
   - use_gamma_smooth_omega: determines whether or not to use a gamma prior (smoothing) while estimating the omegas. Defaults to FALSE. NOTE: this changes the default behavior of the function. In previous versions a gamma prior was always used, which in current version can be achieved by setting use_gamma_smooth_omega = FALSE 
+
+* added 4 new data sets: statin (all pts), statin1491, statin46 and gbca
+
+* added function r_contin_table_zip() to  generate random contingency tables for adverse effect (across rows) and drug (across columns) combinations given row and column marginal totals, embedded signals, and possibly with zero inflation
+
+

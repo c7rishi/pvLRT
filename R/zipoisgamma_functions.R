@@ -351,6 +351,7 @@ rzipoisgamma <- function(n = 1, nu = 1, sigma = 1, pi = 0, ...) {
 .estimate_zigammapois_mle_omega <- function(n_ij,
                                       E_ij,
                                       method = "BFGS",
+                                      omega_constrained_lambda = TRUE,
                                       ...) {
   expit <- function(x) {
     n <- length(x)
@@ -479,6 +480,7 @@ rzipoisgamma <- function(n = 1, nu = 1, sigma = 1, pi = 0, ...) {
                                        E_ij,
                                        method = "BFGS",
                                        do_lrtest = FALSE,
+                                       omega_constrained_lambda = TRUE,
                                        ...) {
 
   expit <- function(x) {
@@ -496,9 +498,15 @@ rzipoisgamma <- function(n = 1, nu = 1, sigma = 1, pi = 0, ...) {
     setNames(out, names(x))
   }
 
-  E_ij_adj <- pmax(E_ij, 1e-20)
-  lambda_ij_hat <- pmax(n_ij/E_ij_adj, 1)
-  poisson_mean_hat <- E_ij_adj * lambda_ij_hat
+  # E_ij_adj <- pmax(E_ij, 1e-20)
+  # lambda_ij_hat <- pmax(n_ij/E_ij_adj, 1)
+
+  poisson_mean_hat <- if (omega_constrained_lambda) {
+    # corresponds to \hat lambda_ij = max(1, n_ij/E_ij)
+    pmax(n_ij, E_ij)
+  } else {
+    n_ij
+  }
 
 
   # browser()

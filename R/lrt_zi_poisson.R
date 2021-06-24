@@ -3,7 +3,7 @@
                                          n_0_j_all = colSums(n_ij_mat),
                                          n_0_0 = sum(n_i_0_all),
                                          test_j_idx = 1:ncol(n_ij_mat),
-                                         omega_est_vec = rep(0, ncol(n_ij_mat)),
+                                         omega_est_vec,
                                          drug_class_idx = as.list(1:ncol(n_ij_mat)),
                                          grouped_omega_est = grouped_omega_est,
                                          ...) {
@@ -32,8 +32,6 @@
         )
 
 
-        # if (any(is.na(unlist(theta_est_vec_list)) | is.null(unlist(theta_est_vec_list)))) browser()
-        # if (any(is.na(unlist(omega_est_vec)) | is.null(unlist(omega_est_vec)))) browser()
 
         log_den_vec_list <- lapply(
           theta_est_vec_list,
@@ -75,6 +73,7 @@
                             n_0_0 = sum(n_i_0_all),
                             grouped_omega_est = grouped_omega_est,
                             use_gamma_smoothing = FALSE,
+                            omega_constrained_lambda = TRUE,
                             ...){
   Eij_mat <- (tcrossprod(n_i_0_all, n_0_j_all)/n_0_0) %>%
     `dimnames<-`(dimnames(n_ij_mat))
@@ -99,7 +98,8 @@
     function(jstar_list) {
       est <- omega_est_fn(
         n_ij_mat[, jstar_list, drop = FALSE],
-        Eij_mat[, jstar_list, drop = FALSE]
+        Eij_mat[, jstar_list, drop = FALSE],
+        omega_constrained_lambda = omega_constrained_lambda
       )
       nn <- length(jstar_list)
 
@@ -195,6 +195,18 @@ lrt_zi_poisson <- function(contin_table,
   )
 
 
+  dots <- list(...)
+  omega_constrained_lambda <- dots$omega_constrained_lambda
+
+  if (is.null(omega_constrained_lambda)) {
+    omega_constrained_lambda <- TRUE
+  }
+
+  if (!is.logical(omega_constrained_lambda)) {
+    omega_constrained_lambda <- TRUE
+  }
+
+
   len_check_1 <- sort(unlist(drug_class_idx)) %>%
     setdiff(1:ncol(contin_table)) %>%
     length() %>%
@@ -215,7 +227,13 @@ lrt_zi_poisson <- function(contin_table,
 
   # browser()
 
-  skip_omega_step <- !is.null(omega_est_vec) | skip_null_omega_estimation
+  # skip_omega_step <- !is.null(omega_est_vec) | skip_null_omega_estimation
+
+  skip_omega_step <- skip_null_omega_estimation
+
+  if (!is.null(omega_est_vec)) {
+    skip_omega_step <- skip_null_omega_estimation <- TRUE
+  }
 
 
   omega_lrstat_vec <- omega_pval_vec <-  NULL
@@ -225,7 +243,8 @@ lrt_zi_poisson <- function(contin_table,
     omega_est_vec_obj <- .est_omega_1tab(
       n_ij_mat = contin_table,
       grouped_omega_est = grouped_omega_est,
-      use_gamma_smoothing = use_gamma_smooth_omega
+      use_gamma_smoothing = use_gamma_smooth_omega,
+      omega_constrained_lambda = omega_constrained_lambda
     )
 
     omega_est_vec <- sapply(omega_est_vec_obj, "[[", "omega")
@@ -238,9 +257,14 @@ lrt_zi_poisson <- function(contin_table,
       cat("\nBootstrapping null distribution of the pseudo LRT statistic for omega, and calculating p-values..\n")
 
 
-      E_ij_adj <- pmax(Eij_mat, 1e-20)
-      lambda_ij_hat <- pmax(contin_table/E_ij_adj, 1)
-      poisson_mean_hat <- E_ij_adj * lambda_ij_hat
+      # E_ij_adj <- pmax(Eij_mat, 1e-20)
+      # lambda_ij_hat <- pmax(contin_table/E_ij_adj, 1)
+      poisson_mean_hat <- if (omega_constrained_lambda) {
+        # corresponds to \hat lambda_ij = max(1, n_ij/E_ij)
+        pmax(contin_table, E_ij)
+      } else {
+        contin_table
+      }
 
 
       gen_rand_table_for_omega <- function() {
@@ -262,7 +286,8 @@ lrt_zi_poisson <- function(contin_table,
         tmp <- .est_omega_1tab(
           n_ij_mat = n_ij_table,
           grouped_omega_est = this_grouped_omega_est,
-          use_gamma_smoothing = use_gamma_smooth_omega
+          use_gamma_smoothing = use_gamma_smooth_omega,
+          omega_constrained_lambda = omega_constrained_lambda
         )
         sapply(tmp, "[[", "lrstat")
       }
