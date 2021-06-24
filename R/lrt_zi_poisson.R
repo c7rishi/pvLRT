@@ -164,6 +164,17 @@
 #' attr(test3, "omega")
 #' attr(test3, "omega_lrstat")
 #' attr(test3, "omega_pvalue")
+#'
+#'
+#' # use gamma prior assumption on signals while
+#' # estimating omegas
+#' test3 <- lrt_zi_poisson(
+#'   lovastatin,
+#'   use_gamma_smooth_omega = TRUE,
+#'   skip_null_omega_estimation = TRUE
+#'   # set to TRUE for speed, should be set to FALSE in the final analysis
+#' )
+#' attr(test3, "omega")
 #' }
 #'
 #' @export
@@ -261,7 +272,7 @@ lrt_zi_poisson <- function(contin_table,
       # lambda_ij_hat <- pmax(contin_table/E_ij_adj, 1)
       poisson_mean_hat <- if (omega_constrained_lambda) {
         # corresponds to \hat lambda_ij = max(1, n_ij/E_ij)
-        pmax(contin_table, E_ij)
+        pmax(contin_table, Eij_mat)
       } else {
         contin_table
       }

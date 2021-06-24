@@ -83,6 +83,17 @@ test3 <- lrt_zi_poisson(lovastatin, test_omega = TRUE)
 attr(test3, "omega")
 attr(test3, "omega_lrstat")
 attr(test3, "omega_pvalue")
+
+
+# use gamma prior assumption on signals while
+# estimating omegas
+test3 <- lrt_zi_poisson(
+  lovastatin,
+  use_gamma_smooth_omega = TRUE,
+  skip_null_omega_estimation = TRUE
+  # set to TRUE for speed, should be set to FALSE in the final analysis
+)
+attr(test3, "omega")
 }
 
 }
