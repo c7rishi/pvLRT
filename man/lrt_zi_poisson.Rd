@@ -12,6 +12,10 @@ lrt_zi_poisson(
   drug_class_idx = as.list(1:ncol(contin_table)),
   test_drug_idx = 1:ncol(contin_table),
   grouped_omega_est = FALSE,
+  test_omega = FALSE,
+  pval_ineq_strict = FALSE,
+  skip_null_omega_estimation = FALSE,
+  use_gamma_smooth_omega = FALSE,
   ...
 )
 }
@@ -22,7 +26,7 @@ for I AE and J Drugs}
 \item{nsim}{Number of simulated null contingency table to use for computing the p-value of the test}
 
 \item{omega_est_vec}{vector (for all drugs) of estimates of the zero-inflation.
-If NULL, then is estimated from the data under a Gamma process assumption. See also the
+If NULL, then is estimated from the data. See also the
 description of the argument \code{grouped_omega_est}. If \code{omega_est_vec = rep(0, ncol(contin_table))},
 then test reduces to an ordinary (non-zero inflated) Poisson test.}
 
@@ -36,6 +40,19 @@ the corresponding grouping? If TRUE, then the estimated omegas are obtained by c
 columns from the same group, and if FALSE (default), then omegas are estimated separately for each drug (column)
 irrespective of the groups specified through  \code{drug_class_idx}. Ignored if \code{omega_est_vec} is
 supplied/non-\code{NULL} (i.e., not estimated).}
+
+\item{test_omega}{logical. perform a bootstrap pseudo likelihood ratio test for omega? Ignored if
+\code{omega_est_vec} is supplied (is non-NULL). Defaults to FALSE.}
+
+\item{pval_ineq_strict}{logical. Use a strict inequality in the definition of the p-values?  Defaults to FALSE.}
+
+\item{skip_null_omega_estimation}{logical. Should estimation of the (nuisance parameter) omega be skipped while simulating
+bootstrapped null distribution of the likelihood ratio statistic? Defaults to FALSE. If TRUE,
+then the same global (possibly estimated) omega is used in each null booststrap draw.}
+
+\item{use_gamma_smooth_omega}{logical. Use a gamma prior (smoothing) on the signals (lambdas) while estimating
+omega from data. Defaults to FALSE. NOTE: if TRUE, then the gamma prior produces a marginal negative binomial
+distribution for the counts, which is then optimized for estimating omega.}
 
 \item{...}{Other arguments. Currently unused.}
 }
@@ -59,5 +76,13 @@ attr(test1, "omega")
 drug_groups <- list(c(1, 2), 3)
 test2 <- lrt_zi_poisson(lovastatin, drug_class_idx = drug_groups)
 
+\dontrun{
+# test omegas
+test3 <- lrt_zi_poisson(lovastatin, test_omega = TRUE)
+## extract the estimate, statistic, and p-values for omegas
+attr(test3, "omega")
+attr(test3, "omega_lrstat")
+attr(test3, "omega_pvalue")
+}
 
 }

@@ -348,7 +348,7 @@ rzipoisgamma <- function(n = 1, nu = 1, sigma = 1, pi = 0, ...) {
 # ML Estimation of parameters in the ZIGammaPoisson model
 # n_ij ~ ZIP(lambda_ij * E_ij, omega), lambda_ij ~ Gamma(nu, sigma)
 # ------------------------------------------------------------------
-.estimate_zigammapois_mle <- function(n_ij,
+.estimate_zigammapois_mle_omega <- function(n_ij,
                                       E_ij,
                                       method = "BFGS",
                                       ...) {
@@ -439,18 +439,162 @@ rzipoisgamma <- function(n = 1, nu = 1, sigma = 1, pi = 0, ...) {
     unname()
 
 
+  # browser()
+
+  opt_null <- tryCatch(
+    optim(
+      par = par_init[c("log_nu", "log_sigma")],
+      fn = function(par) {
+        neg_llik(c(logit_omega = -Inf, par))
+      },
+      method = "BFGS",
+      ...
+    ),
+    error = function(e) e
+  )
+
+  llik_null <- -opt_null$value
+  llik_comb <- -opt$value
+  lrstat <- max(llik_comb - llik_null, 0)
+  # get the null (omega = 0) optimum
+
+
   # if (is.na(est_omega) | is.null(est_omega)) browser()
 
   out <- c(
     omega = est_omega,
     nu = est_nu,
     sigma = est_sigma,
-    llik = -opt$value,
+    llik_null = -llik_null,
+    llik = llik_comb,
+    lrstat = lrstat,
     optim = opt
   )
 
   out
 }
+
+
+.estimate_zipois_mle_omega <- function(n_ij,
+                                       E_ij,
+                                       method = "BFGS",
+                                       do_lrtest = FALSE,
+                                       ...) {
+
+  expit <- function(x) {
+    n <- length(x)
+    idx_pos <- x >= 0
+    n_idx_pos <- sum(idx_pos)
+    out <- rep(NA, n)
+    if (n_idx_pos > 0) {
+      out[idx_pos] <- 1/(1 + exp(-x[idx_pos]))
+    }
+    if (n_idx_pos < n) {
+      tmp <- exp(x[!idx_pos])
+      out[!idx_pos] <- tmp/(1+tmp)
+    }
+    setNames(out, names(x))
+  }
+
+  E_ij_adj <- pmax(E_ij, 1e-20)
+  lambda_ij_hat <- pmax(n_ij/E_ij_adj, 1)
+  poisson_mean_hat <- E_ij_adj * lambda_ij_hat
+
+
+  # browser()
+
+  #  BFGS on the logit scale
+  neg_llik <- function(logit_omega) {
+    # nu <- exp(par["log_nu"])
+    # # nu <- exp(par["nu"])
+    # # beta <- par["beta1"]
+    #
+    # sigma <- exp(par["log_sigma"])
+    # # sigma <- par["sigma"]
+    # sigma_k <- sigma * c(E_ij_adj)
+
+    omega <- expit(logit_omega)
+    # pi <- par["pi"]
+
+    tmp <- dzipois(
+      x = c(n_ij),
+      lambda = c(poisson_mean_hat),
+      pi = omega,
+      log = TRUE
+    )
+
+    -sum(tmp)
+  }
+
+  opt <-
+    tryCatch(
+      optim(
+        par = 0, #par_init,
+        fn = neg_llik,
+        method = "BFGS",
+        ...
+      ),
+      error = function(e) e
+    )
+
+  if (is(opt, "error")) browser()
+
+  # if (!is(opt, "error")) {
+  est_omega <- opt$par %>%
+    expit() %>%
+    unname()
+  obj_val <- -opt$value
+  obj_null <- -neg_llik(-Inf)
+  opt_scale <- "logit_omega"
+
+  # } else {
+  # # try optimize() on omega scale
+  # neg_llik_1 <- function(omega) {
+  #   tmp <- dzipois(
+  #     x = c(n_ij),
+  #     lambda = c(poisson_mean_hat),
+  #     pi = omega,
+  #     log = TRUE
+  #   )
+  #
+  #   -sum(tmp)
+  # }
+  #
+  # opt <- tryCatch(
+  #   optimize(
+  #     f = neg_llik_1,
+  #     lower = 0,
+  #     upper = 1,
+  #     ...
+  #   ),
+  #   error = function(e) e
+  # )
+
+  # if (is(opt, "error"))
+  # stop(opt)
+  # est_omega <- opt$minimum
+  # obj_val <- -opt$value
+  # obj_null <- -neg_llik_1(0)
+  # opt_scale <- "omega"
+  # }
+
+
+  lrstat <- obj_val - obj_null
+  lrstat_adj <- ifelse(lrstat < 0, 0, lrstat)
+  # est_omega_adj <- ifelse(lrstat < 0, 0, est_omega)
+
+
+  out <- c(
+    omega = est_omega,
+    llik = obj_val,
+    optim = opt,
+    lrstat = lrstat_adj,
+    opt_scale = opt_scale
+  )
+
+  out
+}
+
 
 # .estimate_zigammapois_mle <- function(x,
 #                                       a = rep(1, length(x)),
