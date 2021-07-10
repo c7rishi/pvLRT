@@ -16,7 +16,8 @@ all_data <- here::here("data-raw/") %>%
   lapply(
     . %>%
       select(-pt_marginal) %>%
-      filter(!grepl("Total", pt, ignore.case = TRUE)) %>%
+      filter(!toupper(pt) == "TOTAL") %>%
+      # filter(!grepl("Total", pt, ignore.case = TRUE)) %>%
       as.data.frame() %>%
       magrittr::set_rownames(.$pt) %>%
       select(-pt) %>%

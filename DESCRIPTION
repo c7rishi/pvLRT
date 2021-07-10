@@ -1,6 +1,6 @@
 Package: pvLRT
 Title: An R package implementing various Likelihood Ratio Test-based approaches to pharmacovigilance 
-Version: 0.0.2.0
+Version: 0.0.2.2
 Author: Saptarshi Chakraborty
 Maintainer: Saptarshi Chakraborty <chakra.saptarshi@gmail.com>
 Description: What the package does (one paragraph).

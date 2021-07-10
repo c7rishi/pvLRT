@@ -425,13 +425,38 @@ lrt_zi_poisson <- function(contin_table,
       if (skip_null_omega_estimation) {
         this_omega_est <- omega_est_vec
       } else {
-        this_omega_est <- .est_omega_1tab(
-          n_ij_mat = rand_mat %>%
-            `dimnames<-`(dimnames(contin_table)),
-          grouped_omega_est = grouped_omega_est,
-          use_gamma_smoothing = use_gamma_smooth_omega
-        ) %>%
-          sapply("[[", "omega")
+        this_omega_est <- tryCatch(
+          .est_omega_1tab(
+            n_ij_mat = rand_mat %>%
+              `dimnames<-`(dimnames(contin_table)),
+            grouped_omega_est = grouped_omega_est,
+            use_gamma_smoothing = use_gamma_smooth_omega
+          ) %>%
+            sapply("[[", "omega"),
+          error = function(e) e
+        )
+
+        while (is(this_omega_est, "error")) {
+          txt <- paste(
+            "optimization error in", ii,
+            "th null bootstrap omega estimation. Resampled another null table.",
+            "Many optimization failures may indicate problems with data"
+          )
+          warning(txt)
+          rand_mat <- gen_rand_table()
+
+          this_omega_est <- tryCatch(
+            .est_omega_1tab(
+              n_ij_mat = rand_mat %>%
+                `dimnames<-`(dimnames(contin_table)),
+              grouped_omega_est = grouped_omega_est,
+              use_gamma_smoothing = use_gamma_smooth_omega
+            ) %>%
+              sapply("[[", "omega"),
+            error = function(e) e
+          )
+        }
+
       }
 
 

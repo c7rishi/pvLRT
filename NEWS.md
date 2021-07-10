@@ -28,3 +28,11 @@ The first development version of the package
 * added function r_contin_table_zip() to  generate random contingency tables for adverse effect (across rows) and drug (across columns) combinations given row and column marginal totals, embedded signals, and possibly with zero inflation
 
 
+# version 0.0.2.1
+
+- add in the 10 missing rows (with names containing string 'total') in statin
+
+# version 0.0.2.1
+
+- add a secondary optim() call in gamma smoothed omega estimation funciton 
+

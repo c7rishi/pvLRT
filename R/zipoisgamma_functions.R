@@ -349,10 +349,10 @@ rzipoisgamma <- function(n = 1, nu = 1, sigma = 1, pi = 0, ...) {
 # n_ij ~ ZIP(lambda_ij * E_ij, omega), lambda_ij ~ Gamma(nu, sigma)
 # ------------------------------------------------------------------
 .estimate_zigammapois_mle_omega <- function(n_ij,
-                                      E_ij,
-                                      method = "BFGS",
-                                      omega_constrained_lambda = TRUE,
-                                      ...) {
+                                            E_ij,
+                                            method = "BFGS",
+                                            omega_constrained_lambda = TRUE,
+                                            ...) {
   expit <- function(x) {
     n <- length(x)
     idx_pos <- x >= 0
@@ -453,6 +453,22 @@ rzipoisgamma <- function(n = 1, nu = 1, sigma = 1, pi = 0, ...) {
     ),
     error = function(e) e
   )
+
+  # try Nelder-Mead if error
+  if (is(opt_null, "error")) {
+    opt_null <- tryCatch(
+      optim(
+        par = par_init[c("log_nu", "log_sigma")],
+        fn = function(par) {
+          neg_llik(c(logit_omega = -Inf, par))
+        },
+        method = "Nelder-Mead",
+        ...
+      ),
+      error = function(e) e
+    )
+  }
+  if (is(opt_null, "error")) stop(opt)
 
   llik_null <- -opt_null$value
   llik_comb <- -opt$value

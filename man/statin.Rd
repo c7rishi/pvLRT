@@ -5,7 +5,7 @@
 \alias{statin}
 \title{FDA Statin dataset with all observed 6039 adverse effects}
 \format{
-An object of class \code{matrix} (inherits from \code{array}) with 6029 rows and 7 columns.
+An object of class \code{matrix} (inherits from \code{array}) with 6039 rows and 7 columns.
 }
 \source{
 \url{https://fis.fda.gov/extensions/FPD-QDE-FAERS/FPD-QDE-FAERS.html}
