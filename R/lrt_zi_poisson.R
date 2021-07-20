@@ -12,50 +12,59 @@
   Eij_mat <- (tcrossprod(n_i_0_all, n_0_j_all)/n_0_0) %>%
     `dimnames<-`(dimnames(n_ij_mat))
 
+  Eijmat_safe <- pmax(Eij_mat, 1e-20)
+
+  hat_lambda_ij_mat <- pmax(n_ij_mat/Eijmat_safe, 1)
+
+
   # will be updated separately for each pair
   lambda_ij_test_indic <- matrix(0, I, J)
 
   # browser()
 
 
-
-
-  all_log_lrt <- mapply(
-    function(jstar, do_this_test) {
-      if (do_this_test) {
-        theta_est_vec_list <- list(
-          # corresponds to \hat lambda_ij = 1
-          null =  Eij_mat[, jstar],
-
-          # corresponds to \hat lambda_ij = max(1, n_ij/E_ij)
-          alt = pmax(n_ij_mat[, jstar], Eij_mat[, jstar])
-        )
+  all_log_lrt <- -(hat_lambda_ij_mat - 1) * Eij_mat +
+    n_ij_mat * log(hat_lambda_ij_mat)
 
 
 
-        log_den_vec_list <- lapply(
-          theta_est_vec_list,
-          function(theta_vec) {
-            dzipois(
-              x = n_ij_mat[, jstar],
-              lambda = theta_vec,
-              pi = omega_est_vec[jstar],
-              log = TRUE
-            )
-          }
-        )
-        res <- pmax(log_den_vec_list$alt - log_den_vec_list$null, 0)
-      } else {
-        res <- rep(0, I)
-      }
-      setNames(res, rownames(n_ij_mat))
-    },
-    1:J,
-    1:J %in% test_j_idx,
-    SIMPLIFY = FALSE
-  )  %>%
-    setNames(colnames(n_ij_mat)) %>%
-    do.call(cbind, .)
+
+  # all_log_lrt1 <- mapply(
+  #   function(jstar, do_this_test) {
+  #     if (do_this_test) {
+  #       theta_est_vec_list <- list(
+  #         # corresponds to \hat lambda_ij = 1
+  #         null =  Eij_mat[, jstar],
+  #
+  #         # corresponds to \hat lambda_ij = max(1, n_ij/E_ij)
+  #         alt = pmax(n_ij_mat[, jstar], Eij_mat[, jstar])
+  #       )
+  #
+  #
+  #
+  #       log_den_vec_list <- lapply(
+  #         theta_est_vec_list,
+  #         function(theta_vec) {
+  #           dzipois(
+  #             x = n_ij_mat[, jstar],
+  #             lambda = theta_vec,
+  #             pi = omega_est_vec[jstar],
+  #             log = TRUE
+  #           )
+  #         }
+  #       )
+  #       res <- pmax(log_den_vec_list$alt - log_den_vec_list$null, 0)
+  #     } else {
+  #       res <- rep(0, I)
+  #     }
+  #     setNames(res, rownames(n_ij_mat))
+  #   },
+  #   1:J,
+  #   1:J %in% test_j_idx,
+  #   SIMPLIFY = FALSE
+  # )  %>%
+  #   setNames(colnames(n_ij_mat)) %>%
+  #   do.call(cbind, .)
 
 
   all_res <- list(

@@ -491,6 +491,21 @@ rzipoisgamma <- function(n = 1, nu = 1, sigma = 1, pi = 0, ...) {
   out
 }
 
+expit <- function(x) {
+  n <- length(x)
+  idx_pos <- x >= 0
+  n_idx_pos <- sum(idx_pos)
+  out <- rep(NA, n)
+  if (n_idx_pos > 0) {
+    out[idx_pos] <- 1/(1 + exp(-x[idx_pos]))
+  }
+  if (n_idx_pos < n) {
+    tmp <- exp(x[!idx_pos])
+    out[!idx_pos] <- tmp/(1+tmp)
+  }
+  setNames(out, names(x))
+}
+
 
 .estimate_zipois_mle_omega <- function(n_ij,
                                        E_ij,
@@ -499,56 +514,33 @@ rzipoisgamma <- function(n = 1, nu = 1, sigma = 1, pi = 0, ...) {
                                        omega_constrained_lambda = TRUE,
                                        ...) {
 
-  expit <- function(x) {
-    n <- length(x)
-    idx_pos <- x >= 0
-    n_idx_pos <- sum(idx_pos)
-    out <- rep(NA, n)
-    if (n_idx_pos > 0) {
-      out[idx_pos] <- 1/(1 + exp(-x[idx_pos]))
-    }
-    if (n_idx_pos < n) {
-      tmp <- exp(x[!idx_pos])
-      out[!idx_pos] <- tmp/(1+tmp)
-    }
-    setNames(out, names(x))
-  }
-
-  # E_ij_adj <- pmax(E_ij, 1e-20)
-  # lambda_ij_hat <- pmax(n_ij/E_ij_adj, 1)
-
-  poisson_mean_hat <- if (omega_constrained_lambda) {
-    # corresponds to \hat lambda_ij = max(1, n_ij/E_ij)
-    pmax(n_ij, E_ij)
-  } else {
-    n_ij
-  }
-
-
-  # browser()
+  n_0_idx <- (n_ij == 0)
+  num_n_pos <- sum(!n_0_idx)
+  exp_neg_poisson_mean_n_0_idx <- exp(-c(E_ij[n_0_idx]))
 
   #  BFGS on the logit scale
+
+
+  # a reduced version using algebra
   neg_llik <- function(logit_omega) {
-    # nu <- exp(par["log_nu"])
-    # # nu <- exp(par["nu"])
-    # # beta <- par["beta1"]
-    #
-    # sigma <- exp(par["log_sigma"])
-    # # sigma <- par["sigma"]
-    # sigma_k <- sigma * c(E_ij_adj)
-
     omega <- expit(logit_omega)
-    # pi <- par["pi"]
-
-    tmp <- dzipois(
-      x = c(n_ij),
-      lambda = c(poisson_mean_hat),
-      pi = omega,
-      log = TRUE
-    )
-
-    -sum(tmp)
+    tmp <- log(omega + (1-omega) * exp_neg_poisson_mean_n_0_idx)
+    -(sum(tmp) + num_n_pos * log(1-omega))
   }
+
+  # poisson_mean_hat <- pmax(E_ij, n_ij)
+
+  # # more expensive -- uses the full density
+  # neg_llik <- function(logit_omega) {
+  #   omega <- expit(logit_omega)
+  #   tmp <- dzipois(
+  #     x = c(n_ij),
+  #     lambda = c(poisson_mean_hat),
+  #     pi = omega,
+  #     log = TRUE
+  #   )
+  #   -sum(tmp)
+  # }
 
   opt <-
     tryCatch(
@@ -561,7 +553,8 @@ rzipoisgamma <- function(n = 1, nu = 1, sigma = 1, pi = 0, ...) {
       error = function(e) e
     )
 
-  if (is(opt, "error")) browser()
+
+  if (is(opt, "error")) stop(opt)
 
   # if (!is(opt, "error")) {
   est_omega <- opt$par %>%
@@ -570,37 +563,6 @@ rzipoisgamma <- function(n = 1, nu = 1, sigma = 1, pi = 0, ...) {
   obj_val <- -opt$value
   obj_null <- -neg_llik(-Inf)
   opt_scale <- "logit_omega"
-
-  # } else {
-  # # try optimize() on omega scale
-  # neg_llik_1 <- function(omega) {
-  #   tmp <- dzipois(
-  #     x = c(n_ij),
-  #     lambda = c(poisson_mean_hat),
-  #     pi = omega,
-  #     log = TRUE
-  #   )
-  #
-  #   -sum(tmp)
-  # }
-  #
-  # opt <- tryCatch(
-  #   optimize(
-  #     f = neg_llik_1,
-  #     lower = 0,
-  #     upper = 1,
-  #     ...
-  #   ),
-  #   error = function(e) e
-  # )
-
-  # if (is(opt, "error"))
-  # stop(opt)
-  # est_omega <- opt$minimum
-  # obj_val <- -opt$value
-  # obj_null <- -neg_llik_1(0)
-  # opt_scale <- "omega"
-  # }
 
 
   lrstat <- obj_val - obj_null

@@ -1,20 +1,18 @@
-# version 0.0.0.9000
-The first development version of the package
+# version 0.0.2.3
+
+- use analytic expression for pseudo lrt statistic for lambda, and a  reduced  algebraic expression for llik of omega. Both speed up lrt_zi_poisson().
+
+
+# version 0.0.2.2
+
+- add a secondary optim() call in gamma smoothed omega estimation function
 
 
 
-# version 0.0.1
-* Changed internals of lrt_zi_poisson and lrt_vanilla_poisson:
-  - Instead of storing random null tables and LRT statistics through lapply, they are now computed inside a for loop, and p-value is updated on the fly.
-  
-* Removed pbapply from import; added progress
+# version 0.0.2.1
 
-# version 0.0.1.1
-* updated estimation of omega's in lrt_zi_poisson, to reflect grouping structure among drugs, if present, as provided through drug_class_idx.
+- add in the 10 missing rows (with names containing string 'total') in statin
 
-# version 0.1.1.2
-* added option 'grouped_est_omega' (logical argument) in lrt_zi_poisson to specify whehter or not do grouped estimation of omega in extended LRT
-* added a check in lrt_zi_poisson and lrt_vanilla_poisson to ensure that drug_class_idx has the same columns as the input contin_table
 
 # version 0.0.2.0
 * added options "test_omega", "pval_ineq_strict", "skip_null_omega_estimation", and "use_gamma_smooth_omega" to lrt_zi_poisson()
@@ -28,11 +26,25 @@ The first development version of the package
 * added function r_contin_table_zip() to  generate random contingency tables for adverse effect (across rows) and drug (across columns) combinations given row and column marginal totals, embedded signals, and possibly with zero inflation
 
 
-# version 0.0.2.1
 
-- add in the 10 missing rows (with names containing string 'total') in statin
+# version 0.1.1.2
+* added option 'grouped_est_omega' (logical argument) in lrt_zi_poisson to specify whehter or not do grouped estimation of omega in extended LRT
+* added a check in lrt_zi_poisson and lrt_vanilla_poisson to ensure that drug_class_idx has the same columns as the input contin_table
 
-# version 0.0.2.1
 
-- add a secondary optim() call in gamma smoothed omega estimation funciton 
+
+# version 0.0.1.1
+* updated estimation of omega's in lrt_zi_poisson, to reflect grouping structure among drugs, if present, as provided through drug_class_idx.
+
+
+# version 0.0.1
+* Changed internals of lrt_zi_poisson and lrt_vanilla_poisson:
+  - Instead of storing random null tables and LRT statistics through lapply, they are now computed inside a for loop, and p-value is updated on the fly.
+  
+* Removed pbapply from import; added progress
+
+
+# version 0.0.0.9000
+The first development version of the package
+
 
