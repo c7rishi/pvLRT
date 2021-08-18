@@ -1,4 +1,4 @@
-.lr_stat_1tab <- function(n_ij_mat,
+.lr_stat_pq_1tab <- function(n_ij_mat,
                           n_i_0_all = rowSums(n_ij_mat),
                           n_0_j_all = colSums(n_ij_mat),
                           n_0_0 = sum(n_i_0_all),
@@ -159,7 +159,7 @@ lrt_vanilla_poisson <- function(contin_table,
 
 
   cat("Calculating observed LR stat...\n")
-  lr_stat_obs <- .lr_stat_1tab(
+  lr_stat_obs <- .lr_stat_pq_1tab(
     contin_table,
     # n_i_0_all = n_i_0,
     # n_0_j_all = n_0_j.all,
@@ -224,7 +224,7 @@ lrt_vanilla_poisson <- function(contin_table,
   # cat("simulating null distribution of the lr stat..\n")
   # lr_stat_null <- pblapply(
   #   rand_contin_tab_list,
-  #   .lr_stat_1tab,
+  #   .lr_stat_pq_1tab,
   #   n_0_0 = n_0_0,
   #   test_j_idx = test_drug_idx
   # ) %>%
@@ -266,7 +266,7 @@ lrt_vanilla_poisson <- function(contin_table,
     rand_mat <- gen_rand_table()
     # browser()
     if (ii <= nsim) {
-      lr_stat_null <- .lr_stat_1tab(
+      lr_stat_null <- .lr_stat_pq_1tab(
         rand_mat,
         n_0_0 = n_0_0,
         test_j_idx = test_drug_idx

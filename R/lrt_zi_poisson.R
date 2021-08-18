@@ -3,7 +3,7 @@
                                          n_0_j_all = colSums(n_ij_mat),
                                          n_0_0 = sum(n_i_0_all),
                                          test_j_idx = 1:ncol(n_ij_mat),
-                                         omega_est_vec,
+                                         omega_vec,
                                          drug_class_idx = as.list(1:ncol(n_ij_mat)),
                                          grouped_omega_est = grouped_omega_est,
                                          ...) {
@@ -12,64 +12,27 @@
   Eij_mat <- (tcrossprod(n_i_0_all, n_0_j_all)/n_0_0) %>%
     `dimnames<-`(dimnames(n_ij_mat))
 
-  Eijmat_safe <- pmax(Eij_mat, 1e-20)
+  Eij_mat_safe <- pmax(Eij_mat, 1e-20)
 
-  hat_lambda_ij_mat <- pmax(n_ij_mat/Eijmat_safe, 1)
+  hat_lambda_ij_mat <- all_log_lrt <- matrix(NA, I, J) %>%
+    `dimnames<-`(dimnames(n_ij_mat))
 
-
-  # will be updated separately for each pair
-  lambda_ij_test_indic <- matrix(0, I, J)
-
-  # browser()
-
-
-  all_log_lrt <- -(hat_lambda_ij_mat - 1) * Eij_mat +
-    n_ij_mat * log(hat_lambda_ij_mat)
+  hat_lambda_ij_mat[, test_j_idx] <- pmax(
+    n_ij_mat[, test_j_idx]/Eij_mat_safe[, test_j_idx],
+    1
+  )
 
 
 
+  all_log_lrt[, test_j_idx] <-
+    -(hat_lambda_ij_mat[, test_j_idx] - 1) * Eij_mat[, test_j_idx] +
+    n_ij_mat[, test_j_idx] * log(hat_lambda_ij_mat[, test_j_idx])
 
-  # all_log_lrt1 <- mapply(
-  #   function(jstar, do_this_test) {
-  #     if (do_this_test) {
-  #       theta_est_vec_list <- list(
-  #         # corresponds to \hat lambda_ij = 1
-  #         null =  Eij_mat[, jstar],
-  #
-  #         # corresponds to \hat lambda_ij = max(1, n_ij/E_ij)
-  #         alt = pmax(n_ij_mat[, jstar], Eij_mat[, jstar])
-  #       )
-  #
-  #
-  #
-  #       log_den_vec_list <- lapply(
-  #         theta_est_vec_list,
-  #         function(theta_vec) {
-  #           dzipois(
-  #             x = n_ij_mat[, jstar],
-  #             lambda = theta_vec,
-  #             pi = omega_est_vec[jstar],
-  #             log = TRUE
-  #           )
-  #         }
-  #       )
-  #       res <- pmax(log_den_vec_list$alt - log_den_vec_list$null, 0)
-  #     } else {
-  #       res <- rep(0, I)
-  #     }
-  #     setNames(res, rownames(n_ij_mat))
-  #   },
-  #   1:J,
-  #   1:J %in% test_j_idx,
-  #   SIMPLIFY = FALSE
-  # )  %>%
-  #   setNames(colnames(n_ij_mat)) %>%
-  #   do.call(cbind, .)
 
 
   all_res <- list(
     log_lrt = all_log_lrt,
-    omega = omega_est_vec
+    omega = omega_vec
   )
 
   all_res
@@ -83,6 +46,7 @@
                             grouped_omega_est = grouped_omega_est,
                             use_gamma_smoothing = FALSE,
                             omega_constrained_lambda = TRUE,
+                            test_j_idx = 1:ncol(n_ij_mat),
                             ...){
   Eij_mat <- (tcrossprod(n_i_0_all, n_0_j_all)/n_0_0) %>%
     `dimnames<-`(dimnames(n_ij_mat))
@@ -96,13 +60,20 @@
   # fit unrestricted models separately on each column
   # to get consistent estimator of omega
 
-  drug_class_idx_final <- if (grouped_omega_est) {
+  drug_class_idx_adj <- if (grouped_omega_est) {
     drug_class_idx
   }  else {
     as.list(1:ncol(n_ij_mat))
   }
 
-  omega_est_vec_obj <- lapply(
+  drug_class_idx_final <- drug_class_idx_adj %>%
+    lapply(. %>% intersect(test_j_idx)) %>%
+    .[sapply(., length) > 0]
+
+
+  colnames_final <- colnames(n_ij_mat)[unlist(drug_class_idx_final)]
+
+  omega_vec_obj <- lapply(
     drug_class_idx_final,
     function(jstar_list) {
       est <- omega_est_fn(
@@ -118,11 +89,16 @@
       )
     }
   ) %>%
-    # unlist() %>%
-    setNames(colnames(n_ij_mat)[unlist(drug_class_idx_final)]) %>%
-    .[colnames(n_ij_mat)]
+    setNames(colnames_final)
 
-  omega_est_vec_obj
+  if (ncol(n_ij_mat) > length(unlist(drug_class_idx_final))) {
+    remain_cols <- unlist(drug_class_idx_final) %>%
+      setdiff(1:ncol(n_ij_mat), .) %>%
+      colnames(n_ij_mat)[.]
+    omega_vec_obj[remain_cols] <- lapply(remain_cols, function(x) list(omega = NA, lrstat = NA))
+  }
+
+  omega_vec_obj
 
 }
 
@@ -130,27 +106,33 @@
 #' Pseudo Likelihood Ratio Test for determining significant AE-Drug pairs under
 #' zero-inflated Poisson model
 #' @inheritParams lrt_vanilla_poisson
-#' @param omega_est_vec vector (for all drugs) of estimates of the zero-inflation.
+#' @param omega_vec vector (for all drugs) of estimates of the zero-inflation.
 #' If NULL, then is estimated from the data. See also the
-#' description of the argument \code{grouped_omega_est}. If \code{omega_est_vec = rep(0, ncol(contin_table))},
+#' description of the argument \code{grouped_omega_est}. If \code{omega_vec = rep(0, ncol(contin_table))},
 #' then test reduces to an ordinary (non-zero inflated) Poisson test.
 #' @param grouped_omega_est Logical. When performing a test with grouped drug classes (extended LRT),
 #' should the estimated zero-inflation parameter "omega" reflect
 #' the corresponding grouping? If TRUE, then the estimated omegas are obtained by combining
 #' columns from the same group, and if FALSE (default), then omegas are estimated separately for each drug (column)
-#' irrespective of the groups specified through  \code{drug_class_idx}. Ignored if \code{omega_est_vec} is
+#' irrespective of the groups specified through  \code{drug_class_idx}. Ignored if \code{omega_vec} is
 #' supplied/non-\code{NULL} (i.e., not estimated).
 #' @param test_omega logical. perform a bootstrap pseudo likelihood ratio test for omega? Ignored if
-#' \code{omega_est_vec} is supplied (is non-NULL). Defaults to FALSE.
+#' \code{omega_vec} is supplied (is non-NULL). Defaults to FALSE.
 #' @param pval_ineq_strict logical. Use a strict inequality in the definition of the p-values?  Defaults to FALSE.
-#' @param skip_null_omega_estimation logical. Should estimation of the (nuisance parameter) omega be skipped while simulating
-#' bootstrapped null distribution of the likelihood ratio statistic? Defaults to FALSE. If TRUE,
-#' then the same global (possibly estimated) omega is used in each null booststrap draw.
 #' @param use_gamma_smooth_omega logical. Use a gamma prior (smoothing) on the signals (lambdas) while estimating
 #' omega from data. Defaults to FALSE. NOTE: if TRUE, then the gamma prior produces a marginal negative binomial
 #' distribution for the counts, which is then optimized for estimating omega.
+#' @param test_drug_idx integer vector representing the columns (drug indices) of contin_table to be tested for signal.
+#' Defaults to all columns.
+#'
+#'
+#' @note \code{lrt_poisson} is a wrapper function on \code{lrt_zi_poisson} with \code{omega_vec = rep(0, ncol(contin_table))}
 #'
 #' @examples
+#'
+#' ## uncomment the following to show progress
+#' # progressr::handlers("progress")
+#'
 #'
 #' data("lovastatin")
 #' # no grouping -- each drug forms its own class
@@ -179,9 +161,7 @@
 #' # estimating omegas
 #' test3 <- lrt_zi_poisson(
 #'   lovastatin,
-#'   use_gamma_smooth_omega = TRUE,
-#'   skip_null_omega_estimation = TRUE
-#'   # set to TRUE for speed, should be set to FALSE in the final analysis
+#'   use_gamma_smooth_omega = TRUE
 #' )
 #' attr(test3, "omega")
 #' }
@@ -189,16 +169,35 @@
 #' @export
 lrt_zi_poisson <- function(contin_table,
                            nsim = 1e4,
-                           omega_est_vec = NULL,
+                           omega_vec = NULL,
                            drug_class_idx = as.list(1:ncol(contin_table)),
                            test_drug_idx = 1:ncol(contin_table),
                            grouped_omega_est = FALSE,
                            test_omega = FALSE,
                            pval_ineq_strict = FALSE,
-                           skip_null_omega_estimation = FALSE,
                            use_gamma_smooth_omega = FALSE,
                            ...)
 {
+
+
+  stopifnot(
+    is.list(drug_class_idx),
+    is.matrix(contin_table),
+    # length(dim(contin_table)) == 2,
+    # is.null(omega_vec), (!is.null(omega_vec) && is.numeric(omega_vec)),
+    # is.list(drug_class_idx),
+    is.logical(grouped_omega_est),
+    length(grouped_omega_est) == 1,
+    is.logical(test_omega),
+    length(test_omega) == 1,
+    is.logical(pval_ineq_strict),
+    length(pval_ineq_strict) == 1,
+    is.logical(use_gamma_smooth_omega),
+    length(use_gamma_smooth_omega) == 1
+  )
+
+
+
   I <- nrow(contin_table)
   J <- ncol(contin_table)
 
@@ -210,12 +209,27 @@ lrt_zi_poisson <- function(contin_table,
     `dimnames<-`(dimnames(contin_table))
 
 
-  stopifnot(
-    is.list(drug_class_idx)
-  )
-
 
   dots <- list(...)
+
+  # parallel_bootstrap <- dot$parallel_bootstrap %>%
+  #   ifelse(is.null(.), TRUE, .)
+  parallel_bootstrap <- FALSE
+
+  `%>or>=%` <- if (pval_ineq_strict) `>` else `>=`
+
+
+  if (!is.null(dots$omega_est_vec)) {
+    warning("The argument 'omega_est_vec' is deprecated. Use 'omega_vec' instead")
+    if (is.null(omega_vec)) {
+      omega_vec <- dots$omega_est_vec
+    }
+  }
+
+  if (!is.null(dots$skip_null_omega_estimation)) {
+    warning("The argument 'skip_null_omega_estimation' is deprecated and unused.")
+  }
+
   omega_constrained_lambda <- dots$omega_constrained_lambda
 
   if (is.null(omega_constrained_lambda)) {
@@ -231,6 +245,7 @@ lrt_zi_poisson <- function(contin_table,
     setdiff(1:ncol(contin_table)) %>%
     length() %>%
     {. == 0}
+
   if (!len_check_1) {
     stop("'drug_class_idx' contains more columns than 'contin_table'")
   }
@@ -245,36 +260,42 @@ lrt_zi_poisson <- function(contin_table,
   }
 
 
-  # browser()
+  do_omega_estimation <- is.null(omega_vec)
 
-  # skip_omega_step <- !is.null(omega_est_vec) | skip_null_omega_estimation
+  # skip_omega_step <- !is.null(omega_vec) | skip_null_omega_estimation
 
-  skip_omega_step <- skip_null_omega_estimation
+  # skip_omega_step <- skip_null_omega_estimation
 
-  if (!is.null(omega_est_vec)) {
-    skip_omega_step <- skip_null_omega_estimation <- TRUE
+  if (!is.null(omega_vec)) {
+    skip_omega_step <- TRUE
   }
 
 
   omega_lrstat_vec <- omega_pval_vec <-  NULL
 
 
-  if (is.null(omega_est_vec)) {
-    omega_est_vec_obj <- .est_omega_1tab(
+  if (do_omega_estimation) {
+
+    omega_vec_obj <- .est_omega_1tab(
       n_ij_mat = contin_table,
       grouped_omega_est = grouped_omega_est,
       use_gamma_smoothing = use_gamma_smooth_omega,
       omega_constrained_lambda = omega_constrained_lambda
     )
 
-    omega_est_vec <- sapply(omega_est_vec_obj, "[[", "omega")
-    omega_lrstat_vec <- sapply(omega_est_vec_obj, "[[", "lrstat")
+    omega_vec <- sapply(omega_vec_obj, "[[", "omega")
+    omega_lrstat_vec <- sapply(omega_vec_obj, "[[", "lrstat")
     this_grouped_omega_est <- grouped_omega_est
 
 
     if (test_omega) {
+      msg <- paste(
+        "\nBootstrapping null distribution of the",
+        "pseudo LRT statistic for omega",
+        "and calculating p-values..\n\n"
+      )
 
-      cat("\nBootstrapping null distribution of the pseudo LRT statistic for omega, and calculating p-values..\n")
+      cat(msg)
 
 
       # E_ij_adj <- pmax(Eij_mat, 1e-20)
@@ -307,7 +328,8 @@ lrt_zi_poisson <- function(contin_table,
           n_ij_mat = n_ij_table,
           grouped_omega_est = this_grouped_omega_est,
           use_gamma_smoothing = use_gamma_smooth_omega,
-          omega_constrained_lambda = omega_constrained_lambda
+          omega_constrained_lambda = omega_constrained_lambda,
+          test_j_idx = test_drug_idx
         )
         sapply(tmp, "[[", "lrstat")
       }
@@ -318,34 +340,48 @@ lrt_zi_poisson <- function(contin_table,
         setNames(colnames(contin_table))
 
 
-      pb <- progress::progress_bar$new(
-        format = " simulating [:bar] :percent eta: :eta",
-        total = nsim + 1,
-        clear = FALSE,
-        width = 60
-      )
+      if (!parallel_bootstrap) {
+        pb <- progress::progress_bar$new(
+          format = " simulating [:bar] :percent eta: :eta",
+          total = nsim + 1,
+          clear = FALSE,
+          width = 60
+        )
 
+        # pb <- progressr::progressor(steps = nsim + 1)
 
-      for (ii in 1:(nsim+1)) {
-        rand_mat <- gen_rand_table_for_omega()
+        for (ii in 1:(nsim+1)) {
+          if (ii <= nsim) {
+            lr_stat_omega_null <- gen_rand_table_for_omega() %>%
+              omega_lr_stat_function()
+          } else {
+            lr_stat_omega_null <- omega_lrstat_vec
+          }
 
-        if (ii <= nsim) {
-          lr_stat_omega_null <- omega_lr_stat_function(rand_mat)
-        } else {
-          lr_stat_omega_null <- omega_lrstat_vec
+          pval <- pval + 1 * (lr_stat_omega_null %>or>=% omega_lrstat_vec)
+          pb$tick()
+          # pb()
         }
+        pval <- pval/(nsim + 1)
 
-        pval <- if (pval_ineq_strict) {
-          pval + 1 * (lr_stat_omega_null > omega_lrstat_vec)
-        } else {
-          pval + 1 * (lr_stat_omega_null >= omega_lrstat_vec)
-        }
+      } else {
 
-        pb$tick()
+        pval <- furrr::future_map(
+          1:nsim,
+          function(ii) {
+            out <- gen_rand_table_for_omega() %>%
+              omega_lr_stat_function() %>%
+              {. %>or>=% omega_lrstat_vec}
+            pb()
+          },
+          # future.seed = TRUE
+          .options = furrr::furrr_options(seed = TRUE),
+          .progress = TRUE
+        ) %>%
+          c(list(omega_lrstat_vec %>or>=% omega_lrstat_vec)) %>%
+          Reduce("+", .) %>%
+          {./(nsim + 1)}
       }
-
-      pval <- pval/(nsim + 1)
-
       omega_pval_vec <- pval
     }
 
@@ -353,9 +389,13 @@ lrt_zi_poisson <- function(contin_table,
 
   }
 
+  msg <- paste(
+    "Calculating observed",
+    ifelse(do_omega_estimation, "pseudo LRT", "LRT"),
+    "statistic for global null against signals...\n"
+  )
 
-  cat("Calculating observed LR stat for global null for signal...\n")
-
+  cat(msg)
 
   lr_stat_func <- .lr_stat_pseudo_lik_1tab_zip
 
@@ -364,26 +404,26 @@ lrt_zi_poisson <- function(contin_table,
     n_0_0 = n_0_0,
     use_stan = use_stan,
     test_j_idx = test_drug_idx,
-    omega_est_vec = omega_est_vec,
+    omega_vec = omega_vec,
     drug_class_idx = drug_class_idx,
     grouped_omega_est = grouped_omega_est
   )
   lr_stat_obs <- lr_stat_obs_obj$log_lrt
-  # omega_est_vec <- lr_stat_obs_obj$omega %>%
-  #   setNames(colnames(contin_table))
-
 
 
 
   # generate random contingency tables
   # with fixed row and column sums from multinomial
-  cat("\nBootstrapping null distribution of the pseudo LRT statistics for signals & calculating p-values..")
-  txt <- ifelse(
-    skip_null_omega_estimation,
-    "\nglobal omega supplied in the null distribution of signals...\n",
-    "\nomega is estimated in the null distribution of signals...\n"
+  msg <- paste(
+    "\nBootstrapping null distribution of the",
+    ifelse(do_omega_estimation, "pseudo LRT", "LRT"),
+    "statistics for signals & calculating p-values..\n\n"
   )
-  cat(txt)
+  cat(msg)
+
+  drug_class_idx_adj <- drug_class_idx %>%
+    lapply(. %>% intersect(test_drug_idx)) %>%
+    .[sapply(., length) > 0]
 
   gen_rand_table <- function() {
     lapply(
@@ -394,113 +434,175 @@ lrt_zi_poisson <- function(contin_table,
         rzipois(
           n = nn,
           lambda = lambda,
-          pi = omega_est_vec[jstar]
+          pi = omega_vec[jstar]
         )
       }
     ) %>%
-      do.call(cbind, .) #%>%
-    # `dimnames<-`(dimnames(contin_table))
+      do.call(cbind, .)
   }
 
   calc_mlr <- function(xmat) {
     # n_row <- nrow(xmat)
+    col_maxs <- rep(NA, J)
+    col_maxs[test_drug_idx] <- xmat[, test_drug_idx, drop = FALSE] %>%
+      apply(2, max)
 
-    col_maxs <- apply(xmat, 2, max)
-    for (ii in 1:length(drug_class_idx)) {
-      drug_class <- drug_class_idx[[ii]]
-      col_maxs[drug_class] <- max(col_maxs[drug_class])
+    for (ii in 1:length(drug_class_idx_adj)) {
+      drug_class <- drug_class_idx_adj[[ii]]
+      if (length(drug_class) > 0) {
+        col_maxs[drug_class] <- max(col_maxs[drug_class])
+      }
     }
-    out <- tcrossprod(rep(1, I), col_maxs)
+
+    out <- matrix(NA, I, J)
+    for (jj in test_drug_idx) {
+      out[, jj] <- col_maxs[jj]
+    }
     out
   }
 
-  pb <- progress::progress_bar$new(
-    format = " simulating [:bar] :percent eta: :eta",
-    total = nsim + 1,
-    clear = FALSE,
-    width = 60
-  )
-
-  pval <- matrix(0, I, J) %>%
+  pval <- matrix(NA, I, J) %>%
     `dimnames<-`(dimnames(contin_table))
 
-  # browser()
 
-  for (ii in 1:(nsim+1)) {
-    rand_mat <- gen_rand_table()
+  if (!parallel_bootstrap) {
+    pb <- progress::progress_bar$new(
+      format = " simulating [:bar] :percent eta: :eta",
+      total = nsim + 1,
+      clear = FALSE,
+      width = 60
+    )
 
-    if (ii <= nsim) {
+    # pb <- progressr::progressor(steps = nsim + 1)
 
-      if (skip_null_omega_estimation) {
-        this_omega_est <- omega_est_vec
-      } else {
-        this_omega_est <- tryCatch(
-          .est_omega_1tab(
-            n_ij_mat = rand_mat %>%
-              `dimnames<-`(dimnames(contin_table)),
-            grouped_omega_est = grouped_omega_est,
-            use_gamma_smoothing = use_gamma_smooth_omega
-          ) %>%
-            sapply("[[", "omega"),
-          error = function(e) e
-        )
+    pval[, test_drug_idx] <- 0
 
-        while (is(this_omega_est, "error")) {
-          txt <- paste(
-            "optimization error in", ii,
-            "th null bootstrap omega estimation. Resampled another null table.",
-            "Many optimization failures may indicate problems with data"
-          )
-          warning(txt)
-          rand_mat <- gen_rand_table()
+    for (ii in 1:(nsim+1)) {
 
-          this_omega_est <- tryCatch(
-            .est_omega_1tab(
-              n_ij_mat = rand_mat %>%
-                `dimnames<-`(dimnames(contin_table)),
-              grouped_omega_est = grouped_omega_est,
-              use_gamma_smoothing = use_gamma_smooth_omega
-            ) %>%
-              sapply("[[", "omega"),
+      if (ii <= nsim) {
+        lr_stat_null <- `class<-`(NA, "error")
+        ntry <- 0
+
+        while (is(lr_stat_null, "error") & ntry < 100) {
+          lr_stat_null <- tryCatch(
+            gen_rand_table() %>%
+              lr_stat_func(
+                n_0_0 = n_0_0,
+                omega_vec = omega_vec,
+                test_j_idx = test_drug_idx,
+                drug_class_idx = drug_class_idx,
+                grouped_omega_est = grouped_omega_est
+              ) %>%
+              .[["log_lrt"]],
             error = function(e) e
           )
+          ntry <- ntry + 1
         }
 
+        if (ntry > 1) {
+
+          if (is(lr_stat_null, "error")) stop(lr_stat_null)
+
+          msg <- paste0(
+            "errors encountered while computing", ii,
+            "th null bootstrapped test statistic. Resampled another null table.",
+            " Several of such errors may indicate problems with the original data"
+          )
+          warning(msg)
+        }
+
+      } else {
+        lr_stat_null <- lr_stat_obs
       }
 
+      mlr_stat <- calc_mlr(lr_stat_null)
 
-      lr_stat_null <- lr_stat_func(
-        rand_mat,
-        n_0_0 = n_0_0,
-        omega_est_vec = this_omega_est,
-        test_j_idx = test_drug_idx,
-        drug_class_idx = drug_class_idx,
-        grouped_omega_est = grouped_omega_est
-      )[["log_lrt"]]
-    } else {
-      lr_stat_null <- lr_stat_obs
+      pval[, test_drug_idx] <- pval[, test_drug_idx] +
+        1L * (mlr_stat[, test_drug_idx] %>or>=% lr_stat_obs[, test_drug_idx])
+
+      # pb()
+      pb$tick()
     }
 
-    mlr_stat <- calc_mlr(lr_stat_null)
-    pval <- if (pval_ineq_strict) {
-      pval + 1 * (mlr_stat > lr_stat_obs)
-    } else {
-      pval + 1 * (mlr_stat >= lr_stat_obs)
-    }
-    pb$tick()
+    pval[, test_drug_idx] <- pval[, test_drug_idx]/(nsim + 1)
+
+  } else {
+
+    pval[, test_drug_idx] <- furrr::future_map(
+      1:nsim,
+      function(ii) {
+        out <- gen_rand_table() %>%
+          lr_stat_func(
+            n_0_0 = n_0_0,
+            omega_vec = omega_vec,
+            test_j_idx = test_drug_idx,
+            drug_class_idx = drug_class_idx,
+            grouped_omega_est = grouped_omega_est
+          ) %>%
+          .[["log_lrt"]] %>%
+          calc_mlr() %>%
+          {1L * (.[, test_drug_idx] %>or>=% lr_stat_obs[, test_drug_idx])}
+
+        pb()
+
+        out
+      },
+      # future.seed = TRUE
+      .options = furrr::furrr_options(seed = TRUE),
+      .progress = TRUE
+    ) %>%
+      c(
+        list(
+          lr_stat_obs %>%
+            calc_mlr() %>%
+            {1L * (.[, test_drug_idx] %>or>=% lr_stat_obs[, test_drug_idx])}
+        )
+      ) %>%
+      Reduce("+", .) %>%
+      {./(nsim + 1)}
   }
-
-  pval <- pval/(nsim + 1)
 
   lr_stat_pvalue <- pval
 
 
   attr(lr_stat_pvalue, "lrstat") <- lr_stat_obs
-  attr(lr_stat_pvalue, "omega") <- omega_est_vec
+  attr(lr_stat_pvalue, "omega") <- omega_vec
   attr(lr_stat_pvalue, "omega_lrstat") <- omega_lrstat_vec
   attr(lr_stat_pvalue, "omega_pvalue") <- omega_pval_vec
+  attr(lr_stat_pvalue, "do_omega_estimation") <- do_omega_estimation
+  attr(lr_stat_pvalue, "parametrization") <- "rrr"
+  attr(lr_stat_pvalue, "test_drug_idx") <- test_drug_idx
 
+  class(lr_stat_pvalue) <- c("pvlrt", "matrix")
 
   lr_stat_pvalue
+}
+
+
+
+#' @rdname lrt_zi_poisson
+#'
+#' @export
+lrt_poisson <- function(contin_table,
+                        nsim = 1e4, ...)
+{
+
+  dots <- list(...)
+  if (!is.null(dots$omega_vec) | !is.null(dots$omega_est_vec)) {
+    msg <- paste(
+      "omega_vec' is automatically set to 0 in lrt_poisson().",
+      "For non-zero omegas use lrt_zi_poisson(), and supply as 'omega_vec'"
+    )
+    dots$omega_vec <- dots$omega_est_vec <- NULL
+  }
+
+  inargs <- list(
+    contin_table = contin_table,
+    nsim = nsim,
+    omega_vec = rep(0, ncol(contin_table))
+  ) %>%
+    c(dots)
+
+  do.call(lrt_zi_poisson, inargs)
 }
 

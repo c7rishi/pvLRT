@@ -2,22 +2,24 @@
 % Please edit documentation in R/lrt_zi_poisson.R
 \name{lrt_zi_poisson}
 \alias{lrt_zi_poisson}
+\alias{lrt_poisson}
 \title{Pseudo Likelihood Ratio Test for determining significant AE-Drug pairs under
 zero-inflated Poisson model}
 \usage{
 lrt_zi_poisson(
   contin_table,
   nsim = 10000,
-  omega_est_vec = NULL,
+  omega_vec = NULL,
   drug_class_idx = as.list(1:ncol(contin_table)),
   test_drug_idx = 1:ncol(contin_table),
   grouped_omega_est = FALSE,
   test_omega = FALSE,
   pval_ineq_strict = FALSE,
-  skip_null_omega_estimation = FALSE,
   use_gamma_smooth_omega = FALSE,
   ...
 )
+
+lrt_poisson(contin_table, nsim = 10000, ...)
 }
 \arguments{
 \item{contin_table}{IxJ contingency table showing pairwise counts of adverse effects
@@ -25,30 +27,29 @@ for I AE and J Drugs}
 
 \item{nsim}{Number of simulated null contingency table to use for computing the p-value of the test}
 
-\item{omega_est_vec}{vector (for all drugs) of estimates of the zero-inflation.
+\item{omega_vec}{vector (for all drugs) of estimates of the zero-inflation.
 If NULL, then is estimated from the data. See also the
-description of the argument \code{grouped_omega_est}. If \code{omega_est_vec = rep(0, ncol(contin_table))},
+description of the argument \code{grouped_omega_est}. If \code{omega_vec = rep(0, ncol(contin_table))},
 then test reduces to an ordinary (non-zero inflated) Poisson test.}
 
 \item{drug_class_idx}{a list, with the h-th entry providing the h-th group/class of drugs.
 By default, each drug forms its own class. If more than one drug is present in a class, an
 extended LRT is performed. See examples.}
 
+\item{test_drug_idx}{integer vector representing the columns (drug indices) of contin_table to be tested for signal.
+Defaults to all columns.}
+
 \item{grouped_omega_est}{Logical. When performing a test with grouped drug classes (extended LRT),
 should the estimated zero-inflation parameter "omega" reflect
 the corresponding grouping? If TRUE, then the estimated omegas are obtained by combining
 columns from the same group, and if FALSE (default), then omegas are estimated separately for each drug (column)
-irrespective of the groups specified through  \code{drug_class_idx}. Ignored if \code{omega_est_vec} is
+irrespective of the groups specified through  \code{drug_class_idx}. Ignored if \code{omega_vec} is
 supplied/non-\code{NULL} (i.e., not estimated).}
 
 \item{test_omega}{logical. perform a bootstrap pseudo likelihood ratio test for omega? Ignored if
-\code{omega_est_vec} is supplied (is non-NULL). Defaults to FALSE.}
+\code{omega_vec} is supplied (is non-NULL). Defaults to FALSE.}
 
 \item{pval_ineq_strict}{logical. Use a strict inequality in the definition of the p-values?  Defaults to FALSE.}
-
-\item{skip_null_omega_estimation}{logical. Should estimation of the (nuisance parameter) omega be skipped while simulating
-bootstrapped null distribution of the likelihood ratio statistic? Defaults to FALSE. If TRUE,
-then the same global (possibly estimated) omega is used in each null booststrap draw.}
 
 \item{use_gamma_smooth_omega}{logical. Use a gamma prior (smoothing) on the signals (lambdas) while estimating
 omega from data. Defaults to FALSE. NOTE: if TRUE, then the gamma prior produces a marginal negative binomial
@@ -60,7 +61,14 @@ distribution for the counts, which is then optimized for estimating omega.}
 Pseudo Likelihood Ratio Test for determining significant AE-Drug pairs under
 zero-inflated Poisson model
 }
+\note{
+\code{lrt_poisson} is a wrapper function on \code{lrt_zi_poisson} with \code{omega_vec = rep(0, ncol(contin_table))}
+}
 \examples{
+
+## uncomment the following to show progress
+# progressr::handlers("progress")
+
 
 data("lovastatin")
 # no grouping -- each drug forms its own class
@@ -89,9 +97,7 @@ attr(test3, "omega_pvalue")
 # estimating omegas
 test3 <- lrt_zi_poisson(
   lovastatin,
-  use_gamma_smooth_omega = TRUE,
-  skip_null_omega_estimation = TRUE
-  # set to TRUE for speed, should be set to FALSE in the final analysis
+  use_gamma_smooth_omega = TRUE
 )
 attr(test3, "omega")
 }

@@ -1,6 +1,28 @@
+# version 0.1.1
+
+* Changes in lrt_zi_poisson():
+ - safer null statistics evaluation via tryCatch()
+ - better print and summary methods for pvlrt objects 
+ - functions for extracting pvalues, lrstat, zi probabilities from pvlrt object. (Documentation needs to be added.) 
+
+# version 0.1.0
+
+* Changes in lrt_zi_poisson():
+
+  - removes the argument skip_null_omega_estimation. Null omega estimation is not performed as it is not necessary.
+
+
 # version 0.0.2.3
 
-- use analytic expression for pseudo lrt statistic for lambda, and a  reduced  algebraic expression for llik of omega. Both speed up lrt_zi_poisson().
+* Changes in lrt_zi_poisson():
+
+  - used analytic expression for pseudo lrt statistic for lambda, and a reduced algebraic expression for llik of omega. Both speed up computations.
+
+  - Replaced omega_est_vec by omega_vec. omega_est_vec is now deprecated: will throw a warning if used instead of omega_vec.
+
+  - Added the argument test_drug_idx to specify which columns to test.
+
+
 
 
 # version 0.0.2.2
