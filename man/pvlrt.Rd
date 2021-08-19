@@ -13,8 +13,8 @@ pvlrt(
   drug_class_idx = as.list(1:ncol(contin_table)),
   test_drug_idx = 1:ncol(contin_table),
   grouped_omega_est = FALSE,
-  test_zi = FALSE,
-  test_omega = test_zi,
+  test_zi = NULL,
+  test_omega = NULL,
   pval_ineq_strict = FALSE,
   parametrization = "rrr",
   ...
@@ -47,9 +47,10 @@ columns from the same group, and if FALSE (default), then omegas are estimated s
 irrespective of the groups specified through  \code{drug_class_idx}. Ignored if \code{omega_vec} is
 supplied/non-\code{NULL} (i.e., not estimated).}
 
-\item{test_zi, test_omega}{logical indicators to specifiy whether to perform a bootstrap pseudo likelihood ratio test for omega? Ignored if
-\code{omega_vec} is supplied (is non-NULL). Defaults to FALSE. NOTE: \code{test_omega} and
-\code{test_zi} are aliases.}
+\item{test_zi, test_omega}{logical indicators specifying whether to perform a
+pseudo likelihood ratio test for zero inflation. Defaults to FALSE. Ignored
+if \code{omega_vec} is supplied (is non-NULL). Defaults to FALSE.
+NOTE: \code{test_omega} and \code{test_zi} are aliases.}
 
 \item{pval_ineq_strict}{logical. Use a strict inequality in the definition of the p-values?  Defaults to FALSE.}
 

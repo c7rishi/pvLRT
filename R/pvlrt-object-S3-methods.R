@@ -49,7 +49,7 @@ summary.pvlrt <- function(object, ...) {
 
 
 #' @export
-print.pvlrt <- function(object, significance_level = 0.05, topn = 12, digits = 4, ...) {
+print.pvlrt <- function(object, significance_level = 0.05, topn = 12, digits = 2, ...) {
   if (!is.pvlrt(object)) {
     stop("object must be a 'pvlrt' object.")
   }
@@ -74,27 +74,38 @@ print.pvlrt <- function(object, significance_level = 0.05, topn = 12, digits = 4
       paste(collapse = ", ")
 
     zi_text <- glue::glue(
-      "Drug-specific {zi_est_type} zi probabilities: {zi_values}"
+      "Drug-specific {zi_est_type} zi probabilities:
+      {zi_values}"
     )
   }
 
   is_zi_test <- all_attr$test_omega
   if (is_zi_test) {
+    zi_lr_stat <- all_attr$omega_lrstat %>%
+      round(digits) %>%
+      format(nsmall = digits) %>%
+      paste0("LRstat=", ., ", ")
+
     zi_q_values <- all_attr$omega_qval %>%
-      {ifelse(
-        . >= 0.9,
-        ">0.9",
-        format.pval(., digits = 3, eps = 0.001)
-      )} %>%
+      {
+        ifelse(
+          . >= 0.90,
+          ">0.90",
+          paste0("=", format.pval(., digits = digits, eps = 1/(10^(digits+1))))
+        )
+      } %>%
       paste0(
-      " (", all_attr$dimnames[[2]], ")"
-    ) %>%
+        " (", all_attr$dimnames[[2]], ")"
+      ) %>%
+      paste0("q", .)
+
+    zi_test_text <- paste0(zi_lr_stat, zi_q_values) %>%
       paste(collapse = ", ")
 
     zi_text <- glue::glue(
       "{zi_text} \n
-      q-values from pseudo LR test of significance of zi probabilities:
-      {zi_q_values}"
+      Pseudo LR test of significance for zi probabilities:
+      {zi_test_text}"
     )
   }
 
@@ -128,7 +139,7 @@ print.pvlrt <- function(object, significance_level = 0.05, topn = 12, digits = 4
       "Total {n_signif_pair} AE-drug \\
       {ifelse(n_signif_pair > 1, 'pairs are', 'pair is')} significant \\
       at level = {significance_level}.
-      p-values for {ifelse(topn == n_signif_pair, '',  'top')} {topn} \\
+      (FDR controlled) p-values for {ifelse(topn == n_signif_pair, '',  'top')} {topn} \\
       significant pairs:
       {res_signif_pairs}"
     )

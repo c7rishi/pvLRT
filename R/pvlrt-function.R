@@ -18,9 +18,10 @@
 #' columns from the same group, and if FALSE (default), then omegas are estimated separately for each drug (column)
 #' irrespective of the groups specified through  \code{drug_class_idx}. Ignored if \code{omega_vec} is
 #' supplied/non-\code{NULL} (i.e., not estimated).
-#' @param test_zi,test_omega logical indicators to specifiy whether to perform a bootstrap pseudo likelihood ratio test for omega? Ignored if
-#' \code{omega_vec} is supplied (is non-NULL). Defaults to FALSE. NOTE: \code{test_omega} and
-#' \code{test_zi} are aliases.
+#' @param test_zi,test_omega logical indicators specifying whether to perform a
+#' pseudo likelihood ratio test for zero inflation. Defaults to FALSE. Ignored
+#' if \code{omega_vec} is supplied (is non-NULL). Defaults to FALSE.
+#' NOTE: \code{test_omega} and \code{test_zi} are aliases.
 #' @param pval_ineq_strict logical. Use a strict inequality in the definition of the p-values?  Defaults to FALSE.
 #' @param use_gamma_smooth_omega logical. Use a gamma prior (smoothing) on the signals (lambdas) while estimating
 #' omega from data. Defaults to FALSE. NOTE: if TRUE, then the gamma prior produces a marginal negative binomial
@@ -75,25 +76,26 @@ pvlrt <- function(contin_table,
                   drug_class_idx = as.list(1:ncol(contin_table)),
                   test_drug_idx = 1:ncol(contin_table),
                   grouped_omega_est = FALSE,
-                  test_zi = FALSE,
-                  test_omega = test_zi,
+                  test_zi = NULL,
+                  test_omega = NULL,
                   pval_ineq_strict = FALSE,
                   parametrization = "rrr",
                   ...) {
+
   stopifnot(
     is.list(drug_class_idx),
     is.matrix(contin_table),
     is.logical(grouped_omega_est),
     length(grouped_omega_est) == 1,
-    is.logical(test_zi),
-    length(test_zi) == 1,
-    is.logical(test_omega),
-    length(test_omega) == 1,
     is.logical(pval_ineq_strict),
     length(pval_ineq_strict) == 1,
     parametrization %in% c("rrr", "lambda", "rr", "p-q"),
     length(parametrization) == 1
   )
+
+
+  dots <- list(...)
+  all_inputs <- c(as.list(environment()), dots)
 
   I <- nrow(contin_table)
   J <- ncol(contin_table)
@@ -106,8 +108,6 @@ pvlrt <- function(contin_table,
     set_dimnames(dimnames(contin_table))
 
 
-
-  dots <- list(...)
 
   # parallel_bootstrap <- dot$parallel_bootstrap %>%
   #   ifelse(is.null(.), TRUE, .)
@@ -151,8 +151,9 @@ pvlrt <- function(contin_table,
     }
   }
 
-
-  if (is.null(test_zi) && !is.null(test_omega)) {
+  if (is.null(test_zi) && is.null(test_omega)) {
+    test_zi <- test_omega <- FALSE
+  } else if (is.null(test_zi) && !is.null(test_omega)) {
     test_zi <- test_omega
   } else if (!is.null(test_zi) && is.null(test_omega)) {
     test_omega <- test_zi
@@ -161,6 +162,13 @@ pvlrt <- function(contin_table,
       stop("'test_zi' and 'test_omega' both supplied and they differ")
     }
   }
+
+  stopifnot(
+    is.logical(test_zi),
+    length(test_zi) == 1,
+    is.logical(test_omega),
+    length(test_omega) == 1
+  )
 
 
   omega_constrained_lambda <- dots$omega_constrained_lambda
@@ -208,18 +216,24 @@ pvlrt <- function(contin_table,
   if (parametrization %in% c("rrr", "lambda")) {
     lr_stat_func <- .lr_stat_pseudo_lik_1tab_zip_rrr
   } else {
-    chk <- is.null(omega_vec)
-    if (!chk) {
-      msg <- glue::glue(
-        "omega_vec (zi_prob) is ignored if \\
-        parameterization %in% c('rr', 'p-q')"
-      )
-      warning(msg)
+    unused_args <- c(
+      "omega_vec", "omega_est_vec", "zi_prob",
+      "test_omega", "test_zi"
+    )
+
+    for (nm in unused_args) {
+      chk <- is.null(all_inputs[[nm]])
+      if (!chk) {
+        msg <- glue::glue(
+          "{nm} is ignored if \\
+          parameterization %in% c('rr', 'p-q')"
+        )
+        warning(msg)
+      }
     }
     lr_stat_func <- .lr_stat_pq_1tab
     omega_vec <- rep(0, J) %>% setNames(colnames(contin_table))
   }
-
 
   omega_lrstat_vec <- omega_pval_vec <- NULL
 
