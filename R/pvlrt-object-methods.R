@@ -4,6 +4,10 @@ is.pvlrt <- function(obj,...) {
 
 `:=` <- data.table::`:=`
 
+set_attr <- `attr<-`
+
+set_dimnames <- `dimnames<-`
+
 #' @export
 summary.pvlrt <- function(object, ...) {
   if (!is.pvlrt(object)) {
@@ -43,7 +47,7 @@ summary.pvlrt <- function(object, ...) {
       .
     ) %>%
     data.table::setDT() %>%
-    data.table::setorder(p.value)
+    data.table::setorder(-lrstat)
 
   tab_lrstat_pval
 }
@@ -63,6 +67,7 @@ print.pvlrt <- function(object, significance_level = 0.05, topn = 12, digits = 4
     "Relative reporting rate (lambda)",
     "Reporting rate (p-q)"
   )
+
   if (!do_omega_estimation & all(omega == 0)) {
     zi_text <- "No zi considered in the model."
   } else {
@@ -74,7 +79,27 @@ print.pvlrt <- function(object, significance_level = 0.05, topn = 12, digits = 4
       paste(collapse = ", ")
 
     zi_text <- glue::glue(
-      "Drug-specific {zi_est_type} zi probabilities: {zi_values}."
+      "Drug-specific {zi_est_type} zi probabilities: {zi_values}"
+    )
+  }
+
+  is_zi_test <- all_attr$test_omega
+  if (is_zi_test) {
+    zi_q_values <- all_attr$omega_qval %>%
+      {ifelse(
+        . >= 0.9,
+        ">0.9",
+        format.pval(., digits = 3, eps = 0.001)
+      )} %>%
+      paste0(
+      " (", all_attr$dimnames[[2]], ")"
+    ) %>%
+      paste(collapse = ", ")
+
+    zi_text <- glue::glue(
+      "{zi_text} \n
+      q-values from pseudo LR test of significance of zi probabilities:
+      {zi_q_values}"
     )
   }
 
@@ -94,7 +119,7 @@ print.pvlrt <- function(object, significance_level = 0.05, topn = 12, digits = 4
   if (topn > 1) {
     top_signif_pairs <- signif_pairs %>%
       .[1:topn, ] %>%
-      .[, c("AE", "Drug", "p.value"), with = FALSE]
+      .[, c("AE", "Drug", "lrstat", "p.value"), with = FALSE]
 
     top_signif_pairs$p.value <- top_signif_pairs$p.value %>%
       format.pval(digits = 3, eps = 1e-5)
@@ -105,10 +130,11 @@ print.pvlrt <- function(object, significance_level = 0.05, topn = 12, digits = 4
       paste(collapse = "\n")
 
     signif_pairs_txt <- glue::glue(
-      "Total {n_signif_pair} \\
-      {ifelse(n_signif_pair > 1, 'pairs are', 'pair is')} significant\\
+      "Total {n_signif_pair} AE-drug \\
+      {ifelse(n_signif_pair > 1, 'pairs are', 'pair is')} significant \\
       at level = {significance_level}.
-      p-values for {ifelse(topn == n_signif_pair, '',  'top')} significant pairs:
+      p-values for {ifelse(topn == n_signif_pair, '',  'top')} {topn} \\
+      significant pairs:
       {res_signif_pairs}"
     )
   } else {
@@ -130,14 +156,14 @@ print.pvlrt <- function(object, significance_level = 0.05, topn = 12, digits = 4
   msg <- glue::glue(
     "{parametrization}-based {lrt_type}-LRT on \\
     {I} AE & {J} drugs input table \\
-    (testing performed on {n_drug_test_idx} \\
+    Hypotheses tests done on {n_drug_test_idx} \\
     {ifelse(n_drug_test_idx > 1, 'drugs', 'drug')}).
 
     {zi_text}
 
     {signif_pairs_txt}
 
-    Extract all LR statistics and p.values using `summary()`
+    Extract all LR statistics and p-values using `summary()`
     "
   )
   cat(msg)

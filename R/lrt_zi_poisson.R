@@ -1,108 +1,3 @@
-.lr_stat_pseudo_lik_1tab_zip <- function(n_ij_mat,
-                                         n_i_0_all = rowSums(n_ij_mat),
-                                         n_0_j_all = colSums(n_ij_mat),
-                                         n_0_0 = sum(n_i_0_all),
-                                         test_j_idx = 1:ncol(n_ij_mat),
-                                         omega_vec,
-                                         drug_class_idx = as.list(1:ncol(n_ij_mat)),
-                                         grouped_omega_est = grouped_omega_est,
-                                         ...) {
-  I <- nrow(n_ij_mat)
-  J <- ncol(n_ij_mat)
-  Eij_mat <- (tcrossprod(n_i_0_all, n_0_j_all)/n_0_0) %>%
-    `dimnames<-`(dimnames(n_ij_mat))
-
-  Eij_mat_safe <- pmax(Eij_mat, 1e-20)
-
-  hat_lambda_ij_mat <- all_log_lrt <- matrix(NA, I, J) %>%
-    `dimnames<-`(dimnames(n_ij_mat))
-
-  hat_lambda_ij_mat[, test_j_idx] <- pmax(
-    n_ij_mat[, test_j_idx]/Eij_mat_safe[, test_j_idx],
-    1
-  )
-
-
-
-  all_log_lrt[, test_j_idx] <-
-    -(hat_lambda_ij_mat[, test_j_idx] - 1) * Eij_mat[, test_j_idx] +
-    n_ij_mat[, test_j_idx] * log(hat_lambda_ij_mat[, test_j_idx])
-
-
-
-  all_res <- list(
-    log_lrt = all_log_lrt,
-    omega = omega_vec
-  )
-
-  all_res
-}
-
-.est_omega_1tab <- function(n_ij_mat,
-                            # E_ij_mat,
-                            n_i_0_all = rowSums(n_ij_mat),
-                            n_0_j_all = colSums(n_ij_mat),
-                            n_0_0 = sum(n_i_0_all),
-                            grouped_omega_est = grouped_omega_est,
-                            use_gamma_smoothing = FALSE,
-                            omega_constrained_lambda = TRUE,
-                            test_j_idx = 1:ncol(n_ij_mat),
-                            ...){
-  Eij_mat <- (tcrossprod(n_i_0_all, n_0_j_all)/n_0_0) %>%
-    `dimnames<-`(dimnames(n_ij_mat))
-
-  omega_est_fn <- if (use_gamma_smoothing) {
-    .estimate_zigammapois_mle_omega
-  } else {
-    .estimate_zipois_mle_omega
-  }
-
-  # fit unrestricted models separately on each column
-  # to get consistent estimator of omega
-
-  drug_class_idx_adj <- if (grouped_omega_est) {
-    drug_class_idx
-  }  else {
-    as.list(1:ncol(n_ij_mat))
-  }
-
-  drug_class_idx_final <- drug_class_idx_adj %>%
-    lapply(. %>% intersect(test_j_idx)) %>%
-    .[sapply(., length) > 0]
-
-
-  colnames_final <- colnames(n_ij_mat)[unlist(drug_class_idx_final)]
-
-  omega_vec_obj <- lapply(
-    drug_class_idx_final,
-    function(jstar_list) {
-      est <- omega_est_fn(
-        n_ij_mat[, jstar_list, drop = FALSE],
-        Eij_mat[, jstar_list, drop = FALSE],
-        omega_constrained_lambda = omega_constrained_lambda
-      )
-      nn <- length(jstar_list)
-
-      list(
-        omega = rep(est$omega, nn),
-        lrstat = rep(est$lrstat, nn)
-      )
-    }
-  ) %>%
-    setNames(colnames_final)
-
-  if (ncol(n_ij_mat) > length(unlist(drug_class_idx_final))) {
-    remain_cols <- unlist(drug_class_idx_final) %>%
-      setdiff(1:ncol(n_ij_mat), .) %>%
-      colnames(n_ij_mat)[.]
-    omega_vec_obj[remain_cols] <- lapply(remain_cols, function(x) list(omega = NA, lrstat = NA))
-  }
-
-  omega_vec_obj
-
-}
-
-
 #' Pseudo Likelihood Ratio Test for determining significant AE-Drug pairs under
 #' zero-inflated Poisson model
 #' @inheritParams lrt_vanilla_poisson
@@ -276,7 +171,7 @@ lrt_zi_poisson <- function(contin_table,
 
   if (do_omega_estimation) {
 
-    omega_vec_obj <- .est_omega_1tab(
+    omega_vec_obj <- .est_zi_1tab_rrr(
       n_ij_mat = contin_table,
       grouped_omega_est = grouped_omega_est,
       use_gamma_smoothing = use_gamma_smooth_omega,
@@ -324,7 +219,7 @@ lrt_zi_poisson <- function(contin_table,
       }
 
       omega_lr_stat_function <- function(n_ij_table) {
-        tmp <- .est_omega_1tab(
+        tmp <- .est_zi_1tab_rrr(
           n_ij_mat = n_ij_table,
           grouped_omega_est = this_grouped_omega_est,
           use_gamma_smoothing = use_gamma_smooth_omega,
@@ -397,7 +292,7 @@ lrt_zi_poisson <- function(contin_table,
 
   cat(msg)
 
-  lr_stat_func <- .lr_stat_pseudo_lik_1tab_zip
+  lr_stat_func <- .lr_stat_pseudo_lik_1tab_zip_rrr
 
   lr_stat_obs_obj <- lr_stat_func(
     contin_table,

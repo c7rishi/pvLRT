@@ -1,4 +1,4 @@
-#' @import stats
+#' @import stats methods graphics
 
 NULL
 

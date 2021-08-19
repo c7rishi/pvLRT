@@ -229,21 +229,6 @@ rzipoisgamma <- function(n = 1, nu = 1, sigma = 1, pi = 0, ...) {
 
 # MLE of parameters in n_ij ~ ZIP(lambda_ij * E_ij, omega)
 .estimate_zip_mle <- function(n_ij, E_ij, ...) {
-  expit <- function(x) {
-    n <- length(x)
-    idx_pos <- x >= 0
-    n_idx_pos <- sum(idx_pos)
-    out <- rep(NA, n)
-    if (n_idx_pos > 0) {
-      out[idx_pos] <- 1/(1 + exp(-x[idx_pos]))
-    }
-    if (n_idx_pos < n) {
-      tmp <- exp(x[!idx_pos])
-      out[!idx_pos] <- tmp/(1+tmp)
-    }
-    setNames(out, names(x))
-  }
-
   neg_llik <- function(par) {
     omega <- expit(par["logit_omega"])
     lambda_ij <- exp(par[names(par) != "logit_omega"])
@@ -327,7 +312,7 @@ rzipoisgamma <- function(n = 1, nu = 1, sigma = 1, pi = 0, ...) {
     unname()
   est_lambda <- opt$par %>%
     .[names(.) != "logit_omega"] %>%
-    exp() %>%
+    exp(.) %>%
     unname() %>%
     matrix(nrow(n_ij), ncol(n_ij)) %>%
     `dimnames<-`(dimnames(n_ij))
