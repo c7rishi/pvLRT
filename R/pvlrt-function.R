@@ -1,18 +1,26 @@
 #' Pseudo Likelihood Ratio Test for determining significant AE-Drug pairs under
 #' zero-inflated Poisson model
-#' @inheritParams lrt_vanilla_poisson
-#' @param zi_prob,omega_vec alias vector (for all drugs) of estimates of the zero-inflation.
+#' @param contin_table IxJ contingency table showing pairwise counts of adverse
+#' effects for I AE and J Drugs
+#' @param nsim Number of simulated null contingency table to use for computing
+#' the p-value of the test
+#' @param drug_class_idx a list, with the h-th entry providing the h-th group/class
+#' of drugs. By default, each drug forms its own class. If more than one drug is
+#' present in a class, an extended LRT is performed. See examples.
+#' @param zi_prob,omega_vec vector (for all drugs) of estimates of the zero-inflation.
 #' If NULL, then is estimated from the data. See also the
 #' description of the argument \code{grouped_omega_est}. If \code{omega_vec = rep(0, ncol(contin_table))},
-#' then test reduces to an ordinary (non-zero inflated) Poisson test.
+#' then test reduces to an ordinary (non-zero inflated) Poisson test. NOTE: \code{zi_prob} and \code{omega_vec}
+#' are alias.
 #' @param grouped_omega_est Logical. When performing a test with grouped drug classes (extended LRT),
 #' should the estimated zero-inflation parameter "omega" reflect
 #' the corresponding grouping? If TRUE, then the estimated omegas are obtained by combining
 #' columns from the same group, and if FALSE (default), then omegas are estimated separately for each drug (column)
 #' irrespective of the groups specified through  \code{drug_class_idx}. Ignored if \code{omega_vec} is
 #' supplied/non-\code{NULL} (i.e., not estimated).
-#' @param test_zi,test_omega logical. perform a bootstrap pseudo likelihood ratio test for omega? Ignored if
-#' \code{omega_vec} is supplied (is non-NULL). Defaults to FALSE.
+#' @param test_zi,test_omega logical indicators to specifiy whether to perform a bootstrap pseudo likelihood ratio test for omega? Ignored if
+#' \code{omega_vec} is supplied (is non-NULL). Defaults to FALSE. NOTE: \code{test_omega} and
+#' \code{test_zi} are aliases.
 #' @param pval_ineq_strict logical. Use a strict inequality in the definition of the p-values?  Defaults to FALSE.
 #' @param use_gamma_smooth_omega logical. Use a gamma prior (smoothing) on the signals (lambdas) while estimating
 #' omega from data. Defaults to FALSE. NOTE: if TRUE, then the gamma prior produces a marginal negative binomial
@@ -71,7 +79,6 @@ pvlrt <- function(contin_table,
                   test_omega = test_zi,
                   pval_ineq_strict = FALSE,
                   parametrization = "rrr",
-                  # use_gamma_smooth_omega = FALSE,
                   ...) {
   stopifnot(
     is.list(drug_class_idx),
@@ -515,7 +522,7 @@ pvlrt <- function(contin_table,
     set_attr("parametrization", parametrization) %>%
     set_attr("test_drug_idx", test_drug_idx)
 
-  class(lr_stat_pvalue) <- c("pvlrt", "matrix")
+  class(lr_stat_pvalue) <- c("pvlrt", class(lr_stat_pvalue))
 
   lr_stat_pvalue
 }

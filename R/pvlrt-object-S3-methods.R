@@ -2,11 +2,6 @@ is.pvlrt <- function(obj,...) {
   is (obj, "pvlrt")
 }
 
-`:=` <- data.table::`:=`
-
-set_attr <- `attr<-`
-
-set_dimnames <- `dimnames<-`
 
 #' @export
 summary.pvlrt <- function(object, ...) {
@@ -155,9 +150,9 @@ print.pvlrt <- function(object, significance_level = 0.05, topn = 12, digits = 4
 
   msg <- glue::glue(
     "{parametrization}-based {lrt_type}-LRT on \\
-    {I} AE & {J} drugs input table \\
-    Hypotheses tests done on {n_drug_test_idx} \\
-    {ifelse(n_drug_test_idx > 1, 'drugs', 'drug')}).
+    {I} AE & {J} drugs.
+    Hypothesis tests performed on {n_drug_test_idx} \\
+    {ifelse(n_drug_test_idx > 1, 'drugs', 'drug')}.
 
     {zi_text}
 

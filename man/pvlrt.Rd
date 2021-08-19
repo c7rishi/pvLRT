@@ -21,19 +21,21 @@ pvlrt(
 )
 }
 \arguments{
-\item{contin_table}{IxJ contingency table showing pairwise counts of adverse effects
-for I AE and J Drugs}
+\item{contin_table}{IxJ contingency table showing pairwise counts of adverse
+effects for I AE and J Drugs}
 
-\item{nsim}{Number of simulated null contingency table to use for computing the p-value of the test}
+\item{nsim}{Number of simulated null contingency table to use for computing
+the p-value of the test}
 
-\item{zi_prob, omega_vec}{alias vector (for all drugs) of estimates of the zero-inflation.
+\item{zi_prob, omega_vec}{vector (for all drugs) of estimates of the zero-inflation.
 If NULL, then is estimated from the data. See also the
 description of the argument \code{grouped_omega_est}. If \code{omega_vec = rep(0, ncol(contin_table))},
-then test reduces to an ordinary (non-zero inflated) Poisson test.}
+then test reduces to an ordinary (non-zero inflated) Poisson test. NOTE: \code{zi_prob} and \code{omega_vec}
+are alias.}
 
-\item{drug_class_idx}{a list, with the h-th entry providing the h-th group/class of drugs.
-By default, each drug forms its own class. If more than one drug is present in a class, an
-extended LRT is performed. See examples.}
+\item{drug_class_idx}{a list, with the h-th entry providing the h-th group/class
+of drugs. By default, each drug forms its own class. If more than one drug is
+present in a class, an extended LRT is performed. See examples.}
 
 \item{test_drug_idx}{integer vector representing the columns (drug indices) of contin_table to be tested for signal.
 Defaults to all columns.}
@@ -45,12 +47,11 @@ columns from the same group, and if FALSE (default), then omegas are estimated s
 irrespective of the groups specified through  \code{drug_class_idx}. Ignored if \code{omega_vec} is
 supplied/non-\code{NULL} (i.e., not estimated).}
 
-\item{test_zi, test_omega}{logical. perform a bootstrap pseudo likelihood ratio test for omega? Ignored if
-\code{omega_vec} is supplied (is non-NULL). Defaults to FALSE.}
+\item{test_zi, test_omega}{logical indicators to specifiy whether to perform a bootstrap pseudo likelihood ratio test for omega? Ignored if
+\code{omega_vec} is supplied (is non-NULL). Defaults to FALSE. NOTE: \code{test_omega} and
+\code{test_zi} are aliases.}
 
 \item{pval_ineq_strict}{logical. Use a strict inequality in the definition of the p-values?  Defaults to FALSE.}
-
-\item{...}{Other arguments. Currently unused.}
 
 \item{use_gamma_smooth_omega}{logical. Use a gamma prior (smoothing) on the signals (lambdas) while estimating
 omega from data. Defaults to FALSE. NOTE: if TRUE, then the gamma prior produces a marginal negative binomial
