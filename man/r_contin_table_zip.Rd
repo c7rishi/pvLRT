@@ -13,7 +13,7 @@ r_contin_table_zip(
   col_marginals,
   signal_mat = matrix(1, length(row_marginals), length(col_marginals)),
   omega_vec = rep(0, length(col_marginals)),
-  no_zero_inflation_idx = NULL,
+  no_zi_idx = NULL,
   ...
 )
 }
@@ -32,7 +32,7 @@ j-th drug pair. The default is 1 for each pair, which means no signal for the pa
 \item{omega_vec}{vector of zero inflation probabilities. Must be of the same length
 as col_marginals.}
 
-\item{no_zero_inflation_idx}{List of pairs {(i, j)} where zero inflation is not allowed. To
+\item{no_zi_idx}{List of pairs {(i, j)} where zero inflation is not allowed. To
 specify the entirety i-th row (or j-th column) use c(i, 0) (or c(0, j)). See examples.}
 }
 \value{
@@ -75,7 +75,7 @@ sim_statin <- r_contin_table_zip(
   col_marginals = colSums(statin46),
   signal_mat = signal_mat,
   omega_vec = omega_tru,
-  no_zero_inflation_idx = list(
+  no_zi_idx = list(
     c(1, 1),
     c(nrow(statin46), 0), # the entire last row
     c(0, ncol(statin46)) # the entire last column

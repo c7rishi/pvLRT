@@ -1,6 +1,11 @@
 #' Heatmap showing LR test results
 #' @param object pvlrt object
 #' @param ... additional arguments passed to pheatmap::pheatmap()
+#'
+#' @examples
+#' test1 <- pvlrt(statin46)
+#' heatmap_pvlrt(test1)
+#'
 #' @export
 heatmap_pvlrt <- function(object, nrow = NULL,
                           ncol = NULL,
@@ -8,7 +13,9 @@ heatmap_pvlrt <- function(object, nrow = NULL,
                           show_n = TRUE,
                           show_pvalue = FALSE,
                           show_lrstat = FALSE,
-                          digits = 2, ...) {
+                          arrange_alphabatical = FALSE,
+                          digits = 2,
+                          ...) {
   dots <- list(...)
 
   stopifnot(
@@ -29,14 +36,19 @@ heatmap_pvlrt <- function(object, nrow = NULL,
     ncol <- min(length(drug_all), 10)
   }
 
+  AE_sub <- AE_all[1:nrow] %>%
+    {if (arrange_alphabatical) sort(.) else .}
+
+  drug_sub <- drug_all[1:ncol] %>%
+    {if (arrange_alphabatical) sort(.) else .}
 
   measure_stat <- c("lrstat", "p.value") %>%
     setNames(., .) %>%
     lapply(
       function(measure) {
         out <- summ[
-          AE %in% AE_all[1:nrow] &
-            Drug %in% drug_all[1:ncol]
+          AE %in% AE_sub &
+            Drug %in% drug_sub
         ] %>%
           data.table::dcast(
             AE ~ Drug,
@@ -47,11 +59,12 @@ heatmap_pvlrt <- function(object, nrow = NULL,
 
         out$AE <- NULL
 
-        data.matrix(out)
+        data.matrix(out)[AE_sub, drug_sub]
       }
     )
 
   p.value_text <- measure_stat$p.value %>%
+    .[AE_sub, drug_sub] %>%
     format_pval_(digits = digits) %>%
     c() %>%
     paste0("p", .) %>%
@@ -59,9 +72,10 @@ heatmap_pvlrt <- function(object, nrow = NULL,
 
   lrstat_text <- measure_stat$lrstat %>%
     # round(digits = digits) %>%
+    .[AE_sub, drug_sub] %>%
     c() %>%
     {ifelse(
-      . >= 1000,
+      . >= 1e4,
       format(., digits = digits, scientific = TRUE),
       as.character(round(., digits = digits))
     )} %>%
@@ -69,9 +83,10 @@ heatmap_pvlrt <- function(object, nrow = NULL,
     matrix(nrow, ncol)
 
   n_text <- attr(object, "contin_table") %>%
+    .[AE_sub, drug_sub] %>%
     c() %>%
     {ifelse(
-      . >= 1000,
+      . >= 1e4,
       format(., digits = digits, scientific = TRUE),
       as.character(round(., digits = digits))
     )} %>%

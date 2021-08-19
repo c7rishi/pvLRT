@@ -29,15 +29,9 @@
       rbinom(n_row, size = 1, prob = omega_vec[j])
     }
   ) %>%
-    do.call(cbind, .)
+    do.call(cbind, .) %>%
+    .process_zero_inflation(no_zero_infl_idx)
 
-  if (!is.null(no_zero_infl_idx)) {
-    for (kk in no_zero_infl_idx) {
-      ii <- if (kk[1] != 0) kk[1] else 1:n_row
-      jj <- if (kk[2] != 0) kk[2] else 1:n_col
-      z_ij[ii, jj] <- 0
-    }
-  }
 
   rmultinom(
     n = 1,
@@ -67,7 +61,7 @@
 #' j-th drug pair. The default is 1 for each pair, which means no signal for the pair.
 #' @param omega_vec vector of zero inflation probabilities. Must be of the same length
 #' as col_marginals.
-#' @param no_zero_inflation_idx List of pairs {(i, j)} where zero inflation is not allowed. To
+#' @param no_zi_idx List of pairs {(i, j)} where zero inflation is not allowed. To
 #' specify the entirety i-th row (or j-th column) use c(i, 0) (or c(0, j)). See examples.
 #'
 #'
@@ -106,7 +100,7 @@
 #'   col_marginals = colSums(statin46),
 #'   signal_mat = signal_mat,
 #'   omega_vec = omega_tru,
-#'   no_zero_inflation_idx = list(
+#'   no_zi_idx = list(
 #'     c(1, 1),
 #'     c(nrow(statin46), 0), # the entire last row
 #'     c(0, ncol(statin46)) # the entire last column
@@ -149,7 +143,7 @@ r_contin_table_zip <- function(n = 1,
                                col_marginals,
                                signal_mat = matrix(1, length(row_marginals), length(col_marginals)),
                                omega_vec = rep(0, length(col_marginals)),
-                               no_zero_inflation_idx = NULL,
+                               no_zi_idx = NULL,
                                ...) {
   stopifnot(
     is.numeric(n),
@@ -159,6 +153,24 @@ r_contin_table_zip <- function(n = 1,
     nrow(signal_mat) == length(row_marginals),
     ncol(signal_mat) == length(col_marginals)
   )
+
+  dots <- list(...)
+  if (!is.null(dots$no_zero_inflation_idx)) {
+    msg <- glue::glue(
+      "argument 'no_zero_inflation_idx' is deprecated. Use
+      'no_zi_idx' instead"
+    )
+    warning(msg)
+
+    if (is.null(no_zi_idx)) {
+      no_zi_idx <- dots$no_zero_inflation_idx
+    } else {
+      msg <- glue::glue(
+        "Supply one of 'no_zi_idx' and 'no_zero_inflation_idx'"
+      )
+      stop(msg)
+    }
+  }
 
   obs_total <- sum(row_marginals)
   Eij_mat <- tcrossprod(row_marginals, col_marginals)/obs_total
@@ -175,7 +187,7 @@ r_contin_table_zip <- function(n = 1,
         Eij_mat = Eij_mat,
         signal_mat = signal_mat,
         omega_vec = omega_vec,
-        no_zero_infl_idx = no_zero_inflation_idx,
+        no_zero_infl_idx = no_zi_idx,
         n_row = n_row,
         n_col = n_col,
         ...

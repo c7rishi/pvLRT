@@ -27,35 +27,10 @@ zero-inflated Poisson model with relative reporting rate parametrization
 \examples{
 
 data("lovastatin")
-# no grouping -- each drug forms its own class
 test1 <- lrt_zi_poisson(lovastatin)
-## extract the observed LRT statistic
-attr(test1, "lrstat")
-## extract the estimated omegas
-attr(test1, "omega")
+test1
 
-# grouped drugs --
-# group1 : drug 1, drug 2
-# group 2: drug 3
-drug_groups <- list(c(1, 2), 3)
-test2 <- lrt_zi_poisson(lovastatin, drug_class_idx = drug_groups)
-
-\dontrun{
-# test omegas
-test3 <- lrt_zi_poisson(lovastatin, test_omega = TRUE)
-## extract the estimate, statistic, and p-values for omegas
-attr(test3, "omega")
-attr(test3, "omega_lrstat")
-attr(test3, "omega_pvalue")
-
-
-# use gamma prior assumption on signals while
-# estimating omegas
-test3 <- lrt_zi_poisson(
-  lovastatin,
-  use_gamma_smooth_omega = TRUE
-)
-attr(test3, "omega")
 }
-
+\seealso{
+\link{pvlrt}
 }

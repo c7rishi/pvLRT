@@ -1,5 +1,6 @@
 #' Pseudo Likelihood Ratio Test for determining significant AE-Drug pairs under
 #' zero-inflated Poisson model
+#' @inheritParams r_contin_table_zip
 #' @param contin_table IxJ contingency table showing pairwise counts of adverse
 #' effects for I AE and J Drugs
 #' @param nsim Number of simulated null contingency table to use for computing
@@ -34,38 +35,38 @@
 #'
 #' @examples
 #'
-#'
-#'
-#' data("lovastatin")
-#' # no grouping -- each drug forms its own class
-#' test1 <- pvlrt(lovastatin)
+#' data("statin46")
+#' # no grouping -- each drug forms its own class,
+#  # default "rrr" (lambda) parametrization, possible zi,
+#  # null distribution evaluated using parametric bootstrap
+#' test1 <- pvlrt(statin46)
+#' test1
 #' ## extract the observed LRT statistic
-#' attr(test1, "lrstat")
+#' extract_lrstat_matrix(test1)
 #' ## extract the estimated omegas
-#' attr(test1, "omega")
+#' extract_zi_probability(test1)
 #'
 #' # grouped drugs --
-#' # group1 : drug 1, drug 2
-#' # group 2: drug 3
-#' drug_groups <- list(c(1, 2), 3)
-#' test2 <- lrt_zi_poisson(lovastatin, drug_class_idx = drug_groups)
+#' # group 1: drug 1, drug 2
+#' # group 2: drug 3, drug 4
+#' # drug 5, 6, 7 in their own groups
+#' drug_groups <- list(c(1, 2), c(3, 4), 5, 6, 7)
+#' test2 <- pvlrt(statin46, drug_class_idx = drug_groups)
+#' test2
+#'
+#' # specify no zero inflation at the entirety of the last row and the last column
+#' no_zi_idx <- list(c(nrow(statin46), 0), c(0, ncol(statin46)))
+#' test3 <- pvlrt(statin46, no_zi_idx = no_zi_idx)
+#' test3
+#'
+#' # use non-parametric bootstrap to evaluate the null distribution
+#' test4 <- pvlrt(statin46, null_boot_type = "non-parametric")
+#' test4
 #'
 #' \dontrun{
-#' # test omegas
-#' test3 <- lrt_zi_poisson(lovastatin, test_omega = TRUE)
-#' ## extract the estimate, statistic, and p-values for omegas
-#' attr(test3, "omega")
-#' attr(test3, "omega_lrstat")
-#' attr(test3, "omega_pvalue")
-#'
-#'
-#' # use gamma prior assumption on signals while
-#' # estimating omegas
-#' test3 <- lrt_zi_poisson(
-#'   lovastatin,
-#'   use_gamma_smooth_omega = TRUE
-#' )
-#' attr(test3, "omega")
+#' # test zi probabilities (omegas)
+#' test5 <- pvlrt(statin46, test_omega = TRUE)
+#' test5
 #' }
 #'
 #' @export
@@ -73,6 +74,7 @@ pvlrt <- function(contin_table,
                   nsim = 1e4,
                   omega_vec = NULL,
                   zi_prob = NULL,
+                  no_zi_idx = NULL,
                   drug_class_idx = as.list(1:ncol(contin_table)),
                   test_drug_idx = 1:ncol(contin_table),
                   grouped_omega_est = FALSE,
@@ -80,7 +82,7 @@ pvlrt <- function(contin_table,
                   test_omega = NULL,
                   pval_ineq_strict = FALSE,
                   parametrization = "rrr",
-                  null_generation = "non-parametric",
+                  null_boot_type = "parametric",
                   ...) {
 
   stopifnot(
@@ -91,9 +93,16 @@ pvlrt <- function(contin_table,
     is.logical(pval_ineq_strict),
     length(pval_ineq_strict) == 1,
     parametrization %in% c("rrr", "lambda", "rr", "p-q"),
-    length(parametrization) == 1
+    length(parametrization) == 1,
+    null_boot_type %in% c("parametric", "non-parametric"),
+    length(null_boot_type) == 1
   )
 
+  if (!is.null(no_zi_idx)) {
+    stopifnot(
+      is.list(no_zi_idx)
+    )
+  }
 
   dots <- list(...)
   all_inputs <- c(as.list(environment()), dots)
@@ -108,6 +117,32 @@ pvlrt <- function(contin_table,
   Eij_mat <- (tcrossprod(n_i_0_all, n_0_j_all) / n_0_0) %>%
     set_dimnames(dimnames(contin_table))
 
+
+  if (!is.null(dots$no_zero_inflation_idx)) {
+    msg <- glue::glue(
+      "argument 'no_zero_inflation_idx' is deprecated. Use
+      'no_zi_idx' instead"
+    )
+    warning(msg)
+
+    if (is.null(no_zi_idx)) {
+      no_zi_idx <- dots$no_zero_inflation_idx
+    } else {
+      msg <- glue::glue(
+        "Supply one of 'no_zi_idx' and 'no_zero_inflation_idx'"
+      )
+      stop(msg)
+    }
+  }
+
+  # will be multiplied with zi indicator
+  # during random generation
+  # zi: 1 means zi 0 means no zi
+  zi_idx_adj <- matrix(1, I, J) %>%
+    set_dimnames(dimnames(contin_table)) %>%
+    .process_zero_inflation(
+      no_zero_infl_idx = no_zi_idx
+    )
 
 
   # parallel_bootstrap <- dot$parallel_bootstrap %>%
@@ -392,21 +427,29 @@ pvlrt <- function(contin_table,
     lapply(. %>% intersect(test_drug_idx)) %>%
     .[sapply(., length) > 0]
 
-  gen_rand_table <- function() {
-    lapply(
-      1:J,
-      function(jstar) {
-        lambda <- c(Eij_mat[, jstar])
-        nn <- length(lambda)
-        rzipois(
-          n = nn,
-          lambda = lambda,
-          pi = omega_vec[jstar]
-        )
-      }
-    ) %>%
-      do.call(cbind, .)
+  omega_mat <- rep(1, I) %>%
+    tcrossprod(omega_vec) %>%
+    set_dimnames(dimnames(contin_table))
+
+  if (null_boot_type == "parametric") {
+    gen_rand_table <- function(...) {
+      nij <- rpois(I*J, c(Eij_mat))
+      zij <- (runif(I*J) <= c(omega_mat)) * c(zi_idx_adj)
+
+      (nij * (1 - zij)) %>%
+        matrix(I, J) %>%
+        set_dimnames(dimnames(contin_table))
+    }
+  } else {
+    all_2d_tabs <- r2dtable(nsim, r = n_i_0_all, c = n_0_j_all) %>%
+      lapply(set_dimnames, dimnames(contin_table))
+
+    gen_rand_table <- function(i) {
+      all_2d_tabs[[ii]]
+    }
   }
+
+
 
   calc_mlr <- function(xmat) {
     # n_row <- nrow(xmat)
@@ -451,7 +494,7 @@ pvlrt <- function(contin_table,
 
       while (is(lr_stat_null, "error") & ntry < 100) {
         lr_stat_null <- tryCatch(
-          gen_rand_table() %>%
+          gen_rand_table(ii) %>%
             lr_stat_func(
               n_0_0 = n_0_0,
               omega_vec = omega_vec,
@@ -536,7 +579,9 @@ pvlrt <- function(contin_table,
     set_attr("do_omega_estimation", do_omega_estimation) %>%
     set_attr("parametrization", parametrization) %>%
     set_attr("test_drug_idx", test_drug_idx) %>%
-    set_attr("contin_table", contin_table)
+    set_attr("contin_table", contin_table) %>%
+    set_attr("no_zi_idx", no_zi_idx) %>%
+    set_attr("null_boot_type", null_boot_type)
 
   class(lr_stat_pvalue) <- c("pvlrt", class(lr_stat_pvalue))
 

@@ -10,6 +10,7 @@ pvlrt(
   nsim = 10000,
   omega_vec = NULL,
   zi_prob = NULL,
+  no_zi_idx = NULL,
   drug_class_idx = as.list(1:ncol(contin_table)),
   test_drug_idx = 1:ncol(contin_table),
   grouped_omega_est = FALSE,
@@ -17,6 +18,7 @@ pvlrt(
   test_omega = NULL,
   pval_ineq_strict = FALSE,
   parametrization = "rrr",
+  null_boot_type = "parametric",
   ...
 )
 }
@@ -32,6 +34,9 @@ If NULL, then is estimated from the data. See also the
 description of the argument \code{grouped_omega_est}. If \code{omega_vec = rep(0, ncol(contin_table))},
 then test reduces to an ordinary (non-zero inflated) Poisson test. NOTE: \code{zi_prob} and \code{omega_vec}
 are alias.}
+
+\item{no_zi_idx}{List of pairs {(i, j)} where zero inflation is not allowed. To
+specify the entirety i-th row (or j-th column) use c(i, 0) (or c(0, j)). See examples.}
 
 \item{drug_class_idx}{a list, with the h-th entry providing the h-th group/class
 of drugs. By default, each drug forms its own class. If more than one drug is
@@ -67,38 +72,36 @@ zero-inflated Poisson model
 }
 \examples{
 
-
-
-data("lovastatin")
-# no grouping -- each drug forms its own class
-test1 <- pvlrt(lovastatin)
+data("statin46")
+# no grouping -- each drug forms its own class,
+test1 <- pvlrt(statin46)
+test1
 ## extract the observed LRT statistic
-attr(test1, "lrstat")
+extract_lrstat_matrix(test1)
 ## extract the estimated omegas
-attr(test1, "omega")
+extract_zi_probability(test1)
 
 # grouped drugs --
-# group1 : drug 1, drug 2
-# group 2: drug 3
-drug_groups <- list(c(1, 2), 3)
-test2 <- lrt_zi_poisson(lovastatin, drug_class_idx = drug_groups)
+# group 1: drug 1, drug 2
+# group 2: drug 3, drug 4
+# drug 5, 6, 7 in their own groups
+drug_groups <- list(c(1, 2), c(3, 4), 5, 6, 7)
+test2 <- pvlrt(statin46, drug_class_idx = drug_groups)
+test2
+
+# specify no zero inflation at the entirety of the last row and the last column
+no_zi_idx <- list(c(nrow(statin46), 0), c(0, ncol(statin46)))
+test3 <- pvlrt(statin46, no_zi_idx = no_zi_idx)
+test3
+
+# use non-parametric bootstrap to evaluate the null distribution
+test4 <- pvlrt(statin46, null_boot_type = "non-parametric")
+test4
 
 \dontrun{
-# test omegas
-test3 <- lrt_zi_poisson(lovastatin, test_omega = TRUE)
-## extract the estimate, statistic, and p-values for omegas
-attr(test3, "omega")
-attr(test3, "omega_lrstat")
-attr(test3, "omega_pvalue")
-
-
-# use gamma prior assumption on signals while
-# estimating omegas
-test3 <- lrt_zi_poisson(
-  lovastatin,
-  use_gamma_smooth_omega = TRUE
-)
-attr(test3, "omega")
+# test zi probabilities (omegas)
+test5 <- pvlrt(statin46, test_omega = TRUE)
+test5
 }
 
 }

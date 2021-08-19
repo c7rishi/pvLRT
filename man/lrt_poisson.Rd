@@ -21,19 +21,19 @@ the p-value of the test}
 \description{
 Likelihood Ratio Test under the (vanilla, non-zero-inflated) Poisson model
 }
+\note{
+\code{lrt_poisson()} and \code{lrt_vanilla_poisson()}
+are both wrappers for \code{pvlrt()} with
+\code{omega_vec = rep(0, ncol(contin_table))}
+}
 \examples{
 
 data("lovastatin")
 
 # no grouping -- each drug forms its own class
 test1 <- lrt_poisson(lovastatin)
-## extract the observed LRT statistic
-attr(test1, "lrstat")
 
-
-# grouped drugs --
-# group1 : drug 1, drug 2
-# group 2: drug 3
-drug_groups <- list(c(1, 2), 3)
-test2 <- lrt_vanilla_poisson(lovastatin, drug_class_idx = drug_groups)
+}
+\seealso{
+\link{pvlrt}
 }

@@ -154,11 +154,14 @@ print.pvlrt <- function(object, significance_level = 0.05,
   res_tab <- capture.output(print(signif_pairs)) %>%
     paste(collapse = "\n")
 
+  null_boot_type <- attr(object, "null_boot_type")
+
   msg <- glue::glue(
     "{parametrization}-based {lrt_type}-LRT on \\
     {I} AE & {J} drugs.
     Hypothesis tests performed on {n_drug_test_idx} \\
-    {ifelse(n_drug_test_idx > 1, 'drugs', 'drug')}.
+    {ifelse(n_drug_test_idx > 1, 'drugs', 'drug')} using \\
+    {null_boot_type} bootstrap.
 
     {zi_text}
 

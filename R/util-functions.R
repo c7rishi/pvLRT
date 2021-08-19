@@ -30,3 +30,23 @@ out <-
 
 out
 }
+
+
+# process zero inflation such that certain
+# places never get zero inflated
+# zmat: observed 0-1 tables indicating zero inflation
+# 1-means zero-inflation, 0-means no zero-inflation
+.process_zero_inflation <- function(zmat,
+                                    no_zero_infl_idx = NULL,
+                                    n_row = nrow(zmat),
+                                    n_col = ncol(zmat)) {
+  if (!is.null(no_zero_infl_idx)) {
+    for (kk in no_zero_infl_idx) {
+      ii <- if (kk[1] != 0) kk[1] else 1:n_row
+      jj <- if (kk[2] != 0) kk[2] else 1:n_col
+      zmat[ii, jj] <- 0
+    }
+  }
+  zmat
+}
+
