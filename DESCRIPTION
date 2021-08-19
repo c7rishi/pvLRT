@@ -16,7 +16,9 @@ Imports:
     progress,
     data.table,
     glue,
-    pheatmap
+    pheatmap,
+    grDevices,
+    RColorBrewer
 Depends: 
     R (>= 3.1.0)
 suggests:

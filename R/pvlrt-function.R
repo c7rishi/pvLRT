@@ -80,6 +80,7 @@ pvlrt <- function(contin_table,
                   test_omega = NULL,
                   pval_ineq_strict = FALSE,
                   parametrization = "rrr",
+                  null_generation = "non-parametric",
                   ...) {
 
   stopifnot(
@@ -534,7 +535,8 @@ pvlrt <- function(contin_table,
     set_attr("omega_qvalue", p.adjust(omega_pval_vec)) %>%
     set_attr("do_omega_estimation", do_omega_estimation) %>%
     set_attr("parametrization", parametrization) %>%
-    set_attr("test_drug_idx", test_drug_idx)
+    set_attr("test_drug_idx", test_drug_idx) %>%
+    set_attr("contin_table", contin_table)
 
   class(lr_stat_pvalue) <- c("pvlrt", class(lr_stat_pvalue))
 

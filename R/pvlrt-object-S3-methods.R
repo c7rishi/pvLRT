@@ -49,7 +49,8 @@ summary.pvlrt <- function(object, ...) {
 
 
 #' @export
-print.pvlrt <- function(object, significance_level = 0.05, topn = 12, digits = 2, ...) {
+print.pvlrt <- function(object, significance_level = 0.05,
+                        topn = 12, digits = 2, ...) {
   if (!is.pvlrt(object)) {
     stop("object must be a 'pvlrt' object.")
   }
@@ -87,13 +88,7 @@ print.pvlrt <- function(object, significance_level = 0.05, topn = 12, digits = 2
       paste0("LRstat=", ., ", ")
 
     zi_q_values <- all_attr$omega_qval %>%
-      {
-        ifelse(
-          . >= 0.90,
-          ">0.90",
-          paste0("=", format.pval(., digits = digits, eps = 1/(10^(digits+1))))
-        )
-      } %>%
+      format_pval_(digits = digits) %>%
       paste0(
         " (", all_attr$dimnames[[2]], ")"
       ) %>%
@@ -184,3 +179,4 @@ as.matrix.pvlrt <- function(object, ...) {
   class(object) <- "matrix"
   object
 }
+
