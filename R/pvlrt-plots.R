@@ -5,6 +5,7 @@
 #' @examples
 #' test1 <- pvlrt(statin46)
 #' heatmap_pvlrt(test1)
+#' heatmap_pvlrt(test1, arrange_alphabetical = TRUE)
 #'
 #' @export
 heatmap_pvlrt <- function(object, nrow = NULL,
