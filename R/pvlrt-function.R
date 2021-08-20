@@ -1,5 +1,5 @@
 #' Pseudo Likelihood Ratio Test for determining significant AE-Drug pairs under
-#' zero-inflated Poisson model
+#' Poisson and zero-inflated Poisson models
 #' @inheritParams r_contin_table_zip
 #' @param contin_table IxJ contingency table showing pairwise counts of adverse
 #' effects for I AE and J Drugs
