@@ -9,6 +9,7 @@ heatmap_pvlrt(
   object,
   AE = NULL,
   Drug = NULL,
+  grep = FALSE,
   measure = "p.value",
   show_n = TRUE,
   arrange_alphabetical = FALSE,
@@ -18,6 +19,9 @@ heatmap_pvlrt(
   p.value_upper = 1,
   lrstat_lower = 0,
   lrstat_upper = Inf,
+  n_lower = 0,
+  n_upper = Inf,
+  remove_outside = FALSE,
   digits = 2,
   engine = "ggplot2",
   ...
@@ -27,6 +31,7 @@ heatmap_pvlrt(
   object,
   AE = NULL,
   Drug = NULL,
+  grep = FALSE,
   measure = "lrstat",
   fill_measure = "p.value",
   show_n = FALSE,
@@ -37,11 +42,13 @@ heatmap_pvlrt(
   p.value_upper = 1,
   lrstat_lower = 0,
   lrstat_upper = Inf,
+  n_lower = 0,
+  n_upper = Inf,
+  remove_outside = FALSE,
   digits = 2,
-  engine = "ggplot2",
   Drug_nrow = 1,
-  change_x_scale = FALSE,
-  x_axis_trans = "log10",
+  x_axis_trans = FALSE,
+  x_axis_trans_fn = "log1p",
   ...
 )
 }

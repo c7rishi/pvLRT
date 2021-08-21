@@ -13,6 +13,7 @@
 heatmap_pvlrt <- function(object,
                           AE = NULL,
                           Drug = NULL,
+                          grep = FALSE,
                           measure = "p.value",
                           show_n = TRUE,
                           arrange_alphabetical = FALSE,
@@ -22,28 +23,19 @@ heatmap_pvlrt <- function(object,
                           p.value_upper = 1,
                           lrstat_lower = 0,
                           lrstat_upper = Inf,
+                          n_lower = 0,
+                          n_upper = Inf,
+                          remove_outside = FALSE,
                           digits = 2,
                           engine = "ggplot2",
                           ...) {
 
-  stopifnot(is.pvlrt(object))
+  dots <- list(...)
+  all_inputs <- c(as.list(environment()), dots)
 
+  # processed plotting data from process_plot_data
   dat_pl <- tryCatch(
-    process_plot_data(
-      object = object,
-      AE = AE,
-      Drug = Drug,
-      measure = measure,
-      show_n = show_n,
-      show_pvalue = show_pvalue,
-      show_lrstat = show_lrstat,
-      arrange_alphabetical = arrange_alphabetical,
-      p.value_lower = p.value_lower,
-      p.value_upper = p.value_upper,
-      lrstat_lower = lrstat_lower,
-      lrstat_upper = lrstat_upper,
-      digits = digits
-    ),
+    do.call(process_plot_data, all_inputs),
     error = function(e) e
   )
 
@@ -51,12 +43,9 @@ heatmap_pvlrt <- function(object,
     stop(dat_pl$message)
   }
 
-
   stopifnot(
     engine %in% c("pheatmap", "ggplot", "ggplot2")
   )
-
-  dots <- list(...)
 
   show_text <- show_pvalue | show_n | show_lrstat
 
@@ -242,6 +231,7 @@ heatmap_pvlrt <- function(object,
 barplot.pvlrt <- function(object,
                           AE = NULL,
                           Drug = NULL,
+                          grep = FALSE,
                           measure = "lrstat",
                           fill_measure = "p.value",
                           show_n = FALSE,
@@ -252,31 +242,21 @@ barplot.pvlrt <- function(object,
                           p.value_upper = 1,
                           lrstat_lower = 0,
                           lrstat_upper = Inf,
+                          n_lower = 0,
+                          n_upper = Inf,
+                          remove_outside = FALSE,
                           digits = 2,
-                          engine = "ggplot2",
                           Drug_nrow = 1,
-                          change_x_scale = FALSE,
-                          x_axis_trans = "log10",
+                          x_axis_trans = FALSE,
+                          x_axis_trans_fn = "log1p",
                           ...) {
 
-  stopifnot(is.pvlrt(object))
+  dots <- list(...)
+  all_inputs <- c(as.list(environment()), dots)
 
+  # processed plotting data from process_plot_data
   dat_pl <- tryCatch(
-    process_plot_data(
-      object = object,
-      AE = AE,
-      Drug = Drug,
-      measure = measure,
-      show_n = show_n,
-      show_pvalue = show_pvalue,
-      show_lrstat = show_lrstat,
-      arrange_alphabetical = arrange_alphabetical,
-      p.value_lower = p.value_lower,
-      p.value_upper = p.value_upper,
-      lrstat_lower = lrstat_lower,
-      lrstat_upper = lrstat_upper,
-      digits = digits
-    ),
+    do.call(process_plot_data, all_inputs),
     error = function(e) e
   )
 
@@ -284,25 +264,27 @@ barplot.pvlrt <- function(object,
     stop(dat_pl$message)
   }
 
-  stopifnot(
-    engine %in% c("pheatmap", "ggplot", "ggplot2")
-  )
-
-  dots <- list(...)
-
   show_text <- show_pvalue | show_n | show_lrstat
 
   darkblue_col <- RColorBrewer::brewer.pal(8, "Blues") %>% tail(1)
 
-
-  color_range <- RColorBrewer::brewer.pal(n = 10, name = "RdBu") %>%
-    rev()
 
   dat_pl[
     ,
     AE := AE %>%
       factor(levels = rev(levels(.)))
   ]
+
+  fill_range <- RColorBrewer::brewer.pal(n = 10, name = "RdBu") %>%
+    rev()
+
+  n_uniq_fill_meas <- dat_pl[[fill_measure]] %>%
+    unique() %>%
+    length()
+
+  if (n_uniq_fill_meas == 1) {
+    fill_range <- fill_range[1]
+  }
 
   out <- dat_pl %>%
     ggplot2::ggplot(
@@ -315,12 +297,8 @@ barplot.pvlrt <- function(object,
     ) +
     ggplot2::geom_bar(stat = "identity") +
     ggplot2::facet_wrap(~Drug, nrow = Drug_nrow) +
-    # ggplot2::scale_fill_gradient(
-    #   low = color_range[2],
-    #   high = color_range[1]
-    # ) +
-    ggplot2::scale_fill_gradientn(colors = color_range) +
     ggplot2::theme_bw() +
+    ggplot2::scale_fill_gradientn(colors = fill_range)+
     ggplot2::theme(
       axis.text.x = ggplot2::element_text(
         angle = 90, vjust = 0.5, hjust = 1
@@ -330,6 +308,7 @@ barplot.pvlrt <- function(object,
       panel.border = ggplot2::element_blank()
     ) +
     ggplot2::labs(y = "")
+
 
   if (show_text) {
     out <- out +
@@ -347,9 +326,9 @@ barplot.pvlrt <- function(object,
       )
   }
 
-  if (change_x_scale) {
+  if (x_axis_trans) {
     out <- out +
-      ggplot2::coord_trans(x = x_axis_trans)
+      ggplot2::coord_trans(x = x_axis_trans_fn)
   }
 
   out

@@ -1,6 +1,7 @@
 process_plot_data <- function(object = object,
                               AE = NULL,
                               Drug = NULL,
+                              grep = FALSE,
                               measure = "p.value",
                               show_n = FALSE,
                               show_pvalue = FALSE,
@@ -10,6 +11,9 @@ process_plot_data <- function(object = object,
                               p.value_upper = p.value_upper,
                               lrstat_lower = lrstat_lower,
                               lrstat_upper = lrstat_upper,
+                              n_lower = 0,
+                              n_upper = Inf,
+                              remove_outside = FALSE,
                               digits = 2,
                               ...) {
 
@@ -36,12 +40,24 @@ process_plot_data <- function(object = object,
     ]
 
 
-  summ_sub_pval_lrt <- summ_full[
-    p.value >= p.value_lower &
-      p.value <= p.value_upper &
-      lrstat >= lrstat_lower &
-      lrstat <= lrstat_upper
-  ]
+
+  meas_all <- c("p.value", "lrstat", "n")
+
+  filter_char <-
+    # specify the ranges for p.value, lrstat and n
+    # as character
+    glue::glue(
+      "{meas_all} %between% c({meas_all}_lower, {meas_all}_upper)"
+    ) %>%
+    paste(collapse = " & ")
+
+  summ_sub_pval_lrt <- filter_char %>%
+    # data table filtering statement as character
+    {glue::glue("summ_full[{.}]")} %>%
+    # parse and eval text
+    parse(text = .) %>%
+    eval()
+
 
   if (nrow(summ_sub_pval_lrt) < 1) {
     msg <- glue::glue(
@@ -83,15 +99,58 @@ process_plot_data <- function(object = object,
       n_elem <- all_names[[nm]] %>% length(.) %>% min(tmp)
       processed[[nm]] <- all_names[[nm]][1:n_elem]
     } else if (all(is.character(tmp))) {
-      extra <- setdiff(tmp, all_names[[nm]])
-      if (length(extra) > 1) {
-        msg <- glue::glue(
-          "{nm}s requested, but not in the pvlrt object: \\
-          {paste0('\"', extra, '\"') %>% paste(collapse = ', ')}"
+      if (!grep) {
+        extra <- setdiff(tmp, all_names[[nm]])
+        if (length(extra) > 1) {
+          msg <- glue::glue(
+            "some of the requested {nm}s are \\
+            not present in the pvlrt object.
+            To match by pattern set grep = TRUE.
+            Use `extract_{nm}_names()` to extract \\
+            the available {nm}-names in the \\
+            pvlrt object."
+          )
+          warning(msg)
+        }
+        matches <- tmp %>% intersect(all_names[[nm]]) %>% unique(.)
+        if (length(matches) < 1) {
+          msg <- glue::glue(
+            "No {nm}s found in pvlrt object \\
+            with the requested names.
+            To match by pattern set grep = TRUE.
+            Use `extract_{nm}_names()` to extract \\
+            the available {nm}-names in the \\
+            pvlrt object.
+            "
+          )
+          stop(msg)
+        }
+      } else {
+        pattern <- tmp %>%
+          paste(collapse = "|") %>%
+          gsub("\\|$", "", .) %>%
+          trimws()
+        # if (length(pattern) > 1) browser()
+        matches <- grep(
+          pattern = pattern,
+          x = all_names[[nm]],
+          ignore.case = TRUE,
+          value = TRUE
         )
-        warning(msg)
+        if (length(matches) < 1) {
+          msg <- glue::glue(
+            "no {nm}s found in pvlrt object \\
+            with the requested pattern.
+            Use `extract_{nm}_names()` to extract \\
+            the available {nm}-names in the \\
+            pvlrt object.
+            "
+          )
+          warning(msg)
+        }
       }
-      processed[[nm]] <- tmp %>% intersect(all_names[[nm]]) %>% unique(.)
+
+      processed[[nm]] <- matches
     } else {
       msg <- glue::glue("invalid {nm} provided")
       stop(msg)
@@ -122,7 +181,8 @@ process_plot_data <- function(object = object,
   p.value <- n <- .N <- .SD <-
     threshold <- display_text_color <-  NULL
 
-  dat_pl <- dat_pl[,
+  dat_pl <- dat_pl[
+    ,
     `:=`(
       AE = AE %>% factor(levels = processed$AE),
       Drug = Drug %>% factor(levels = processed$Drug)
@@ -187,6 +247,25 @@ process_plot_data <- function(object = object,
       "p.value", "text", "text_color"),
     with = FALSE
   ]
+
+
+  if (remove_outside) {
+    assign_na_char <- glue::glue(
+      "{meas_all} = NA"
+    ) %>%
+      paste(collapse = ", ") %>%
+      {glue::glue("`:=`({.})")}
+
+    glue::glue(
+      "dat_pl[
+     !({filter_char}),
+     {assign_na_char}
+     ]"
+    ) %>%
+      parse(text = .) %>%
+      eval()
+  }
+
 
   dat_pl
 }

@@ -1,5 +1,8 @@
 `:=` <- data.table::`:=`
 
+between <- data.table::between
+`%between%` <- data.table::`%between%`
+
 set_attr <- `attr<-`
 
 set_dimnames <- `dimnames<-`
