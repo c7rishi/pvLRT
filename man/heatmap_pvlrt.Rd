@@ -10,7 +10,7 @@ heatmap_pvlrt(
   AE = NULL,
   Drug = NULL,
   grep = FALSE,
-  measure = "p.value",
+  fill_measure = "p.value",
   show_n = TRUE,
   arrange_alphabetical = FALSE,
   show_pvalue = FALSE,
@@ -32,7 +32,7 @@ heatmap_pvlrt(
   AE = NULL,
   Drug = NULL,
   grep = FALSE,
-  measure = "lrstat",
+  x_axis_measure = "lrstat",
   fill_measure = "p.value",
   show_n = FALSE,
   arrange_alphabetical = FALSE,
@@ -54,6 +54,8 @@ heatmap_pvlrt(
 }
 \arguments{
 \item{object}{pvlrt object}
+
+\item{fill_measure}{Measure to govern the filling}
 
 \item{engine}{heatmap engine to use. Available choices are "ggplot2"
 (default, can be abbreviated to "ggplot") and "pheatmap".}

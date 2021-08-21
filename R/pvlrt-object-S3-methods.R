@@ -45,6 +45,8 @@ summary.pvlrt <- function(object, ...) {
       },
       .
     ) %>%
+    # using base pipe instead of magrittr pipe
+    # would be faster, I think
     data.table::setDT() %>%
     data.table::setorder(-lrstat)
 

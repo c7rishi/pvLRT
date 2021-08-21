@@ -3,7 +3,7 @@
 #' @param engine heatmap engine to use. Available choices are "ggplot2"
 #' (default, can be abbreviated to "ggplot") and "pheatmap".
 #' @param ... additional arguments passed to pheatmap::pheatmap()
-#'
+#' @param fill_measure Measure to govern the filling
 #' @examples
 #' test1 <- pvlrt(statin46)
 #' heatmap_pvlrt(test1)
@@ -14,7 +14,7 @@ heatmap_pvlrt <- function(object,
                           AE = NULL,
                           Drug = NULL,
                           grep = FALSE,
-                          measure = "p.value",
+                          fill_measure = "p.value",
                           show_n = TRUE,
                           arrange_alphabetical = FALSE,
                           show_pvalue = FALSE,
@@ -65,14 +65,14 @@ heatmap_pvlrt <- function(object,
         ggplot2::aes_string(
           y = "AE",
           x = "Drug",
-          fill = measure,
+          fill = fill_measure,
           label = "text"
         )
       ) +
       ggplot2::geom_tile(color = "grey") +
       ggplot2::scale_fill_gradient(
-        low = ifelse(measure == "p.value", darkblue_col, "white"),
-        high = ifelse(measure == "p.value", "white", darkblue_col)
+        low = ifelse(fill_measure == "p.value", darkblue_col, "white"),
+        high = ifelse(fill_measure == "p.value", "white", darkblue_col)
       ) +
       ggplot2::theme_bw() +
       ggplot2::theme(
@@ -115,11 +115,11 @@ heatmap_pvlrt <- function(object,
     ) %>%
       setNames(., .) %>%
       lapply(
-        function(measure) {
+        function(fill_measure) {
           out <- dat_pl %>%
             data.table::dcast(
               AE ~ Drug,
-              value.var = measure
+              value.var = fill_measure
             ) %>%
             as.data.frame() %>%
             set_rownames(.$AE)
@@ -209,11 +209,11 @@ heatmap_pvlrt <- function(object,
     }
 
     if (is.null(dots$main)) {
-      dots$main <- measure
+      dots$main <- fill_measure
     }
 
     pheatmap_args <- list(
-      mat = plot_mats[[measure]],
+      mat = plot_mats[[fill_measure]],
       cluster_cols = FALSE,
       cluster_rows = FALSE
     ) %>%
@@ -232,7 +232,7 @@ barplot.pvlrt <- function(object,
                           AE = NULL,
                           Drug = NULL,
                           grep = FALSE,
-                          measure = "lrstat",
+                          x_axis_measure = "lrstat",
                           fill_measure = "p.value",
                           show_n = FALSE,
                           arrange_alphabetical = FALSE,
@@ -290,7 +290,7 @@ barplot.pvlrt <- function(object,
     ggplot2::ggplot(
       ggplot2::aes_string(
         y = "AE",
-        x = measure,
+        x = x_axis_measure,
         fill = fill_measure,
         label = "text"
       )

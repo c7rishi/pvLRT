@@ -37,7 +37,16 @@ lrt_zi_poisson <- function(contin_table,
   ) %>%
     c(dots)
 
-  do.call(pvlrt, inargs)
+  out <- tryCatch(
+    do.call(pvlrt, inargs),
+    error = function(e) e
+  )
+
+  if (is(out, "error")) {
+    stop(out$message)
+  }
+
+  out
 }
 
 
@@ -92,7 +101,16 @@ lrt_poisson <- function(contin_table,
   ) %>%
     c(dots)
 
-  do.call(pvlrt, inargs)
+  out <- tryCatch(
+    do.call(pvlrt, inargs),
+    error = function(e) e
+  )
+
+  if (is(out, "error")) {
+    stop(out$message)
+  }
+
+  out
 }
 
 #' @rdname lrt_poisson

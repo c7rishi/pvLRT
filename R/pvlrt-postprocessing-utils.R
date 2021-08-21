@@ -37,3 +37,23 @@ extract_significant_pairs <- function(object, significance_level = 0.05, ...) {
 
   out
 }
+
+#' Extracting AE and Drug names from a pvlrt object
+#'
+#' @export
+extract_AE_names <- function(object) {
+  if (!is.pvlrt(object)) {
+    stop("object must be a 'pvlrt' object.")
+  }
+  rownames(object)
+}
+
+#' @rdname extract_AE_names
+#' @export
+extract_Drug_names <- function(object) {
+  if (!is.pvlrt(object)) {
+    stop("object must be a 'pvlrt' object.")
+  }
+  colnames(object)
+}
+

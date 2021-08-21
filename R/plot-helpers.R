@@ -2,7 +2,7 @@ process_plot_data <- function(object = object,
                               AE = NULL,
                               Drug = NULL,
                               grep = FALSE,
-                              measure = "p.value",
+                              fill_measure = "p.value",
                               show_n = FALSE,
                               show_pvalue = FALSE,
                               show_lrstat = FALSE,
@@ -20,7 +20,7 @@ process_plot_data <- function(object = object,
 
   stopifnot(
     is(object, "pvlrt"),
-    measure %in% c("p.value", "lrstat", "n")
+    fill_measure %in% c("p.value", "lrstat", "n")
   )
 
   dots <- list(...)
@@ -30,14 +30,15 @@ process_plot_data <- function(object = object,
   # defined inside data.table using NSE
   lrstat <- p.value <- AE <- Drug <-  NULL
 
-  # First threshold by the provided limists of p.values and the LRstats
-  summ_full <- summary(object) %>%
-    .[,
-      `:=`(
-        AE = as.character(AE),
-        Drug = as.character(Drug)
-      )
-    ]
+  # First threshold by the provided limits of p.values and the LRstats
+  summ_full <- summary(
+    object
+  )[,
+    `:=`(
+      AE = as.character(AE),
+      Drug = as.character(Drug)
+    )
+  ]
 
 
 
@@ -228,7 +229,7 @@ process_plot_data <- function(object = object,
         trimws()
     )
   ][,
-    threshold := .SD[[measure]] %>%
+    threshold := .SD[[fill_measure]] %>%
       unlist() %>%
       c() %>%
       # median() %>%
@@ -236,7 +237,7 @@ process_plot_data <- function(object = object,
       range(.) %>%
       mean(.)
   ][,
-    text_color := .SD[[measure]] %>%
+    text_color := .SD[[fill_measure]] %>%
       {ifelse(
         . >= threshold,
         "black",
