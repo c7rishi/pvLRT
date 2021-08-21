@@ -2,6 +2,10 @@ is.pvlrt <- function(obj,...) {
   is (obj, "pvlrt")
 }
 
+extract_n_matrix <- function(object, ...) {
+  attr(object, "contin_table")
+}
+
 
 #' @export
 summary.pvlrt <- function(object, ...) {
@@ -9,17 +13,14 @@ summary.pvlrt <- function(object, ...) {
     stop("object must be a 'pvlrt' object.")
   }
 
-  tab_lrstat_pval <- c("lrstat", "p.value") %>%
-    lapply(
-      function(measure) {
-        object %>%
-          {
-            if (measure == "p.value") {
-              `class<-`(., "matrix")
-            } else {
-              attr(., "lrstat")
-            }
-          } %>%
+  tab_lrstat_pval <- list(
+    n = extract_n_matrix,
+    lrstat = extract_lrstat_matrix,
+    p.value = extract_pvalue_matrix
+  ) %>%
+    mapply(
+      function(measure_fn, measure) {
+        measure_fn(object) %>%
           data.matrix() %>%
           data.table::as.data.table(
             keep.rownames = TRUE
@@ -33,7 +34,10 @@ summary.pvlrt <- function(object, ...) {
             variable.name = "Drug",
             value.name = measure
           )
-      }
+      },
+      .,
+      names(.),
+      SIMPLIFY = FALSE
     ) %>%
     Reduce(
       function(dt1, dt2) {
@@ -183,3 +187,19 @@ as.matrix.pvlrt <- function(object, ...) {
   object
 }
 
+
+
+#' @export
+plot.pvlrt <- function(object, type = "heatmap", ...) {
+  stopifnot(
+    type %in% c("heatmap")
+  )
+
+  out <- if (type == "heatmap") {
+    heatmap_pvlrt(object, ...)
+  } else if (type == "barplot") {
+    barplot(object, ...)
+  }
+
+  out
+}

@@ -16,10 +16,11 @@ Imports:
     progress,
     data.table,
     glue,
-    pheatmap,
     grDevices,
-    RColorBrewer
+    RColorBrewer,
+    ggplot2
 Depends: 
     R (>= 3.1.0)
 suggests:
+    pheatmap,
     furrr

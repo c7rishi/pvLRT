@@ -2,23 +2,54 @@
 % Please edit documentation in R/pvlrt-plots.R
 \name{heatmap_pvlrt}
 \alias{heatmap_pvlrt}
+\alias{barplot.pvlrt}
 \title{Heatmap showing LR test results}
 \usage{
 heatmap_pvlrt(
   object,
-  nrow = NULL,
-  ncol = NULL,
-  color_by = "p.value",
+  AE = NULL,
+  Drug = NULL,
+  measure = "p.value",
   show_n = TRUE,
+  arrange_alphabetical = FALSE,
   show_pvalue = FALSE,
   show_lrstat = FALSE,
-  arrange_alphabatical = FALSE,
+  p.value_lower = 0,
+  p.value_upper = 1,
+  lrstat_lower = 0,
+  lrstat_upper = Inf,
   digits = 2,
+  engine = "ggplot2",
+  ...
+)
+
+\method{barplot}{pvlrt}(
+  object,
+  AE = NULL,
+  Drug = NULL,
+  measure = "lrstat",
+  fill_measure = "p.value",
+  show_n = FALSE,
+  arrange_alphabetical = FALSE,
+  show_pvalue = FALSE,
+  show_lrstat = FALSE,
+  p.value_lower = 0,
+  p.value_upper = 1,
+  lrstat_lower = 0,
+  lrstat_upper = Inf,
+  digits = 2,
+  engine = "ggplot2",
+  Drug_nrow = 1,
+  change_x_scale = FALSE,
+  x_axis_trans = "log10",
   ...
 )
 }
 \arguments{
 \item{object}{pvlrt object}
+
+\item{engine}{heatmap engine to use. Available choices are "ggplot2"
+(default, can be abbreviated to "ggplot") and "pheatmap".}
 
 \item{...}{additional arguments passed to pheatmap::pheatmap()}
 }
