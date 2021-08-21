@@ -192,7 +192,7 @@ as.matrix.pvlrt <- function(object, ...) {
 #' @export
 plot.pvlrt <- function(object, type = "heatmap", ...) {
   stopifnot(
-    type %in% c("heatmap")
+    type %in% c("heatmap", "barplot")
   )
 
   out <- if (type == "heatmap") {
