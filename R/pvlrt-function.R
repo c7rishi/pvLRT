@@ -83,6 +83,7 @@ pvlrt <- function(contin_table,
                   pval_ineq_strict = FALSE,
                   parametrization = "rrr",
                   null_boot_type = "parametric",
+                  is_null_boot_zi_cond = FALSE,
                   ...) {
 
   stopifnot(
@@ -429,7 +430,18 @@ pvlrt <- function(contin_table,
 
   omega_mat <- rep(1, I) %>%
     tcrossprod(omega_vec) %>%
-    set_dimnames(dimnames(contin_table))
+    set_dimnames(dimnames(contin_table)) %>%
+    {
+      if (is_null_boot_zi_cond) {
+        # posterior probabilities of zi
+        ifelse(
+          contin_table == 0,
+          (.)/((.) + (1 - .) * exp(-Eij_mat)),
+          0
+        )
+      } else .
+    }
+
 
   if (null_boot_type == "parametric") {
     gen_rand_table <- function(...) {

@@ -19,6 +19,7 @@ pvlrt(
   pval_ineq_strict = FALSE,
   parametrization = "rrr",
   null_boot_type = "parametric",
+  is_null_boot_zi_cond = FALSE,
   ...
 )
 }
