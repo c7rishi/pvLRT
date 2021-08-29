@@ -23,11 +23,12 @@
   )
 
 
-
   all_log_lrt[, test_j_idx] <-
     -(hat_lambda_ij_mat[, test_j_idx] - 1) * Eij_mat[, test_j_idx] +
     n_ij_mat[, test_j_idx] * log(hat_lambda_ij_mat[, test_j_idx])
 
+
+  # if (any(is.na(all_log_lrt[, test_j_idx]))) browser()
 
 
   all_res <- list(

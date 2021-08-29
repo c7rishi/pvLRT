@@ -29,6 +29,13 @@
 #' distribution for the counts, which is then optimized for estimating omega.
 #' @param test_drug_idx integer vector representing the columns (drug indices) of contin_table to be tested for signal.
 #' Defaults to all columns.
+#' @param is_zi_structural logical. Do the inflated zeros correspond to structural
+#' zeros (indicating impossible AE-Drug combination)? This determines how the
+#' bootstrap null zero-inflation indicators are generated. If TRUE (default),
+#' then then the null zero-inflation random indicators are randomly generated using the
+#' (estimated) *conditional* probabilities of zero inflation given observed
+#' counts. If FALSE, then they are generated using the *marginal* (drug-specific)
+#' estimated probabilities of zero-inflation.
 #'
 #'
 #' @note \code{lrt_poisson} is a wrapper function on \code{lrt_zi_poisson} with \code{omega_vec = rep(0, ncol(contin_table))}
@@ -83,7 +90,7 @@ pvlrt <- function(contin_table,
                   pval_ineq_strict = FALSE,
                   parametrization = "rrr",
                   null_boot_type = "parametric",
-                  is_null_boot_zi_cond = FALSE,
+                  is_zi_structural = TRUE,
                   ...) {
 
   stopifnot(
@@ -96,7 +103,9 @@ pvlrt <- function(contin_table,
     parametrization %in% c("rrr", "lambda", "rr", "p-q"),
     length(parametrization) == 1,
     null_boot_type %in% c("parametric", "non-parametric"),
-    length(null_boot_type) == 1
+    length(null_boot_type) == 1,
+    is.logical(is_zi_structural),
+    length(is_zi_structural) == 1
   )
 
   if (!is.null(no_zi_idx)) {
@@ -362,7 +371,10 @@ pvlrt <- function(contin_table,
           lr_stat_omega_null <- omega_lrstat_vec
         }
 
-        pval <- pval + 1 * (lr_stat_omega_null %>or>=% omega_lrstat_vec)
+        pval_increment <- 1 * (lr_stat_omega_null %>or>=% omega_lrstat_vec)
+
+        pval <- pval + pval_increment
+
         pb$tick()
         # pb()
       }
@@ -432,11 +444,11 @@ pvlrt <- function(contin_table,
     tcrossprod(omega_vec) %>%
     set_dimnames(dimnames(contin_table)) %>%
     {
-      if (is_null_boot_zi_cond) {
+      if (is_zi_structural) {
         # posterior probabilities of zi
         ifelse(
           contin_table == 0,
-          (.)/((.) + (1 - .) * exp(-Eij_mat)),
+          .safe_divide(., (. + (1 - .) * exp(-Eij_mat))),
           0
         )
       } else .
@@ -456,7 +468,7 @@ pvlrt <- function(contin_table,
     all_2d_tabs <- r2dtable(nsim, r = n_i_0_all, c = n_0_j_all) %>%
       lapply(set_dimnames, dimnames(contin_table))
 
-    gen_rand_table <- function(i) {
+    gen_rand_table <- function(ii) {
       all_2d_tabs[[ii]]
     }
   }
@@ -536,8 +548,13 @@ pvlrt <- function(contin_table,
 
     mlr_stat <- calc_mlr(lr_stat_null)
 
-    pval[, test_drug_idx] <- pval[, test_drug_idx] +
-      1L * (mlr_stat[, test_drug_idx] %>or>=% lr_stat_obs[, test_drug_idx])
+    pval_increment <- 1L * (
+      mlr_stat[, test_drug_idx] %>or>=%
+        lr_stat_obs[, test_drug_idx]
+    )
+
+    pval[, test_drug_idx] <- pval[, test_drug_idx] + pval_increment
+
 
     # pb()
     pb$tick()
@@ -593,7 +610,8 @@ pvlrt <- function(contin_table,
     set_attr("test_drug_idx", test_drug_idx) %>%
     set_attr("contin_table", contin_table) %>%
     set_attr("no_zi_idx", no_zi_idx) %>%
-    set_attr("null_boot_type", null_boot_type)
+    set_attr("null_boot_type", null_boot_type) %>%
+    set_attr("is_zi_structural", is_zi_structural)
 
   class(lr_stat_pvalue) <- c("pvlrt", class(lr_stat_pvalue))
 

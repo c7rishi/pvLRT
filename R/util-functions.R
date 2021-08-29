@@ -53,3 +53,11 @@ out
   zmat
 }
 
+
+.safe_divide <- function(x, y) {
+  ifelse(
+    x == 0,
+    0,
+    x / y
+  )
+}

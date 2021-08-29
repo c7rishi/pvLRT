@@ -30,62 +30,39 @@ process_plot_data <- function(object = object,
   # defined inside data.table using NSE
   lrstat <- p.value <- AE <- Drug <-  NULL
 
-  # First threshold by the provided limits of p.values and the LRstats
-  summ_full <- summary(
+  # get summary statistics, sort by decreasing lr statistic
+  summ <- summary(
     object
   )[,
     `:=`(
       AE = as.character(AE),
       Drug = as.character(Drug)
     )
-  ]
-
-
-
-  meas_all <- c("p.value", "lrstat", "n")
-
-  filter_char <-
-    # specify the ranges for p.value, lrstat and n
-    # as character
-    glue::glue(
-      "{meas_all} %between% c({meas_all}_lower, {meas_all}_upper)"
-    ) %>%
-    paste(collapse = " & ")
-
-  summ_sub_pval_lrt <- filter_char %>%
-    # data table filtering statement as character
-    {glue::glue("summ_full[{.}]")} %>%
-    # parse and eval text
-    parse(text = .) %>%
-    eval()
-
-
-  if (nrow(summ_sub_pval_lrt) < 1) {
-    msg <- glue::glue(
-      "no result at the provided p.value_lower, p.value_upper, \\
-      lrstat_lower, and lrstat_upper combination"
-    )
-    stop(msg)
-  }
-
-
-  summ_sub <- summ_full[
-    AE %in% unique(summ_sub_pval_lrt$AE) &
-      Drug %in% unique(summ_sub_pval_lrt$Drug)
   ] %>%
     data.table::setorder(-lrstat)
 
   all_names <- list(
-    AE = unique(summ_sub$AE),
-    Drug = unique(summ_sub$Drug)
+    AE = unique(summ$AE),
+    Drug = unique(summ$Drug)
   )
 
 
+  summ_AE_Drug <- summ[]
+
+  # first subset on AEs and Drugs #
   # keeps the above decreasing LRstat orders
   # if the provided AEs and Drugs are numeric or null
   # but uses the provided order if the provided
   # AEs and Drugs are characters
-  for (nm in c("AE", "Drug")) {
+  measure_order <- if (all(is.numeric(AE))) {
+    c("Drug", "AE")
+  } else if (all(is.numeric(Drug))) {
+    c("AE", "Drug")
+  } else {
+    c("Drug", "AE")
+  }
+
+  for (nm in measure_order) {
     tmp <- all_inputs[[nm]]
     if (is.null(tmp)) {
       n_elem <- all_names[[nm]] %>% length(.) %>% min(50)
@@ -98,7 +75,7 @@ process_plot_data <- function(object = object,
         stop(msg)
       }
       n_elem <- all_names[[nm]] %>% length(.) %>% min(tmp)
-      processed[[nm]] <- all_names[[nm]][1:n_elem]
+      processed[[nm]] <- summ_AE_Drug[[nm]][1:n_elem]
     } else if (all(is.character(tmp))) {
       if (!grep) {
         extra <- setdiff(tmp, all_names[[nm]])
@@ -157,26 +134,72 @@ process_plot_data <- function(object = object,
       stop(msg)
     }
 
+    # arrange AE & Drug categories alphabetically,
+    # if requested
+    if (arrange_alphabetical) {
+      processed[[nm]] <- sort(processed[[nm]])
+    }
+
+    # subset on the current set of nm,
+    # rearrange the rows based on lrstat
+    summ_AE_Drug <- glue::glue(
+      "summ_AE_Drug[
+        {nm} %in% unique(processed${nm})
+      ] %>%
+      data.table::setorder(-lrstat)"
+    ) %>%
+      parse(text = .) %>%
+      eval(.)
   }
 
-  # arrange AE & Drug categories alphabeticallys
-  if (arrange_alphabetical) {
-    processed <- lapply(processed, sort)
-  }
+  # summ_AE_Drug <- summ[
+  #   AE %in% unique(processed$AE) &
+  #     Drug %in% unique(processed$Drug)
+  # ]
 
-
-  dat_pl <- summ_sub[
-    AE %in% unique(processed$AE) &
-      Drug %in% unique(processed$Drug)
-  ]
-
-  if (nrow(dat_pl) < 1) {
+  if (nrow(summ_AE_Drug) < 1) {
     msg <- glue::glue(
-      "no result at the provided AE, Drug, p.value_lower, p.value_upper, \\
+      "no result at the provided AE and Drug combination"
+    )
+    stop(msg)
+  }
+
+  # next threshold by measure -- extract all AE's and
+  # Drugs that satisfy the thresholds in at least one
+  # comparison
+  meas_all <- c("p.value", "lrstat", "n")
+
+  filter_char <-
+    # specify the ranges for p.value, lrstat and n
+    # as character
+    glue::glue(
+      "{meas_all} %between% c({meas_all}_lower, {meas_all}_upper)"
+    ) %>%
+    paste(collapse = " & ")
+
+  summ_pval_lrt <- filter_char %>%
+    # data table filtering statement as character
+    {glue::glue("summ_AE_Drug[{.}]")} %>%
+    # parse and eval text
+    parse(text = .) %>%
+    eval()
+
+
+  if (nrow(summ_pval_lrt) < 1) {
+    msg <- glue::glue(
+      "no result at the provided p.value_lower, p.value_upper, \\
       lrstat_lower, and lrstat_upper combination"
     )
     stop(msg)
   }
+
+  # subset on both (AE, Drug) subset
+  # and measure value based subset
+  dat_pl <- summ_AE_Drug[
+    AE %in% unique(summ_pval_lrt$AE) &
+      Drug %in% unique(summ_pval_lrt$Drug)
+  ]
+
 
   # defined inside data.table using NSE
   p.value <- n <- .N <- .SD <-
@@ -185,8 +208,18 @@ process_plot_data <- function(object = object,
   dat_pl <- dat_pl[
     ,
     `:=`(
-      AE = AE %>% factor(levels = processed$AE),
-      Drug = Drug %>% factor(levels = processed$Drug)
+      AE = AE %>%
+        factor(
+          levels = intersect(
+            processed$AE, unique(.)
+          )
+        ),
+      Drug = Drug %>%
+        factor(
+          levels = intersect(
+            processed$Drug, unique(.)
+          )
+        )
     )
   ][
     ,

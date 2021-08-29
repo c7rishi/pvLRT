@@ -19,7 +19,7 @@ pvlrt(
   pval_ineq_strict = FALSE,
   parametrization = "rrr",
   null_boot_type = "parametric",
-  is_null_boot_zi_cond = FALSE,
+  is_zi_structural = TRUE,
   ...
 )
 }
@@ -59,6 +59,14 @@ if \code{omega_vec} is supplied (is non-NULL). Defaults to FALSE.
 NOTE: \code{test_omega} and \code{test_zi} are aliases.}
 
 \item{pval_ineq_strict}{logical. Use a strict inequality in the definition of the p-values?  Defaults to FALSE.}
+
+\item{is_zi_structural}{logical. Do the inflated zeros correspond to structural
+zeros (indicating impossible AE-Drug combination)? This determines how the
+bootstrap null zero-inflation indicators are generated. If TRUE (default),
+then then the null zero-inflation random indicators are randomly generated using the
+(estimated) \emph{conditional} probabilities of zero inflation given observed
+counts. If FALSE, then they are generated using the \emph{marginal} (drug-specific)
+estimated probabilities of zero-inflation.}
 
 \item{use_gamma_smooth_omega}{logical. Use a gamma prior (smoothing) on the signals (lambdas) while estimating
 omega from data. Defaults to FALSE. NOTE: if TRUE, then the gamma prior produces a marginal negative binomial

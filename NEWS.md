@@ -1,3 +1,18 @@
+# version 0.1.4
+safer handling of posterior structural zi probability in 0/0 form
+
+
+#  version 0.1.3
+Defaults pseudo lambda LRT now uses use_cont
+
+
+# version 0.1.2
+
+Lots of changes. Primarily analysis is now centered around 
+a pvlrt object that is created when the function pvlrt() is 
+used. Various summary, plotting, printing methods for pvlrt 
+are created.
+
 # version 0.1.1
 
 * Changes in lrt_zi_poisson():
