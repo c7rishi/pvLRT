@@ -28,6 +28,7 @@ heatmap_pvlrt <- function(object,
                           remove_outside = FALSE,
                           digits = 2,
                           engine = "ggplot2",
+                          border_color = "white",
                           ...) {
 
   dots <- list(...)
@@ -69,7 +70,7 @@ heatmap_pvlrt <- function(object,
           label = "text"
         )
       ) +
-      ggplot2::geom_tile(color = "grey") +
+      ggplot2::geom_tile(color = border_color) +
       ggplot2::scale_fill_gradient(
         low = ifelse(fill_measure == "p.value", darkblue_col, "white"),
         high = ifelse(fill_measure == "p.value", "white", darkblue_col)
@@ -249,6 +250,7 @@ barplot.pvlrt <- function(object,
                           Drug_nrow = 1,
                           x_axis_trans = FALSE,
                           x_axis_trans_fn = "log1p",
+                          border_color = "white",
                           ...) {
 
   dots <- list(...)
@@ -295,7 +297,7 @@ barplot.pvlrt <- function(object,
         label = "text"
       )
     ) +
-    ggplot2::geom_bar(stat = "identity") +
+    ggplot2::geom_bar(stat = "identity", color = border_color) +
     ggplot2::facet_wrap(~Drug, nrow = Drug_nrow) +
     ggplot2::theme_bw() +
     ggplot2::scale_fill_gradientn(colors = fill_range)+

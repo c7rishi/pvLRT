@@ -24,6 +24,7 @@ heatmap_pvlrt(
   remove_outside = FALSE,
   digits = 2,
   engine = "ggplot2",
+  border_color = "white",
   ...
 )
 
@@ -49,6 +50,7 @@ heatmap_pvlrt(
   Drug_nrow = 1,
   x_axis_trans = FALSE,
   x_axis_trans_fn = "log1p",
+  border_color = "white",
   ...
 )
 }
