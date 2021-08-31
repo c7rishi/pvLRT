@@ -3,7 +3,8 @@ is.pvlrt <- function(obj,...) {
 }
 
 extract_n_matrix <- function(object, ...) {
-  attr(object, "contin_table")
+  attr(object, "contin_table") %>%
+    set_dimnames(dimnames(object))
 }
 
 

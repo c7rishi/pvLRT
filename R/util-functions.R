@@ -53,7 +53,8 @@ out
   zmat
 }
 
-
+# returns 0 if the numerator is zero,
+# other wise returns the ratio
 .safe_divide <- function(x, y) {
   ifelse(
     x == 0,
@@ -61,3 +62,18 @@ out
     x / y
   )
 }
+
+
+
+# orders w.r.t. given names,
+# then remove names
+.order_then_unname <- function(obj, names, dimnames) {
+  out <- unname(obj)
+  if (is.matrix(obj)) {
+    if (!is.null(dimnames(obj))) {
+      out <- obj[dimnames[[1]], dimnames[[2]]] %>%
+        unname()
+    }
+  }
+}
+

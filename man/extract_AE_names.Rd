@@ -3,11 +3,17 @@
 \name{extract_AE_names}
 \alias{extract_AE_names}
 \alias{extract_Drug_names}
+\alias{set_AE_names}
+\alias{set_Drug_names}
 \title{Extracting AE and Drug names from a pvlrt object}
 \usage{
 extract_AE_names(object)
 
 extract_Drug_names(object)
+
+set_AE_names(object, old, new)
+
+set_Drug_names(object, old, new)
 }
 \description{
 Extracting AE and Drug names from a pvlrt object

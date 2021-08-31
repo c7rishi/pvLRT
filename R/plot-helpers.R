@@ -251,10 +251,10 @@ process_plot_data <- function(object = object,
           if (show_n) paste(., n_text) else .
         } %>%
         {
-          if (show_lrstat) paste(., lrstat_text, sep = ", ") else .
+          if (show_lrstat) paste(., lrstat_text, sep = "\n") else .
         } %>%
         {
-          if (show_pvalue) paste(., p.value_text, sep = ", ") else .
+          if (show_pvalue) paste(., p.value_text, sep = "\n") else .
         } %>%
         gsub("^\\,", "", .) %>%
         # gsub("^\\ ", "", .) %>%

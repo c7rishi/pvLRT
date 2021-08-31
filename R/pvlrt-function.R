@@ -598,20 +598,26 @@ pvlrt <- function(contin_table,
   #     {./(nsim + 1)}
   # }
 
-  lr_stat_pvalue <- pval %>%
-    set_attr("lrstat", lr_stat_obs) %>%
-    set_attr("omega", omega_vec) %>%
-    set_attr("test_omega", test_omega) %>%
-    set_attr("omega_lrstat", omega_lrstat_vec) %>%
-    set_attr("omega_pvalue", omega_pval_vec) %>%
-    set_attr("omega_qvalue", p.adjust(omega_pval_vec)) %>%
-    set_attr("do_omega_estimation", do_omega_estimation) %>%
-    set_attr("parametrization", parametrization) %>%
-    set_attr("test_drug_idx", test_drug_idx) %>%
-    set_attr("contin_table", contin_table) %>%
-    set_attr("no_zi_idx", no_zi_idx) %>%
-    set_attr("null_boot_type", null_boot_type) %>%
-    set_attr("is_zi_structural", is_zi_structural)
+  lr_stat_pvalue <- pval
+
+  attrs <- list(
+    lrstat = lr_stat_obs,
+    omega = omega_vec,
+    test_omega = test_omega,
+    omega_lrstat = omega_lrstat_vec,
+    omega_pvalue = omega_pval_vec,
+    omega_qvalue = p.adjust(omega_pval_vec),
+    do_omega_estimation = do_omega_estimation,
+    parametrization = parametrization,
+    test_drug_idx = test_drug_idx,
+    contin_table = contin_table,
+    no_zi_idx = no_zi_idx,
+    null_boot_type = null_boot_type,
+    is_zi_structural = is_zi_structural
+  ) %>%
+    lapply(unname)
+
+  attributes(lr_stat_pvalue) <- attributes(lr_stat_pvalue) %>% c(attrs)
 
   class(lr_stat_pvalue) <- c("pvlrt", class(lr_stat_pvalue))
 
