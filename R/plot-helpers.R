@@ -28,7 +28,7 @@ process_plot_data <- function(object = object,
   processed <- list()
 
   # defined inside data.table using NSE
-  lrstat <- p.value <- AE <- Drug <-  NULL
+  lrstat <- p.value <- NULL
 
   # get summary statistics, sort by decreasing lr statistic
   summ <- summary(
@@ -38,6 +38,8 @@ process_plot_data <- function(object = object,
       AE = as.character(AE),
       Drug = as.character(Drug)
     )
+  ][
+    !is.na(lrstat)
   ] %>%
     data.table::setorder(-lrstat)
 
@@ -47,7 +49,9 @@ process_plot_data <- function(object = object,
   )
 
 
-  summ_AE_Drug <- summ[]
+  summ_AE_Drug <- summ #data.table::copy(summ)
+
+  # browser()
 
   # first subset on AEs and Drugs #
   # keeps the above decreasing LRstat orders
@@ -75,7 +79,7 @@ process_plot_data <- function(object = object,
         stop(msg)
       }
       n_elem <- all_names[[nm]] %>% length(.) %>% min(tmp)
-      processed[[nm]] <- summ_AE_Drug[[nm]][1:n_elem]
+      processed[[nm]] <- summ_AE_Drug[[nm]] %>% unique() %>% .[1:n_elem]
     } else if (all(is.character(tmp))) {
       if (!grep) {
         extra <- setdiff(tmp, all_names[[nm]])
@@ -134,6 +138,8 @@ process_plot_data <- function(object = object,
       stop(msg)
     }
 
+
+
     # arrange AE & Drug categories alphabetically,
     # if requested
     if (arrange_alphabetical) {
@@ -151,6 +157,8 @@ process_plot_data <- function(object = object,
       parse(text = .) %>%
       eval(.)
   }
+
+  # browser()
 
   # summ_AE_Drug <- summ[
   #   AE %in% unique(processed$AE) &

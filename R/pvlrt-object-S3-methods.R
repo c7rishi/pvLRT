@@ -8,11 +8,57 @@ extract_n_matrix <- function(object, ...) {
 }
 
 
+summary_zi_probs <- function(object, ...) {
+  all_attr <- attributes(object)
+
+  out <- data.table(
+    AE = colnames(object),
+    zi = all_attr$omega
+  )
+
+  if (all_attr$test_omega) {
+    zi_lrstat <- zi_p.value <- zi_q.value <- NULL
+    out[
+      ,
+      `:=`(
+        lrstat = all_attr$omega_lrstat,
+        p.value = all_attr$omega_pvalue,
+        q.value = all_attr$omega_qvalue
+      )
+    ]
+  }
+
+  out
+}
+
+#' Summary method for a pvlrt object
+#'
+#' @param object a \code{pvlrt} object, which is the output of the function
+#' \link{pvlrt} or one of its wrappers such as \link{lrt_zi_poisson},
+#' \link{lrt_poisson} and \code{lrt_vanilla_poisson}.
+#' @param ... other input parameters. Currently unused.
+#' @param show_zi logical. Should summary of the estimates and tests
+#' (if performed) of the zero inflation parameters be returned?
+#' Defaults to FALSE. If TRUE, then the zero inflation summary is included
+#' as an attribute with name "zi". See examples.
+#'
+#' @examples
+#' \dontrun{
+#' test1 <- pvlrt(statin46, test_zi = TRUE)
+#' summary(test1)
+#' tmp <- summary(test1, show_zi = TRUE)
+#' attr(tmp, "zi")
+#' }
 #' @export
-summary.pvlrt <- function(object, ...) {
+summary.pvlrt <- function(object, show_zi = FALSE, ...) {
   if (!is.pvlrt(object)) {
     stop("object must be a 'pvlrt' object.")
   }
+
+  stopifnot(
+    is.logical(show_zi),
+    length(show_zi) == 1
+  )
 
   tab_lrstat_pval <- list(
     n = extract_n_matrix,
@@ -51,13 +97,26 @@ summary.pvlrt <- function(object, ...) {
     data.table::setDT() %>%
     data.table::setorder(-lrstat)
 
+  if (show_zi) {
+    summ_zi <- summary_zi_probs(object)
+    attr(tab_lrstat_pval, "zi") <- summ_zi
+  }
+
   tab_lrstat_pval
 }
 
-
+#' Print method for pvlrt objects
+#' @inheritParams summary.pvlrt
+#' @inheritParams extract_pvalue_matrix
+#' @param topn number of top (with respect to likelihood ratio statistic value)
+#' pairs to show at the given significance level.
+#' @param digits number of digits to show after the decimal place.
 #' @export
-print.pvlrt <- function(object, significance_level = 0.05,
-                        topn = 12, digits = 2, ...) {
+print.pvlrt <- function(object,
+                        significance_level = 0.05,
+                        topn = 12,
+                        digits = 2,
+                        ...) {
   if (!is.pvlrt(object)) {
     stop("object must be a 'pvlrt' object.")
   }
@@ -99,7 +158,9 @@ print.pvlrt <- function(object, significance_level = 0.05,
       paste0(
         " (", all_attr$dimnames[[2]], ")"
       ) %>%
-      paste0("q", .)
+      paste0("q", .) %>%
+      gsub("=<", "<", .) %>%
+      gsub("qNA", "q=<NA>", .)
 
     zi_test_text <- paste0(zi_lr_stat, zi_q_values) %>%
       paste(collapse = ", ")
@@ -124,7 +185,7 @@ print.pvlrt <- function(object, significance_level = 0.05,
 
   topn <- min(n_signif_pair, topn)
 
-  if (topn > 1) {
+  if (topn >= 1) {
     top_signif_pairs <- signif_pairs %>%
       .[1:topn, ] %>%
       .[, c("AE", "Drug", "lrstat", "p.value"), with = FALSE]
@@ -181,6 +242,7 @@ print.pvlrt <- function(object, significance_level = 0.05,
 }
 
 
+#' @inheritParams summary.pvlrt
 #' @export
 as.matrix.pvlrt <- function(object, ...) {
   if (!is.pvlrt(object)) {
@@ -192,6 +254,15 @@ as.matrix.pvlrt <- function(object, ...) {
 
 
 
+#' Plotting method for a pvlrt object
+#'
+#' @inheritParams summary.pvlrt
+#' @param type character string determining the type of plot to show.
+#' Available choices are "heatmap" (default) which calls \link{heatmap_pvlrt},
+#' and "barplot" which calls \link{barplot.pvlrt} with the additional arguments
+#' supplied in ...
+#' @param ... additional arguments passed to heatmap_pvlrt or barplot.pvlrt
+#' depending on \code{type}.
 #' @export
 plot.pvlrt <- function(object, type = "heatmap", ...) {
   stopifnot(

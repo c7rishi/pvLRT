@@ -5,7 +5,7 @@
 \alias{extract_Drug_names}
 \alias{set_AE_names}
 \alias{set_Drug_names}
-\title{Extracting AE and Drug names from a pvlrt object}
+\title{Extracting and setting AE and Drug names from a pvlrt object}
 \usage{
 extract_AE_names(object)
 
@@ -15,6 +15,15 @@ set_AE_names(object, old, new)
 
 set_Drug_names(object, old, new)
 }
+\arguments{
+\item{object}{a \code{pvlrt} object, which is the output of the function
+\link{pvlrt} or one of its wrappers such as \link{lrt_zi_poisson},
+\link{lrt_poisson} and \code{lrt_vanilla_poisson}.}
+
+\item{old}{character vector containing the old names}
+
+\item{new}{character vector containing the new names}
+}
 \description{
-Extracting AE and Drug names from a pvlrt object
+Extracting and setting AE and Drug names from a pvlrt object
 }

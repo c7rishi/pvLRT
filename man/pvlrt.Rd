@@ -30,8 +30,10 @@ effects for I AE and J Drugs}
 \item{nsim}{Number of simulated null contingency table to use for computing
 the p-value of the test}
 
-\item{zi_prob, omega_vec}{vector (for all drugs) of estimates of the zero-inflation.
-If NULL, then is estimated from the data. See also the
+\item{zi_prob, omega_vec}{Alias, determining zero inflation probabilities
+in the model. Can be a vector, providing different zero inflation
+probabilities for different drugs, or a scalar, providing the common zero
+inflation probability for all drugs. If NULL (default), then is estimated from the data. See also the
 description of the argument \code{grouped_omega_est}. If \code{omega_vec = rep(0, ncol(contin_table))},
 then test reduces to an ordinary (non-zero inflated) Poisson test. NOTE: \code{zi_prob} and \code{omega_vec}
 are alias.}

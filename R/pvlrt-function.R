@@ -8,8 +8,10 @@
 #' @param drug_class_idx a list, with the h-th entry providing the h-th group/class
 #' of drugs. By default, each drug forms its own class. If more than one drug is
 #' present in a class, an extended LRT is performed. See examples.
-#' @param zi_prob,omega_vec vector (for all drugs) of estimates of the zero-inflation.
-#' If NULL, then is estimated from the data. See also the
+#' @param zi_prob,omega_vec Alias, determining zero inflation probabilities
+#' in the model. Can be a vector, providing different zero inflation
+#' probabilities for different drugs, or a scalar, providing the common zero
+#' inflation probability for all drugs. If NULL (default), then is estimated from the data. See also the
 #' description of the argument \code{grouped_omega_est}. If \code{omega_vec = rep(0, ncol(contin_table))},
 #' then test reduces to an ordinary (non-zero inflated) Poisson test. NOTE: \code{zi_prob} and \code{omega_vec}
 #' are alias.
@@ -93,9 +95,44 @@ pvlrt <- function(contin_table,
                   is_zi_structural = TRUE,
                   ...) {
 
+  contin_table <- tryCatch(
+    data.matrix(contin_table),
+    error = function(e) e
+  )
+
+  if (is(contin_table, "error")) {
+    msg <- glue::glue(
+      "'contin_table' cannot be converted into a matrix:
+      {contin_table$message}"
+    )
+  }
+
+
+  nm_type <- c("row", "col")
+  charc_type <- c("AE", "Drug")
+  contin_dim <- dim(contin_table)
+
+  for (kk in 1:2) {
+    nm_type_fn <- match.fun(paste0(nm_type[kk], "names"))
+    `nm_type_fn<-` <- match.fun(paste0(nm_type[kk], "names<-"))
+    this_nms <- nm_type_fn(contin_table)
+    if (any(is.null(this_nms))) {
+      msg <- glue::glue(
+        "'contin_table' has no {nm_type[kk]} names. \\
+        Created {nm_type[kk]} names: {charc_type[kk]}_1, {charc_type[kk]}_2 etc. \\
+        You can replace them posthoc using `set_{charc_type[kk]}_names()` \\
+        or `{nm_type[kk]}names()` on the generated pvlrt object."
+      )
+      message(msg)
+      nm_type_fn(contin_table) <- paste(
+        charc_type[kk],
+        1:contin_dim[kk],
+        sep = "_"
+      )
+    }
+  }
   stopifnot(
     is.list(drug_class_idx),
-    is.matrix(contin_table),
     is.logical(grouped_omega_est),
     length(grouped_omega_est) == 1,
     is.logical(pval_ineq_strict),
@@ -196,6 +233,24 @@ pvlrt <- function(contin_table,
       stop("'zi_prob' and 'omega_vec' both supplied and they differ")
     }
   }
+
+  if (!is.null(omega_vec)) {
+    omega_vec <- zi_prob <- as.numeric(omega_vec)
+
+    if (length(omega_vec) == 1) {
+      omega_vec <- zi_prob <- rep(omega_vec, J)
+    }
+    if (is.null(names(omega_vec))) {
+      names(omega_vec) <- colnames(contin_table)
+    }
+    if (any((omega_vec < 0 | omega_vec >= 1))) {
+      msg <- glue::glue(
+        "'zi_prob' (or 'omega_vec') must be betwen [0, 1)."
+      )
+      stop(msg)
+    }
+  }
+
 
   if (is.null(test_zi) && is.null(test_omega)) {
     test_zi <- test_omega <- FALSE

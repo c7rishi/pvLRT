@@ -1,3 +1,5 @@
+#' Extract various summary measures from a pvlrt object
+#' @inheritParams summary.pvlrt
 #' @export
 extract_pvalue_matrix <- function(object, ...) {
   if (!is.pvlrt(object)) {
@@ -15,6 +17,7 @@ extract_pvalue_matrix <- function(object, ...) {
   as.matrix(object)
 }
 
+#' @rdname extract_pvalue_matrix
 #' @export
 extract_lrstat_matrix <- function(object, ...) {
   if (!is.pvlrt(object)) {
@@ -25,6 +28,7 @@ extract_lrstat_matrix <- function(object, ...) {
   out
 }
 
+#' @rdname extract_pvalue_matrix
 #' @export
 extract_zi_probability <- function(object, ...) {
   if (!is.pvlrt(object)) {
@@ -35,6 +39,8 @@ extract_zi_probability <- function(object, ...) {
   out
 }
 
+#' @rdname extract_pvalue_matrix
+#' @param significance_level numeric. Level of significance.
 #' @export
 extract_significant_pairs <- function(object, significance_level = 0.05, ...) {
   if (!is.pvlrt(object)) {
@@ -48,8 +54,8 @@ extract_significant_pairs <- function(object, significance_level = 0.05, ...) {
   out
 }
 
-#' Extracting AE and Drug names from a pvlrt object
-#'
+#' Extracting and setting AE and Drug names from a pvlrt object
+#' @inheritParams summary.pvlrt
 #' @export
 extract_AE_names <- function(object) {
   if (!is.pvlrt(object)) {
@@ -89,6 +95,8 @@ extract_Drug_names <- function(object) {
 }
 
 #' @rdname extract_AE_names
+#' @param old character vector containing the old names
+#' @param new character vector containing the new names
 #' @export
 set_AE_names <- function(object, old, new) {
   tmp <- tryCatch(
