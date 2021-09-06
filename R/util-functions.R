@@ -17,7 +17,9 @@ format_pval_ <- function(pv, digits = 2, eps = 1/(10^(digits+1)), ...) {
       . >= 0.90,
       ">0.90",
       paste0("=", format.pval(., digits = digits, eps = eps))
-    )}
+    )} %>%
+    gsub("=<", "<", .) %>%
+    gsub("=>", ">", .)
 }
 
 scientific_10 <- function(n, digits = 2, ...) {
