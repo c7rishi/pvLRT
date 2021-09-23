@@ -3,7 +3,7 @@
 \name{pvlrt}
 \alias{pvlrt}
 \title{Pseudo Likelihood Ratio Test for determining significant AE-Drug pairs under
-Poisson and zero-inflated Poisson models}
+Poisson and zero-inflated Poisson models for pharmacovigilance}
 \usage{
 pvlrt(
   contin_table,
@@ -20,6 +20,7 @@ pvlrt(
   parametrization = "rrr",
   null_boot_type = "parametric",
   is_zi_structural = TRUE,
+  return_overall_loglik = TRUE,
   ...
 )
 }
@@ -76,7 +77,7 @@ distribution for the counts, which is then optimized for estimating omega.}
 }
 \description{
 Pseudo Likelihood Ratio Test for determining significant AE-Drug pairs under
-Poisson and zero-inflated Poisson models
+Poisson and zero-inflated Poisson models for pharmacovigilance
 }
 \note{
 \code{lrt_poisson} is a wrapper function on \code{lrt_zi_poisson} with \code{omega_vec = rep(0, ncol(contin_table))}

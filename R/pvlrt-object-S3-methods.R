@@ -143,7 +143,9 @@ print.pvlrt <- function(object,
     zi_text <- glue::glue(
       "Drug-specific {zi_est_type} zi probabilities:
       {zi_values}"
-    )
+    ) %>%
+      strwrap(prefix = "\n", initial = "") %>%
+      paste(collapse = "")
   }
 
   is_zi_test <- all_attr$test_omega
@@ -167,9 +169,11 @@ print.pvlrt <- function(object,
 
     zi_text <- glue::glue(
       "{zi_text} \n
-      Pseudo LR test of significance for zi probabilities:
+       LR test of significance for zi probabilities:
       {zi_test_text}"
-    )
+    ) %>%
+      strwrap(prefix = "\n", initial = "") %>%
+      paste(collapse = "")
   }
 
   I <- nrow(all_attr$lrstat)
@@ -224,12 +228,18 @@ print.pvlrt <- function(object,
 
   null_boot_type <- attr(object, "null_boot_type")
 
-  msg <- glue::glue(
+  top_text <- glue::glue(
     "{parametrization}-based {lrt_type}-LRT on \\
     {I} AE & {J} drugs.
     Hypothesis tests performed on {n_drug_test_idx} \\
     {ifelse(n_drug_test_idx > 1, 'drugs', 'drug')} using \\
-    {null_boot_type} bootstrap.
+    {null_boot_type} bootstrap."
+  ) %>%
+    strwrap(prefix = "\n", initial = "") %>%
+    paste(collapse = "")
+
+  msg <- glue::glue(
+    "{top_text}
 
     {zi_text}
 
@@ -276,4 +286,102 @@ plot.pvlrt <- function(object, type = "heatmap", ...) {
   }
 
   out
+}
+
+
+
+#' Overall Log-likelihood for a pvlrt object
+#' @inheritParams summary.pvlrt
+#' @param type Type of model and hypothesis combination.
+#' Available choices are "full-poisson", "null-poisson", "full-zip" (default), and
+#' "null-zip". See details.
+#'
+#' @note
+#' The overall log likelihood must be computed during the original pvlrt run. This is
+#' ensured by setting  \code{return_overall_loglik = TRUE}, and
+#' \code{parametrization = "lambda"} (or \code{parametrization = "rrr"}) while running pvlrt().
+#'
+#' @details
+#' The function extracts the overall log-likelihood and degrees of freedom
+#' (the number of estimated parameters) from a \code{pvlrt} object. There are
+#' four possible choices of distribution and hypothesis combinations, supplied
+#' through the argument \code{type}, with the default being \code{type = "full-zip"}.
+#' In a "full" model the signal parameters lambdas are estimated for all cells
+#' in the contingency table from the data (subject to the condition lambda >= 1), whereas under a "null"
+#' model each lambda is fixed at 1 for each cell. In a "zip" model
+#' (type = "full-zip" and type = "null-zip") the log-likelihood under a zero-inflated
+#' Poisson model with estimated or supplied zero inflation parameters (
+#' through \code{zi_prob} in \link{pvlrt}) is returned. The degrees of freedom
+#' reflects whether the zero-inflation parameters are estimated. Note that if
+#' an ordinary Poisson LRT is run either by setting \code{zi_prob = 0} in
+#' \link{pvlrt} or equivalently through \link{lrt_poisson} then "full-zip" and
+#' "null-zip" refer to zero-inflated poisson models with presepecified
+#' zero-inflation probabilities equal to 0. Thus, in such cases the results
+#' with type = "full-zip" and type =  "null-zip" are identical to
+#' type = "full-poisson" and type = "null-poisson"
+#' respectively. See examples.
+#'
+#' @examples
+#'
+#' \dontrun{
+#' set.seed(100)
+#' # estimates zero inflation probabilities
+#' test1 <- pvlrt(statin46)
+#' logLik(test1)
+#' AIC(test1)
+#' BIC(test1)
+#'
+#' # compare with and without zero inflation
+#' BIC(logLik(test1, type = "full-zip"))
+#' BIC(logLik(test1, type = "full-poisson"))
+#'
+#' # ordinary poisson model
+#' ## equivalent to pvlrt(statin46, zi_prob = 0)
+#' test2 <- lrt_poisson(statin46)
+#'
+#' all.equal(logLik(test2, "full-zip"), logLik(test2, "full-poisson"))
+#'}
+#'
+#' @export
+logLik.pvlrt <- function(object, type = "full-zip", ...) {
+  if (!is.pvlrt(object)) {
+    stop("object must be a 'pvlrt' object.")
+  }
+
+  check_loglik <- !is.null(attr(object, "return_overall_loglik"))
+  if (check_loglik) {
+    check_loglik <- attr(object, "return_overall_loglik")
+  }
+  if (!check_loglik) {
+    msg <- glue::glue(
+      "Overall log-likelihood not computed. Rerun `pvlrt()` with
+      return_overall_loglik = TRUE"
+    )
+    stop(msg)
+  }
+
+  if (!attr(object, "parametrization") %in% c("rrr", "lambda")) {
+    stop("parametrization in pvlrt must be 'rrr' or 'lambda'")
+  }
+
+  possible_types <- c("full-poisson", "null-poisson",
+                      "full-zip", "null-zip")
+  if (!type %in% possible_types) {
+    msg <- possible_types %>%
+      paste0("'", ., "'") %>%
+      paste(collapse = ", ") %>%
+      paste("type must be one of:", .)
+    stop(msg)
+  }
+
+  this_type <- type
+
+  dat_loglik <- attr(object, "loglik_df")
+
+  val <- dat_loglik[type == this_type]$logLik
+  attr(val, "nobs") <- dat_loglik[type == this_type]$N
+  attr(val, "df") <- dat_loglik[type == this_type]$df
+  class(val) <- "logLik"
+
+  val
 }

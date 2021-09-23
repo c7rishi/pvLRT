@@ -1,5 +1,5 @@
 #' Pseudo Likelihood Ratio Test for determining significant AE-Drug pairs under
-#' Poisson and zero-inflated Poisson models
+#' Poisson and zero-inflated Poisson models for pharmacovigilance
 #' @inheritParams r_contin_table_zip
 #' @param contin_table IxJ contingency table showing pairwise counts of adverse
 #' effects for I AE and J Drugs
@@ -93,6 +93,7 @@ pvlrt <- function(contin_table,
                   parametrization = "rrr",
                   null_boot_type = "parametric",
                   is_zi_structural = TRUE,
+                  return_overall_loglik = TRUE,
                   ...) {
 
   contin_table <- tryCatch(
@@ -338,7 +339,6 @@ pvlrt <- function(contin_table,
 
   omega_lrstat_vec <- omega_pval_vec <- NULL
 
-
   if (do_omega_estimation) {
     omega_vec_obj <- .est_zi_1tab_rrr(
       n_ij_mat = contin_table,
@@ -352,6 +352,8 @@ pvlrt <- function(contin_table,
     this_grouped_omega_est <- grouped_omega_est
 
 
+
+    # likelihood ratio test for zero inflation
     if (test_zi) {
       msg <- paste(
         "\nBootstrapping null distribution of the",
@@ -495,9 +497,11 @@ pvlrt <- function(contin_table,
     lapply(. %>% intersect(test_drug_idx)) %>%
     .[sapply(., length) > 0]
 
-  omega_mat <- rep(1, I) %>%
+  omega_mat_orig <- rep(1, I) %>%
     tcrossprod(omega_vec) %>%
-    set_dimnames(dimnames(contin_table)) %>%
+    set_dimnames(dimnames(contin_table))
+
+  omega_mat <- omega_mat_orig %>%
     {
       if (is_zi_structural) {
         # posterior probabilities of zi
@@ -655,6 +659,96 @@ pvlrt <- function(contin_table,
 
   lr_stat_pvalue <- pval
 
+
+  # log likelihoods under 4 possible setups
+  # loglik_full_zip <- loglik_full_poisson <-
+  #   loglik_null_zip <- loglik_null_poisson <- NULL
+  loglik_df_comb <- NULL
+
+
+  if (return_overall_loglik & !(parametrization %in% c("lambda", "rrr"))) {
+    msg <- glue::glue(
+      "overall log likelihood is only computed for parameterization = 'rrr' or
+      'lambda'. Setting return_overall_loglik = FALSE"
+    )
+    warning(msg)
+  }
+
+  if (return_overall_loglik & parametrization %in% c("lambda", "rrr")) {
+    loglik_df_comb <- expand.grid(
+      mod = c("full", "null"),
+      dist = c("poisson", "zip")
+    ) %>%
+      data.table::setDT()
+
+    lambda_times_Eij <- list(
+      full = pmax(contin_table, Eij_mat),
+      null = Eij_mat
+    )
+
+    # this is the estimated omega mat
+    # NOT the posterior probabilities
+    omega_mat_est <- omega_mat_orig
+
+    log_lik_fun <- list(
+      poisson = function(theta) {
+        sum(
+          dpois(
+            x = c(contin_table),
+            lambda = c(theta),
+            log = TRUE
+          )
+        )
+      },
+      zip = function(theta) {
+        sum(
+          dzipois(
+            x = c(contin_table),
+            lambda = c(theta),
+            pi = c(omega_mat_est),
+            log = TRUE
+          )
+        )
+      }
+    )
+
+    loglik_df_comb[
+      ,
+      `:=`(
+        type = paste(mod, dist, sep = "-"),
+        logLik = mapply(
+          function(mod, dist) {
+            this_theta <- lambda_times_Eij[[mod]]
+            this_log_lik_fun <- log_lik_fun[[dist]]
+            this_log_lik_fun(this_theta)
+          },
+          mod,
+          dist,
+          SIMPLIFY = TRUE
+        ),
+        df = data.table::fcase(
+          mod == "full" & dist == "poisson", as.double(I * J),
+          mod == "null" & dist == "poisson", as.double(0.0),
+          mod == "full" & dist == "zip", ifelse(
+            do_omega_estimation,
+            I * J + J,
+            I * J
+          ) %>% as.double(.),
+          mod == "null" & dist == "zip", ifelse(
+            do_omega_estimation, J, 0.0
+          ) %>% as.double(.)
+        ),
+        N = n_0_0
+      ),
+    ]
+
+    type <- logLik <- df <- N <- NULL
+    loglik_df_comb <- loglik_df_comb[
+      ,
+      list(type, logLik, df, N)
+    ]
+  }
+
   attrs <- list(
     lrstat = lr_stat_obs,
     omega = omega_vec,
@@ -668,9 +762,12 @@ pvlrt <- function(contin_table,
     contin_table = contin_table,
     no_zi_idx = no_zi_idx,
     null_boot_type = null_boot_type,
-    is_zi_structural = is_zi_structural
+    is_zi_structural = is_zi_structural,
+    return_overall_loglik = return_overall_loglik
   ) %>%
-    lapply(unname)
+    lapply(unname) %>%
+    # need the names for loglik_df_comb
+    c(list(loglik_df = loglik_df_comb))
 
   attributes(lr_stat_pvalue) <- attributes(lr_stat_pvalue) %>% c(attrs)
 
