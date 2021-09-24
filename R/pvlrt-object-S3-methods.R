@@ -15,6 +15,7 @@ summary_zi_probs <- function(object, ...) {
     AE = colnames(object),
     zi = all_attr$omega
   )
+  . <- NULL
 
   if (all_attr$test_omega) {
     zi_lrstat <- zi_p.value <- zi_q.value <- NULL
@@ -54,6 +55,8 @@ summary.pvlrt <- function(object, show_zi = FALSE, ...) {
   if (!is.pvlrt(object)) {
     stop("object must be a 'pvlrt' object.")
   }
+  . <- NULL
+  lrstat <- NULL
 
   stopifnot(
     is.logical(show_zi),
@@ -108,18 +111,28 @@ summary.pvlrt <- function(object, show_zi = FALSE, ...) {
 #' Print method for pvlrt objects
 #' @inheritParams summary.pvlrt
 #' @inheritParams extract_pvalue_matrix
+#' @param x a \code{pvlrt} object; an output of function \code{pvlrt}().
 #' @param topn number of top (with respect to likelihood ratio statistic value)
 #' pairs to show at the given significance level.
 #' @param digits number of digits to show after the decimal place.
+#' @param show_test_sumamry logical. Should a brief summary showing the top few
+#' test results be displayed? defaults to FALSE.
+#'
 #' @export
-print.pvlrt <- function(object,
+print.pvlrt <- function(x,
                         significance_level = 0.05,
                         topn = 12,
                         digits = 2,
+                        show_test_summary = FALSE,
                         ...) {
+
+  object <- x
   if (!is.pvlrt(object)) {
-    stop("object must be a 'pvlrt' object.")
+    stop("x must be a 'pvlrt' object.")
   }
+  . <- NULL
+  lrstat <- NULL
+
 
   all_attr <- attributes(object)
   omega <- all_attr$omega
@@ -128,6 +141,12 @@ print.pvlrt <- function(object,
     all_attr$parametrization == "rrr",
     "Relative reporting rate (lambda)",
     "Reporting rate (p-q)"
+  )
+  stopifnot(
+    is.numeric(significance_level),
+    is.numeric(topn),
+    is.numeric(digits),
+    is.logical(show_test_summary)
   )
 
   if (!do_omega_estimation & all(omega == 0)) {
@@ -216,6 +235,8 @@ print.pvlrt <- function(object,
     )
   }
 
+  signif_pairs_txt_final <- if (show_test_summary) signif_pairs_txt else ""
+
   lrt_type <- ifelse(
     do_omega_estimation &
       all_attr$parametrization == "rrr",
@@ -242,21 +263,22 @@ print.pvlrt <- function(object,
     "{top_text}
 
     {zi_text}
-
-    {signif_pairs_txt}
-
+    {signif_pairs_txt_final}
     Extract all LR statistics and p-values using `summary()`
     "
   )
   cat(msg)
+  invisible(object)
 }
 
 
 #' @inheritParams summary.pvlrt
+#' @inheritParams print.pvlrt
 #' @export
-as.matrix.pvlrt <- function(object, ...) {
+as.matrix.pvlrt <- function(x, ...) {
+  object <- x
   if (!is.pvlrt(object)) {
-    stop("object must be a 'pvlrt' object.")
+    stop("x must be a 'pvlrt' object.")
   }
   class(object) <- "matrix"
   object
@@ -267,6 +289,7 @@ as.matrix.pvlrt <- function(object, ...) {
 #' Plotting method for a pvlrt object
 #'
 #' @inheritParams summary.pvlrt
+#' @inheritParams print.pvlrt
 #' @param type character string determining the type of plot to show.
 #' Available choices are "heatmap" (default) which calls \link{heatmap_pvlrt},
 #' and "barplot" which calls \link{barplot.pvlrt} with the additional arguments
@@ -274,7 +297,15 @@ as.matrix.pvlrt <- function(object, ...) {
 #' @param ... additional arguments passed to heatmap_pvlrt or barplot.pvlrt
 #' depending on \code{type}.
 #' @export
-plot.pvlrt <- function(object, type = "heatmap", ...) {
+plot.pvlrt <- function(x, type = "heatmap", ...) {
+
+  object <- x
+  . <- NULL
+
+  if (!is.pvlrt(object)) {
+    stop("x must be a 'pvlrt' object.")
+  }
+
   stopifnot(
     type %in% c("heatmap", "barplot")
   )
@@ -347,6 +378,7 @@ logLik.pvlrt <- function(object, type = "full-zip", ...) {
   if (!is.pvlrt(object)) {
     stop("object must be a 'pvlrt' object.")
   }
+  . <- NULL
 
   check_loglik <- !is.null(attr(object, "return_overall_loglik"))
   if (check_loglik) {

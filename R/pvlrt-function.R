@@ -26,9 +26,6 @@
 #' if \code{omega_vec} is supplied (is non-NULL). Defaults to FALSE.
 #' NOTE: \code{test_omega} and \code{test_zi} are aliases.
 #' @param pval_ineq_strict logical. Use a strict inequality in the definition of the p-values?  Defaults to FALSE.
-#' @param use_gamma_smooth_omega logical. Use a gamma prior (smoothing) on the signals (lambdas) while estimating
-#' omega from data. Defaults to FALSE. NOTE: if TRUE, then the gamma prior produces a marginal negative binomial
-#' distribution for the counts, which is then optimized for estimating omega.
 #' @param test_drug_idx integer vector representing the columns (drug indices) of contin_table to be tested for signal.
 #' Defaults to all columns.
 #' @param is_zi_structural logical. Do the inflated zeros correspond to structural
@@ -95,6 +92,7 @@ pvlrt <- function(contin_table,
                   is_zi_structural = TRUE,
                   return_overall_loglik = TRUE,
                   ...) {
+  . <- NULL
 
   contin_table <- tryCatch(
     data.matrix(contin_table),
@@ -343,7 +341,7 @@ pvlrt <- function(contin_table,
     omega_vec_obj <- .est_zi_1tab_rrr(
       n_ij_mat = contin_table,
       grouped_omega_est = grouped_omega_est,
-      use_gamma_smoothing = use_gamma_smooth_omega,
+      # use_gamma_smoothing = use_gamma_smooth_omega,
       omega_constrained_lambda = omega_constrained_lambda
     )
 
@@ -399,7 +397,7 @@ pvlrt <- function(contin_table,
         tmp <- .est_zi_1tab_rrr(
           n_ij_mat = n_ij_table,
           grouped_omega_est = this_grouped_omega_est,
-          use_gamma_smoothing = use_gamma_smooth_omega,
+          # use_gamma_smoothing = use_gamma_smooth_omega,
           omega_constrained_lambda = omega_constrained_lambda,
           test_j_idx = test_drug_idx
         )
@@ -515,7 +513,7 @@ pvlrt <- function(contin_table,
 
 
   if (null_boot_type == "parametric") {
-    gen_rand_table <- function(...) {
+    gen_rand_table <- function(ii) {
       nij <- rpois(I*J, c(Eij_mat))
       zij <- (runif(I*J) <= c(omega_mat)) * c(zi_idx_adj)
 
@@ -675,6 +673,7 @@ pvlrt <- function(contin_table,
   }
 
   if (return_overall_loglik & parametrization %in% c("lambda", "rrr")) {
+
     loglik_df_comb <- expand.grid(
       mod = c("full", "null"),
       dist = c("poisson", "zip")
@@ -711,6 +710,8 @@ pvlrt <- function(contin_table,
         )
       }
     )
+
+    mod <- dist <- NULL
 
     loglik_df_comb[
       ,

@@ -19,8 +19,9 @@
                                        n_row,
                                        n_col,
                                        ...) {
-  p_i0 <- .rdirichlet(1, row_marginals) %>% c()
-  p_0j <- .rdirichlet(1, col_marginals) %>% c()
+  . <- NULL
+  p_i0 <- c(.rdirichlet(1, row_marginals))
+  p_0j <- c(.rdirichlet(1, col_marginals))
   p_ij <- (signal_mat * tcrossprod(p_i0, p_0j)) %>% {./sum(.)}
 
   z_ij <- lapply(

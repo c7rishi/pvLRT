@@ -229,6 +229,7 @@ rzipoisgamma <- function(n = 1, nu = 1, sigma = 1, pi = 0, ...) {
 
 # MLE of parameters in n_ij ~ ZIP(lambda_ij * E_ij, omega)
 .estimate_zip_mle <- function(n_ij, E_ij, ...) {
+  . <- NULL
   neg_llik <- function(par) {
     omega <- expit(par["logit_omega"])
     lambda_ij <- exp(par[names(par) != "logit_omega"])
@@ -308,12 +309,12 @@ rzipoisgamma <- function(n = 1, nu = 1, sigma = 1, pi = 0, ...) {
   # opt <- opt_list[[which.min(obj_val)[1]]]
   est_omega <- opt$par %>%
     .["logit_omega"] %>%
-    expit() %>%
-    unname()
+    expit(.) %>%
+    unname(.)
   est_lambda <- opt$par %>%
     .[names(.) != "logit_omega"] %>%
     exp(.) %>%
-    unname() %>%
+    unname(.) %>%
     matrix(nrow(n_ij), ncol(n_ij)) %>%
     `dimnames<-`(dimnames(n_ij))
 
@@ -333,148 +334,148 @@ rzipoisgamma <- function(n = 1, nu = 1, sigma = 1, pi = 0, ...) {
 # ML Estimation of parameters in the ZIGammaPoisson model
 # n_ij ~ ZIP(lambda_ij * E_ij, omega), lambda_ij ~ Gamma(nu, sigma)
 # ------------------------------------------------------------------
-.estimate_zigammapois_mle_omega <- function(n_ij,
-                                            E_ij,
-                                            method = "BFGS",
-                                            omega_constrained_lambda = TRUE,
-                                            ...) {
-  expit <- function(x) {
-    n <- length(x)
-    idx_pos <- x >= 0
-    n_idx_pos <- sum(idx_pos)
-    out <- rep(NA, n)
-    if (n_idx_pos > 0) {
-      out[idx_pos] <- 1/(1 + exp(-x[idx_pos]))
-    }
-    if (n_idx_pos < n) {
-      tmp <- exp(x[!idx_pos])
-      out[!idx_pos] <- tmp/(1+tmp)
-    }
-    setNames(out, names(x))
-  }
-
-  E_ij_adj <- pmax(E_ij, 1e-20)
-
-  neg_llik <- function(par) {
-    nu <- exp(par["log_nu"])
-    # nu <- exp(par["nu"])
-    # beta <- par["beta1"]
-
-    sigma <- exp(par["log_sigma"])
-    # sigma <- par["sigma"]
-    sigma_k <- sigma * c(E_ij_adj)
-
-    omega <- expit(par["logit_omega"])
-    # pi <- par["pi"]
-
-    tmp <- dzipoisgamma(
-      x = c(n_ij),
-      nu = nu,
-      sigma = sigma_k,
-      pi = omega,
-      log = TRUE
-    )
-
-    -sum(tmp)
-  }
-
-  par_init <- c(
-    logit_omega = 0,
-    log_nu = 0,
-    log_sigma = 0
-  )
-
-  # start with BFGS
-  opt <- tryCatch(
-    optim(
-      par = par_init,
-      fn = neg_llik,
-      method = "BFGS",
-      ...
-    ),
-    error = function(e) e
-  )
-
-  if (is(opt, "error")) {
-    # try Nelder-Mead
-    opt <- tryCatch(
-      optim(
-        par = par_init,
-        fn = neg_llik,
-        method = "Nelder-Mead",
-        ...
-      ),
-      error = function(e) e
-    )
-
-    if (is(opt, "error")) stop(opt)
-  }
-
-
-  est_omega <- opt$par %>%
-    .["logit_omega"] %>%
-    expit() %>%
-    unname()
-  est_nu <- opt$par %>%
-    .["log_nu"] %>%
-    expit() %>%
-    unname()
-  est_sigma <- opt$par %>%
-    .["log_sigma"] %>%
-    expit() %>%
-    unname()
-
-
-  # browser()
-
-  opt_null <- tryCatch(
-    optim(
-      par = par_init[c("log_nu", "log_sigma")],
-      fn = function(par) {
-        neg_llik(c(logit_omega = -Inf, par))
-      },
-      method = "BFGS",
-      ...
-    ),
-    error = function(e) e
-  )
-
-  # try Nelder-Mead if error
-  if (is(opt_null, "error")) {
-    opt_null <- tryCatch(
-      optim(
-        par = par_init[c("log_nu", "log_sigma")],
-        fn = function(par) {
-          neg_llik(c(logit_omega = -Inf, par))
-        },
-        method = "Nelder-Mead",
-        ...
-      ),
-      error = function(e) e
-    )
-  }
-  if (is(opt_null, "error")) stop(opt)
-
-  llik_null <- -opt_null$value
-  llik_comb <- -opt$value
-  lrstat <- max(llik_comb - llik_null, 0)
-  # get the null (omega = 0) optimum
-
-
-  # if (is.na(est_omega) | is.null(est_omega)) browser()
-
-  out <- c(
-    omega = est_omega,
-    nu = est_nu,
-    sigma = est_sigma,
-    llik_null = -llik_null,
-    llik = llik_comb,
-    lrstat = lrstat,
-    optim = opt
-  )
-
-  out
-}
+# .estimate_zigammapois_mle_omega <- function(n_ij,
+#                                             E_ij,
+#                                             method = "BFGS",
+#                                             omega_constrained_lambda = TRUE,
+#                                             ...) {
+#   expit <- function(x) {
+#     n <- length(x)
+#     idx_pos <- x >= 0
+#     n_idx_pos <- sum(idx_pos)
+#     out <- rep(NA, n)
+#     if (n_idx_pos > 0) {
+#       out[idx_pos] <- 1/(1 + exp(-x[idx_pos]))
+#     }
+#     if (n_idx_pos < n) {
+#       tmp <- exp(x[!idx_pos])
+#       out[!idx_pos] <- tmp/(1+tmp)
+#     }
+#     setNames(out, names(x))
+#   }
+#
+#   E_ij_adj <- pmax(E_ij, 1e-20)
+#
+#   neg_llik <- function(par) {
+#     nu <- exp(par["log_nu"])
+#     # nu <- exp(par["nu"])
+#     # beta <- par["beta1"]
+#
+#     sigma <- exp(par["log_sigma"])
+#     # sigma <- par["sigma"]
+#     sigma_k <- sigma * c(E_ij_adj)
+#
+#     omega <- expit(par["logit_omega"])
+#     # pi <- par["pi"]
+#
+#     tmp <- dzipoisgamma(
+#       x = c(n_ij),
+#       nu = nu,
+#       sigma = sigma_k,
+#       pi = omega,
+#       log = TRUE
+#     )
+#
+#     -sum(tmp)
+#   }
+#
+#   par_init <- c(
+#     logit_omega = 0,
+#     log_nu = 0,
+#     log_sigma = 0
+#   )
+#
+#   # start with BFGS
+#   opt <- tryCatch(
+#     optim(
+#       par = par_init,
+#       fn = neg_llik,
+#       method = "BFGS",
+#       ...
+#     ),
+#     error = function(e) e
+#   )
+#
+#   if (is(opt, "error")) {
+#     # try Nelder-Mead
+#     opt <- tryCatch(
+#       optim(
+#         par = par_init,
+#         fn = neg_llik,
+#         method = "Nelder-Mead",
+#         ...
+#       ),
+#       error = function(e) e
+#     )
+#
+#     if (is(opt, "error")) stop(opt)
+#   }
+#
+#
+#   est_omega <- opt$par %>%
+#     .["logit_omega"] %>%
+#     expit(.) %>%
+#     unname(.)
+#   est_nu <- opt$par %>%
+#     .["log_nu"] %>%
+#     expit(.) %>%
+#     unname(.)
+#   est_sigma <- opt$par %>%
+#     .["log_sigma"] %>%
+#     expit(.) %>%
+#     unname(.)
+#
+#
+#   # browser()
+#
+#   opt_null <- tryCatch(
+#     optim(
+#       par = par_init[c("log_nu", "log_sigma")],
+#       fn = function(par) {
+#         neg_llik(c(logit_omega = -Inf, par))
+#       },
+#       method = "BFGS",
+#       ...
+#     ),
+#     error = function(e) e
+#   )
+#
+#   # try Nelder-Mead if error
+#   if (is(opt_null, "error")) {
+#     opt_null <- tryCatch(
+#       optim(
+#         par = par_init[c("log_nu", "log_sigma")],
+#         fn = function(par) {
+#           neg_llik(c(logit_omega = -Inf, par))
+#         },
+#         method = "Nelder-Mead",
+#         ...
+#       ),
+#       error = function(e) e
+#     )
+#   }
+#   if (is(opt_null, "error")) stop(opt)
+#
+#   llik_null <- -opt_null$value
+#   llik_comb <- -opt$value
+#   lrstat <- max(llik_comb - llik_null, 0)
+#   # get the null (omega = 0) optimum
+#
+#
+#   # if (is.na(est_omega) | is.null(est_omega)) browser()
+#
+#   out <- c(
+#     omega = est_omega,
+#     nu = est_nu,
+#     sigma = est_sigma,
+#     llik_null = -llik_null,
+#     llik = llik_comb,
+#     lrstat = lrstat,
+#     optim = opt
+#   )
+#
+#   out
+# }
 
 expit <- function(x) {
   n <- length(x)
@@ -499,6 +500,7 @@ expit <- function(x) {
                                        omega_constrained_lambda = TRUE,
                                        ...) {
 
+  . <- NULL
   n_0_idx <- (n_ij == 0)
   num_n_pos <- sum(!n_0_idx)
   exp_neg_poisson_mean_n_0_idx <- exp(-c(E_ij[n_0_idx]))
@@ -543,8 +545,8 @@ expit <- function(x) {
 
   # if (!is(opt, "error")) {
   est_omega <- opt$par %>%
-    expit() %>%
-    unname()
+    expit(.) %>%
+    unname(.)
   obj_val <- -opt$value
   obj_null <- -neg_llik(-Inf)
   opt_scale <- "logit_omega"

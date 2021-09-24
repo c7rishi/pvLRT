@@ -7,6 +7,9 @@
                                              drug_class_idx = as.list(1:ncol(n_ij_mat)),
                                              grouped_omega_est = grouped_omega_est,
                                              ...) {
+
+  . <- NULL
+
   I <- nrow(n_ij_mat)
   J <- ncol(n_ij_mat)
   Eij_mat <- (tcrossprod(n_i_0_all, n_0_j_all)/n_0_0) %>%
@@ -45,10 +48,12 @@
                              n_0_j_all = colSums(n_ij_mat),
                              n_0_0 = sum(n_i_0_all),
                              grouped_omega_est = grouped_omega_est,
-                             use_gamma_smoothing = FALSE,
+                             # use_gamma_smoothing = FALSE,
                              omega_constrained_lambda = TRUE,
                              test_j_idx = 1:ncol(n_ij_mat),
+                             drug_class_idx,
                              ...){
+  . <- NULL
   Eij_mat <- (tcrossprod(n_i_0_all, n_0_j_all)/n_0_0) %>%
     set_dimnames(dimnames(n_ij_mat))
 
@@ -107,6 +112,8 @@
                              drug_class_idx = as.list(1:ncol(n_ij_mat)),
                              omega_vec = rep(0, ncol(n_ij_mat)),
                              ...) {
+
+  . <- NULL
 
   safe_zero <- function(x) {
     ifelse(x == 0, 1e-10, x)

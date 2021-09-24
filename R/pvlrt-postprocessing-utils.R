@@ -5,9 +5,10 @@ extract_pvalue_matrix <- function(object, ...) {
   if (!is.pvlrt(object)) {
     stop("object must be a 'pvlrt' object.")
   }
+  . <- NULL
 
   unnecessary_attrs <- attributes(object) %>%
-    names() %>%
+    names(.) %>%
     setdiff(c("dim", "dimnames", "class"))
 
   for (nm in unnecessary_attrs) {

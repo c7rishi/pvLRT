@@ -4,12 +4,17 @@
 \alias{print.pvlrt}
 \title{Print method for pvlrt objects}
 \usage{
-\method{print}{pvlrt}(object, significance_level = 0.05, topn = 12, digits = 2, ...)
+\method{print}{pvlrt}(
+  x,
+  significance_level = 0.05,
+  topn = 12,
+  digits = 2,
+  show_test_summary = FALSE,
+  ...
+)
 }
 \arguments{
-\item{object}{a \code{pvlrt} object, which is the output of the function
-\link{pvlrt} or one of its wrappers such as \link{lrt_zi_poisson},
-\link{lrt_poisson} and \code{lrt_vanilla_poisson}.}
+\item{x}{a \code{pvlrt} object; an output of function \code{pvlrt}().}
 
 \item{significance_level}{numeric. Level of significance.}
 
@@ -19,6 +24,9 @@ pairs to show at the given significance level.}
 \item{digits}{number of digits to show after the decimal place.}
 
 \item{...}{other input parameters. Currently unused.}
+
+\item{show_test_sumamry}{logical. Should a brief summary showing the top few
+test results be displayed? defaults to FALSE.}
 }
 \description{
 Print method for pvlrt objects

@@ -4,12 +4,10 @@
 \alias{plot.pvlrt}
 \title{Plotting method for a pvlrt object}
 \usage{
-\method{plot}{pvlrt}(object, type = "heatmap", ...)
+\method{plot}{pvlrt}(x, type = "heatmap", ...)
 }
 \arguments{
-\item{object}{a \code{pvlrt} object, which is the output of the function
-\link{pvlrt} or one of its wrappers such as \link{lrt_zi_poisson},
-\link{lrt_poisson} and \code{lrt_vanilla_poisson}.}
+\item{x}{a \code{pvlrt} object; an output of function \code{pvlrt}().}
 
 \item{type}{character string determining the type of plot to show.
 Available choices are "heatmap" (default) which calls \link{heatmap_pvlrt},

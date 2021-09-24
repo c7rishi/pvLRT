@@ -70,10 +70,6 @@ then then the null zero-inflation random indicators are randomly generated using
 (estimated) \emph{conditional} probabilities of zero inflation given observed
 counts. If FALSE, then they are generated using the \emph{marginal} (drug-specific)
 estimated probabilities of zero-inflation.}
-
-\item{use_gamma_smooth_omega}{logical. Use a gamma prior (smoothing) on the signals (lambdas) while estimating
-omega from data. Defaults to FALSE. NOTE: if TRUE, then the gamma prior produces a marginal negative binomial
-distribution for the counts, which is then optimized for estimating omega.}
 }
 \description{
 Pseudo Likelihood Ratio Test for determining significant AE-Drug pairs under

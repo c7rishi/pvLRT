@@ -3,24 +3,26 @@ Title: An R package implementing various Likelihood Ratio Test-based approaches 
 Version: 0.1.5
 Author: Saptarshi Chakraborty, Marianthi Markatou
 Maintainer: Saptarshi Chakraborty <chakra.saptarshi@gmail.com>
-Date: 2021-08-15
-Description: What the package does (one paragraph). TO BE WRITTEN.
-License: GPL (>= 3)
+Date: 2021-09-24
+Description: An R package implemeting a suit of likelihood ratio test based methods to use in pharmacovigilance. Contains various testing and postprocessing functions.
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Imports: 
     stats,
-    magrittr,
+    methods,
+    utils,
+    grDevices,
+    magrittr (>= 2.0.0),
     progress,
     data.table,
+    bit64,
     glue,
-    grDevices,
     RColorBrewer,
     ggplot2
 Depends: 
     R (>= 3.6.0)
 suggests:
-    pheatmap,
     furrr

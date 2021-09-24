@@ -23,6 +23,9 @@ process_plot_data <- function(object = object,
     fill_measure %in% c("p.value", "lrstat", "n")
   )
 
+  . <- NULL
+  n_text <- p.value_text <- lrstat_text <- text_color <- NULL
+
   dots <- list(...)
   all_inputs <- c(as.list(environment()), dots)
   processed <- list()

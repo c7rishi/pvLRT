@@ -23,13 +23,12 @@ heatmap_pvlrt(
   n_upper = Inf,
   remove_outside = FALSE,
   digits = 2,
-  engine = "ggplot2",
   border_color = "white",
   ...
 )
 
 \method{barplot}{pvlrt}(
-  object,
+  height,
   AE = NULL,
   Drug = NULL,
   grep = FALSE,
@@ -59,10 +58,9 @@ heatmap_pvlrt(
 
 \item{fill_measure}{Measure to govern the filling}
 
-\item{engine}{heatmap engine to use. Available choices are "ggplot2"
-(default, can be abbreviated to "ggplot") and "pheatmap".}
-
 \item{...}{additional arguments passed to pheatmap::pheatmap()}
+
+\item{height}{a \code{pvlrt} object; output of \code{pvlrt}().}
 }
 \description{
 Heatmap showing LR test results
