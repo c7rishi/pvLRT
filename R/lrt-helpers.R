@@ -7,12 +7,11 @@
                                              drug_class_idx = as.list(1:ncol(n_ij_mat)),
                                              grouped_omega_est = grouped_omega_est,
                                              ...) {
-
   . <- NULL
 
   I <- nrow(n_ij_mat)
   J <- ncol(n_ij_mat)
-  Eij_mat <- (tcrossprod(n_i_0_all, n_0_j_all)/n_0_0) %>%
+  Eij_mat <- (tcrossprod(n_i_0_all, n_0_j_all) / n_0_0) %>%
     set_dimnames(dimnames(n_ij_mat))
 
   Eij_mat_safe <- pmax(Eij_mat, 1e-20)
@@ -21,7 +20,7 @@
     set_dimnames(dimnames(n_ij_mat))
 
   hat_lambda_ij_mat[, test_j_idx] <- pmax(
-    n_ij_mat[, test_j_idx]/Eij_mat_safe[, test_j_idx],
+    n_ij_mat[, test_j_idx] / Eij_mat_safe[, test_j_idx],
     1
   )
 
@@ -52,9 +51,9 @@
                              omega_constrained_lambda = TRUE,
                              test_j_idx = 1:ncol(n_ij_mat),
                              drug_class_idx,
-                             ...){
+                             ...) {
   . <- NULL
-  Eij_mat <- (tcrossprod(n_i_0_all, n_0_j_all)/n_0_0) %>%
+  Eij_mat <- (tcrossprod(n_i_0_all, n_0_j_all) / n_0_0) %>%
     set_dimnames(dimnames(n_ij_mat))
 
   omega_est_fn <- .estimate_zipois_mle_omega
@@ -64,7 +63,7 @@
 
   drug_class_idx_adj <- if (grouped_omega_est) {
     drug_class_idx
-  }  else {
+  } else {
     as.list(1:ncol(n_ij_mat))
   }
 
@@ -112,7 +111,6 @@
                              drug_class_idx = as.list(1:ncol(n_ij_mat)),
                              omega_vec = rep(0, ncol(n_ij_mat)),
                              ...) {
-
   . <- NULL
 
   safe_zero <- function(x) {
@@ -128,18 +126,18 @@
   J <- ncol(n_ij_mat)
 
   # N = column of ((nij)) for a specific j
-  logLR_vec <- function(N, n_i, n_j, n, I){
-    p_0 <- n_j/n
+  logLR_vec <- function(N, n_i, n_j, n, I) {
+    p_0 <- n_j / n
 
-    p_i_vec <- N/n_i
-    q_i_vec <- (n_j-N)/(n-n_i)
+    p_i_vec <- N / n_i
+    q_i_vec <- (n_j - N) / (n - n_i)
 
     logLR_vec <- ifelse(
       N == 0,
       0,
-      (N*log(p_i_vec)
-       +(n_j-N)*log(q_i_vec)
-       -n_j*log(p_0))*(p_i_vec>q_i_vec)
+      (N * log(p_i_vec)
+        + (n_j - N) * log(q_i_vec)
+        - n_j * log(p_0)) * (p_i_vec > q_i_vec)
     )
 
     logLR_vec
@@ -169,5 +167,3 @@
     omega = omega_vec
   )
 }
-
-

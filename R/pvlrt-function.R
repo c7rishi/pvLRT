@@ -35,7 +35,16 @@
 #' (estimated) *conditional* probabilities of zero inflation given observed
 #' counts. If FALSE, then they are generated using the *marginal* (drug-specific)
 #' estimated probabilities of zero-inflation.
-#'
+#' @param return_overall_loglik logical. Return overall log-likelihood for the table? This is needed
+#' if \code{logLik} method is to be used.
+#' @param parametrization Type of parametrization to use in the LR test. Available choices are "rrr", "lambda", "rr",
+#' and "p-q". The relative reporting ratio (default) parametrization of the test is used when
+#' when `parametrization %in% c("rrr", "lambda")`, and the reporting rate parametrization is used
+#' otherwise. NOTE: zero inflation can be handled only for the relative reporting ratio parametrization.
+#' @param null_boot_type Type of bootstrap sampling to perform for generating null resamples.
+#' Available choices are "parametric" (default) and "non-parametric". NOTE: zero inflation is not
+#' handled properly in a non-parametric bootstrap resampling.
+#' @param ... additional arguments. Currently unused.
 #'
 #' @note \code{lrt_poisson} is a wrapper function on \code{lrt_zi_poisson} with \code{omega_vec = rep(0, ncol(contin_table))}
 #'
@@ -68,7 +77,6 @@
 #' # use non-parametric bootstrap to evaluate the null distribution
 #' test4 <- pvlrt(statin46, null_boot_type = "non-parametric")
 #' test4
-#'
 #' \dontrun{
 #' # test zi probabilities (omegas)
 #' test5 <- pvlrt(statin46, test_omega = TRUE)
@@ -508,14 +516,16 @@ pvlrt <- function(contin_table,
           .safe_divide(., (. + (1 - .) * exp(-Eij_mat))),
           0
         )
-      } else .
+      } else {
+        .
+      }
     }
 
 
   if (null_boot_type == "parametric") {
     gen_rand_table <- function(ii) {
-      nij <- rpois(I*J, c(Eij_mat))
-      zij <- (runif(I*J) <= c(omega_mat)) * c(zi_idx_adj)
+      nij <- rpois(I * J, c(Eij_mat))
+      zij <- (runif(I * J) <= c(omega_mat)) * c(zi_idx_adj)
 
       (nij * (1 - zij)) %>%
         matrix(I, J) %>%
@@ -673,7 +683,6 @@ pvlrt <- function(contin_table,
   }
 
   if (return_overall_loglik & parametrization %in% c("lambda", "rrr")) {
-
     loglik_df_comb <- expand.grid(
       mod = c("full", "null"),
       dist = c("poisson", "zip")

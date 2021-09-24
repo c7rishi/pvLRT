@@ -120,4 +120,3 @@ set_Drug_names <- function(object, old, new) {
   }
   tmp
 }
-

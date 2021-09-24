@@ -23,10 +23,10 @@ pairs to show at the given significance level.}
 
 \item{digits}{number of digits to show after the decimal place.}
 
-\item{...}{other input parameters. Currently unused.}
-
-\item{show_test_sumamry}{logical. Should a brief summary showing the top few
+\item{show_test_summary}{logical. Should a brief summary showing the top few
 test results be displayed? defaults to FALSE.}
+
+\item{...}{other input parameters. Currently unused.}
 }
 \description{
 Print method for pvlrt objects

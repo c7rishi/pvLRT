@@ -16,7 +16,12 @@ effects for I AE and J Drugs}
 \item{nsim}{Number of simulated null contingency table to use for computing
 the p-value of the test}
 
-\item{...}{additional arguments passed to pvlrt}
+\item{parametrization}{Type of parametrization to use in the LR test. Available choices are "rrr", "lambda", "rr",
+and "p-q". The relative reporting ratio (default) parametrization of the test is used when
+when \code{parametrization \%in\% c("rrr", "lambda")}, and the reporting rate parametrization is used
+otherwise. NOTE: zero inflation can be handled only for the relative reporting ratio parametrization.}
+
+\item{...}{additional arguments. Currently unused.}
 }
 \description{
 Likelihood Ratio Test under the (vanilla, non-zero-inflated) Poisson model
@@ -32,7 +37,6 @@ data("lovastatin")
 
 # no grouping -- each drug forms its own class
 test1 <- lrt_poisson(lovastatin)
-
 }
 \seealso{
 \link{pvlrt}

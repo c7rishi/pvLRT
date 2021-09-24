@@ -1,5 +1,5 @@
-is.pvlrt <- function(obj,...) {
-  is (obj, "pvlrt")
+is.pvlrt <- function(obj, ...) {
+  is(obj, "pvlrt")
 }
 
 extract_n_matrix <- function(object, ...) {
@@ -115,7 +115,7 @@ summary.pvlrt <- function(object, show_zi = FALSE, ...) {
 #' @param topn number of top (with respect to likelihood ratio statistic value)
 #' pairs to show at the given significance level.
 #' @param digits number of digits to show after the decimal place.
-#' @param show_test_sumamry logical. Should a brief summary showing the top few
+#' @param show_test_summary logical. Should a brief summary showing the top few
 #' test results be displayed? defaults to FALSE.
 #'
 #' @export
@@ -125,7 +125,6 @@ print.pvlrt <- function(x,
                         digits = 2,
                         show_test_summary = FALSE,
                         ...) {
-
   object <- x
   if (!is.pvlrt(object)) {
     stop("x must be a 'pvlrt' object.")
@@ -298,7 +297,6 @@ as.matrix.pvlrt <- function(x, ...) {
 #' depending on \code{type}.
 #' @export
 plot.pvlrt <- function(x, type = "heatmap", ...) {
-
   object <- x
   . <- NULL
 
@@ -353,7 +351,6 @@ plot.pvlrt <- function(x, type = "heatmap", ...) {
 #' respectively. See examples.
 #'
 #' @examples
-#'
 #' \dontrun{
 #' set.seed(100)
 #' # estimates zero inflation probabilities
@@ -371,7 +368,7 @@ plot.pvlrt <- function(x, type = "heatmap", ...) {
 #' test2 <- lrt_poisson(statin46)
 #'
 #' all.equal(logLik(test2, "full-zip"), logLik(test2, "full-poisson"))
-#'}
+#' }
 #'
 #' @export
 logLik.pvlrt <- function(object, type = "full-zip", ...) {
@@ -396,8 +393,10 @@ logLik.pvlrt <- function(object, type = "full-zip", ...) {
     stop("parametrization in pvlrt must be 'rrr' or 'lambda'")
   }
 
-  possible_types <- c("full-poisson", "null-poisson",
-                      "full-zip", "null-zip")
+  possible_types <- c(
+    "full-poisson", "null-poisson",
+    "full-zip", "null-zip"
+  )
   if (!type %in% possible_types) {
     msg <- possible_types %>%
       paste0("'", ., "'") %>%

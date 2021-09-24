@@ -46,7 +46,6 @@ ensured by setting  \code{return_overall_loglik = TRUE}, and
 \code{parametrization = "lambda"} (or \code{parametrization = "rrr"}) while running pvlrt().
 }
 \examples{
-
 \dontrun{
 set.seed(100)
 # estimates zero inflation probabilities

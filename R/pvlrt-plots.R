@@ -1,12 +1,55 @@
 #' Heatmap showing LR test results
-#' @param object pvlrt object
-#' @param ... additional arguments passed to pheatmap::pheatmap()
-#' @param fill_measure Measure to govern the filling
+#' @param object pvlrt object; output of \code{pvlrt}()
+#' @param ... Other arguments. Currently ignored
+#' @param fill_measure Measure to govern the filling color in each cell
+#' (drug/AE combination). Defaults to "p_value". Available choices are:
+#'  "p.value", "lrstat", and "n".
+#' @param AE input parameter determining which adverse effects to show in
+#' the plot. This can be a numeric scalar  specifying the
+#' number of *top* (in terms of computed LRT values) adverse effects to show.
+#' Alternatively, it can be a character vector, specifying the exact
+#' adverse effects to show. It can also be a vector of patterns to match
+#' (ignores cases) against the full names of all available adverse effects,
+#' provided \code{grep} is set to TRUE. Defaults to adverse effects
+#' corresponding to the top M pairs where M = max(number of possible pairs, 50).
+#' Set AE = Inf to force display of all adverse effects.
+#' @param Drug input parameter determining which drugs to show in
+#' the plot. This can be a numeric scalar  specifying the
+#' number of *top* (in terms of computed LRT values) drugs to show.
+#' Alternatively, it can be a character vector, specifying the exact
+#' drugs to show. It can also be a vector of patterns to match
+#' (ignores cases) against the full names of all available drugs,
+#' provided \code{grep} is set to TRUE. Defaults to drugs
+#' corresponding to the top M pairs where M = max(number of possible pairs, 50).
+#' Set Drug = Inf to force display all drugs.
+#' @param grep logical. Match patterns against the supplied AE or Drug names?
+#' Ignores if neither AE nor Drug is a character vector.
+#' @param show_n logical. show the sample size as inscribed text on each cell?
+#' @param show_p_value logical. show the computed p-value as inscribed text on each cell?
+#' @param show_lrstat logical. show the computed LRT statistic (on log-scale)
+#' inscribed text on each cell?
+#' @param arrange_alphabetical logical. should the rows (AEs) and columns (Drugs)
+#'  be arranged in alphabetical orders? Defaults to FALSE, in which case
+#'  the orderings of the computed LRT values are used.
+#' @param p_value_lower,p_value_upper lower and upper limits on the computed p-values to
+#' display on the plot.
+#' @param lrstat_lower,lrstat_upper lower and upper limits on the computed LRT values to
+#' display on the plot.
+#' @param n_lower,n_upper lower and upper limits on the computed sample sizes to
+#' display on the plot.
+#' @param remove_outside logical. Should the values for pairs with p-value, LRT
+#' statistics or sample sizes falling outside of the provided ranges through p_value_lower, p_value_upper
+#' etc., be replaced with \code{NA}? Defaults to FALSE. Setting this to TRUE may help
+#' distinguish drugs or AEs which has some pairs falling within and some pairs falling
+#' outside of the provided ranges better.
+#' @param digits numeric. Number of decimal places to show on the
+#' inscribed texts on the plot.
+#' @param border_color character string. Specifies the border color of cells/bars.
+#'
 #' @examples
 #' test1 <- pvlrt(statin46)
 #' heatmap_pvlrt(test1)
 #' heatmap_pvlrt(test1, arrange_alphabetical = TRUE)
-#'
 #' @export
 heatmap_pvlrt <- function(object,
                           AE = NULL,
@@ -14,21 +57,20 @@ heatmap_pvlrt <- function(object,
                           grep = FALSE,
                           fill_measure = "p_value",
                           show_n = TRUE,
-                          arrange_alphabetical = FALSE,
-                          show_p_value = FALSE,
                           show_lrstat = FALSE,
+                          show_p_value = FALSE,
                           p_value_lower = 0,
                           p_value_upper = 1,
                           lrstat_lower = 0,
                           lrstat_upper = Inf,
                           n_lower = 0,
                           n_upper = Inf,
+                          arrange_alphabetical = FALSE,
                           remove_outside = FALSE,
                           digits = 2,
                           # engine = "ggplot2",
                           border_color = "white",
                           ...) {
-
   . <- NULL
   dots <- list(...)
   all_inputs <- c(as.list(environment()), dots)
@@ -234,6 +276,9 @@ heatmap_pvlrt <- function(object,
 
 #' @rdname heatmap_pvlrt
 #' @param height a \code{pvlrt} object; output of \code{pvlrt}().
+#' @param Drug_nrow Number of rows in the panels for Drugs for the barplots.
+#' @param x_axis_measure measure to show on the x-axis of the (horizontal) bar
+#' plots. Defaults to "lrstat" available choices are "lrstat", "p_value" and "n".
 #' @export
 barplot.pvlrt <- function(height,
                           AE = NULL,
@@ -254,11 +299,8 @@ barplot.pvlrt <- function(height,
                           remove_outside = FALSE,
                           digits = 2,
                           Drug_nrow = 1,
-                          x_axis_trans = FALSE,
-                          x_axis_trans_fn = "log1p",
                           border_color = "white",
                           ...) {
-
   . <- NULL
   dots <- list(...)
   all_inputs <- c(as.list(environment()), dots)
@@ -307,7 +349,7 @@ barplot.pvlrt <- function(height,
     ggplot2::geom_bar(stat = "identity", color = border_color) +
     ggplot2::facet_wrap(~Drug, nrow = Drug_nrow) +
     ggplot2::theme_bw() +
-    ggplot2::scale_fill_gradientn(colors = fill_range)+
+    ggplot2::scale_fill_gradientn(colors = fill_range) +
     ggplot2::theme(
       axis.text.x = ggplot2::element_text(
         angle = 90, vjust = 0.5, hjust = 1
@@ -333,11 +375,6 @@ barplot.pvlrt <- function(height,
           rev(),
         guide = "none"
       )
-  }
-
-  if (x_axis_trans) {
-    out <- out +
-      ggplot2::coord_trans(x = x_axis_trans_fn)
   }
 
   out

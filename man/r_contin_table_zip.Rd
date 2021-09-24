@@ -34,6 +34,8 @@ as col_marginals.}
 
 \item{no_zi_idx}{List of pairs {(i, j)} where zero inflation is not allowed. To
 specify the entirety i-th row (or j-th column) use c(i, 0) (or c(0, j)). See examples.}
+
+\item{...}{Additional arguments. Currently unused.}
 }
 \value{
 A list of length \code{n}, with each entry being a
@@ -52,7 +54,7 @@ set.seed(42)
 # first load the 46 statin data
 data(statin46)
 # zero inflation probabilities
-omega_tru <- c(rep(0.15, ncol(statin46)-1), 0)
+omega_tru <- c(rep(0.15, ncol(statin46) - 1), 0)
 
 # signal matrix
 signal_mat <- matrix(1, nrow(statin46), ncol(statin46))
@@ -81,8 +83,6 @@ sim_statin <- r_contin_table_zip(
     c(0, ncol(statin46)) # the entire last column
   )
 )[[1]]
-
-
 \dontrun{
 # now analyze the above simulated data
 

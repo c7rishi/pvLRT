@@ -40,6 +40,16 @@
 "statin"
 
 
+#' FDA lovastatin dataset
+#'
+#' FAERS 2014Q3 - 2020Q4
+#'
+#' Includes 1 column for lovastatin, and one column for other:
+#'
+#' @source \url{https://fis.fda.gov/extensions/FPD-QDE-FAERS/FPD-QDE-FAERS.html}
+"lovastatin"
+
+
 #' FDA GBCA dataset with all observed 1707 adverse effects
 #'
 #' FAERS 2014Q3 - 2020Q4
@@ -53,5 +63,3 @@
 #'
 #' @source \url{https://fis.fda.gov/extensions/FPD-QDE-FAERS/FPD-QDE-FAERS.html}
 "gbca"
-
-

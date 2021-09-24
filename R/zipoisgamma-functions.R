@@ -2,24 +2,27 @@
 # Zero inflated Poisson-Gamma -- density & random generation
 # --------------------------------------------------------------
 # taken from R package "countreg"
-dzipois <- function(x, lambda, pi, log = FALSE)
-{
+dzipois <- function(x, lambda, pi, log = FALSE) {
   # if (is.na(pi) | is.null(pi)) browser()
 
-  if (any(pi < 0) | any(pi > 1))
+  if (any(pi < 0) | any(pi > 1)) {
     warning("'pi' must be in [0, 1]")
+  }
   rval <- log(1 - pi) + dpois(x, lambda = lambda, log = TRUE)
-  if (any(x0 <- (x == 0L)))
+  if (any(x0 <- (x == 0L))) {
     rval[x0] <- log(exp(rval) + pi)[x0]
-  if (log)
+  }
+  if (log) {
     rval
-  else exp(rval)
+  } else {
+    exp(rval)
+  }
 }
 
-rzipois <- function (n, lambda, pi)
-{
-  if (any(pi < 0) | any(pi > 1))
+rzipois <- function(n, lambda, pi) {
+  if (any(pi < 0) | any(pi > 1)) {
     warning("'pi' must be in [0, 1]")
+  }
   rval <- rpois(n, lambda = lambda)
   rval[runif(n) < pi] <- 0
   rval
@@ -31,8 +34,8 @@ rzipois <- function (n, lambda, pi)
 # Poisson-Gamma mixture -- density & random generation
 # --------------------------------------------------------------
 dpoisgamma <- function(x, nu = 1, sigma = 1, log = FALSE) {
-  gamma <- sigma/(1 + sigma)
-  out <-  (nu + x) * log(gamma) + lgamma(nu + x) -
+  gamma <- sigma / (1 + sigma)
+  out <- (nu + x) * log(gamma) + lgamma(nu + x) -
     nu * log(sigma) - lgamma(nu) - lfactorial(x)
 
   if (!log) out <- exp(out)
@@ -247,7 +250,7 @@ rzipoisgamma <- function(n = 1, nu = 1, sigma = 1, pi = 0, ...) {
 
   par_init <- c(
     logit_omega = 0,
-    log_lambda = log(pmax(c(n_ij/pmax(E_ij, 1e-10)), 1e-10))
+    log_lambda = log(pmax(c(n_ij / pmax(E_ij, 1e-10)), 1e-10))
   )
 
   # start with BFGS
@@ -483,11 +486,11 @@ expit <- function(x) {
   n_idx_pos <- sum(idx_pos)
   out <- rep(NA, n)
   if (n_idx_pos > 0) {
-    out[idx_pos] <- 1/(1 + exp(-x[idx_pos]))
+    out[idx_pos] <- 1 / (1 + exp(-x[idx_pos]))
   }
   if (n_idx_pos < n) {
     tmp <- exp(x[!idx_pos])
-    out[!idx_pos] <- tmp/(1+tmp)
+    out[!idx_pos] <- tmp / (1 + tmp)
   }
   setNames(out, names(x))
 }
@@ -499,7 +502,6 @@ expit <- function(x) {
                                        do_lrtest = FALSE,
                                        omega_constrained_lambda = TRUE,
                                        ...) {
-
   . <- NULL
   n_0_idx <- (n_ij == 0)
   num_n_pos <- sum(!n_0_idx)
@@ -511,8 +513,8 @@ expit <- function(x) {
   # a reduced version using algebra
   neg_llik <- function(logit_omega) {
     omega <- expit(logit_omega)
-    tmp <- log(omega + (1-omega) * exp_neg_poisson_mean_n_0_idx)
-    -(sum(tmp) + num_n_pos * log(1-omega))
+    tmp <- log(omega + (1 - omega) * exp_neg_poisson_mean_n_0_idx)
+    -(sum(tmp) + num_n_pos * log(1 - omega))
   }
 
   # poisson_mean_hat <- pmax(E_ij, n_ij)
@@ -532,7 +534,7 @@ expit <- function(x) {
   opt <-
     tryCatch(
       optim(
-        par = 0, #par_init,
+        par = 0, # par_init,
         fn = neg_llik,
         method = "BFGS",
         ...

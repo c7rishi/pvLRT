@@ -29,7 +29,6 @@ zero-inflated Poisson model with relative reporting rate parametrization
 data("lovastatin")
 test1 <- lrt_zi_poisson(lovastatin)
 test1
-
 }
 \seealso{
 \link{pvlrt}

@@ -14,12 +14,10 @@
 #' data("lovastatin")
 #' test1 <- lrt_zi_poisson(lovastatin)
 #' test1
-#'
 #' @export
 lrt_zi_poisson <- function(contin_table,
                            nsim = 1e4,
-                           ...)
-{
+                           ...) {
   dots <- list(...)
   if (!is.null(dots$parametrization)) {
     msg <- glue::glue(
@@ -68,14 +66,11 @@ lrt_zi_poisson <- function(contin_table,
 #'
 #' # no grouping -- each drug forms its own class
 #' test1 <- lrt_poisson(lovastatin)
-#'
 #' @export
 lrt_poisson <- function(contin_table,
                         nsim = 1e4,
                         parametrization = "rrr",
-                        ...)
-{
-
+                        ...) {
   dots <- list(...)
 
   for (nm in c("zi_prob", "omega_vec", "omega_est_vec")) {

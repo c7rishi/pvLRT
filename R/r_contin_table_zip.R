@@ -1,18 +1,18 @@
-.rdirichlet <- function (n, alpha) {
+.rdirichlet <- function(n, alpha) {
   # using representation X_i/sum(X_i)
   # where X_i are iid gamma
   n_alpha <- length(alpha)
   x <- rgamma(n = n_alpha * n, shape = alpha, rate = 1) %>%
     matrix(ncol = n_alpha, byrow = TRUE)
   rowsum_x <- .rowSums(x, m = n, n = n_alpha)
-  x/as.vector(rowsum_x)
+  x / as.vector(rowsum_x)
 }
 
 
 .r_contin_table_zip_1_samp <- function(row_marginals,
                                        col_marginals,
                                        obs_total = sum(row_marginals),
-                                       Eij_mat = tcrossprod(row_marginals, col_marginals)/obs_total,
+                                       Eij_mat = tcrossprod(row_marginals, col_marginals) / obs_total,
                                        signal_mat,
                                        omega_vec = rep(0, length(col_marginals)),
                                        no_zero_infl_idx = NULL,
@@ -22,7 +22,10 @@
   . <- NULL
   p_i0 <- c(.rdirichlet(1, row_marginals))
   p_0j <- c(.rdirichlet(1, col_marginals))
-  p_ij <- (signal_mat * tcrossprod(p_i0, p_0j)) %>% {./sum(.)}
+  p_ij <- (signal_mat * tcrossprod(p_i0, p_0j)) %>%
+    {
+      . / sum(.)
+    }
 
   z_ij <- lapply(
     1:n_col,
@@ -41,7 +44,9 @@
   ) %>%
     c() %>%
     matrix(n_row, n_col) %>%
-    {. * (1 - z_ij)} %>%
+    {
+      . * (1 - z_ij)
+    } %>%
     magrittr::set_rownames(names(row_marginals)) %>%
     magrittr::set_colnames(names(col_marginals))
 }
@@ -64,7 +69,7 @@
 #' as col_marginals.
 #' @param no_zi_idx List of pairs {(i, j)} where zero inflation is not allowed. To
 #' specify the entirety i-th row (or j-th column) use c(i, 0) (or c(0, j)). See examples.
-#'
+#' @param ... Additional arguments. Currently unused.
 #'
 #' @return
 #'
@@ -78,7 +83,7 @@
 #' # first load the 46 statin data
 #' data(statin46)
 #' # zero inflation probabilities
-#' omega_tru <- c(rep(0.15, ncol(statin46)-1), 0)
+#' omega_tru <- c(rep(0.15, ncol(statin46) - 1), 0)
 #'
 #' # signal matrix
 #' signal_mat <- matrix(1, nrow(statin46), ncol(statin46))
@@ -107,8 +112,6 @@
 #'     c(0, ncol(statin46)) # the entire last column
 #'   )
 #' )[[1]]
-#'
-#'
 #' \dontrun{
 #' # now analyze the above simulated data
 #'
@@ -174,7 +177,7 @@ r_contin_table_zip <- function(n = 1,
   }
 
   obs_total <- sum(row_marginals)
-  Eij_mat <- tcrossprod(row_marginals, col_marginals)/obs_total
+  Eij_mat <- tcrossprod(row_marginals, col_marginals) / obs_total
   n_row <- nrow(Eij_mat)
   n_col <- ncol(Eij_mat)
 

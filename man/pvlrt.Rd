@@ -63,6 +63,15 @@ NOTE: \code{test_omega} and \code{test_zi} are aliases.}
 
 \item{pval_ineq_strict}{logical. Use a strict inequality in the definition of the p-values?  Defaults to FALSE.}
 
+\item{parametrization}{Type of parametrization to use in the LR test. Available choices are "rrr", "lambda", "rr",
+and "p-q". The relative reporting ratio (default) parametrization of the test is used when
+when \code{parametrization \%in\% c("rrr", "lambda")}, and the reporting rate parametrization is used
+otherwise. NOTE: zero inflation can be handled only for the relative reporting ratio parametrization.}
+
+\item{null_boot_type}{Type of bootstrap sampling to perform for generating null resamples.
+Available choices are "parametric" (default) and "non-parametric". NOTE: zero inflation is not
+handled properly in a non-parametric bootstrap resampling.}
+
 \item{is_zi_structural}{logical. Do the inflated zeros correspond to structural
 zeros (indicating impossible AE-Drug combination)? This determines how the
 bootstrap null zero-inflation indicators are generated. If TRUE (default),
@@ -70,6 +79,11 @@ then then the null zero-inflation random indicators are randomly generated using
 (estimated) \emph{conditional} probabilities of zero inflation given observed
 counts. If FALSE, then they are generated using the \emph{marginal} (drug-specific)
 estimated probabilities of zero-inflation.}
+
+\item{return_overall_loglik}{logical. Return overall log-likelihood for the table? This is needed
+if \code{logLik} method is to be used.}
+
+\item{...}{additional arguments. Currently unused.}
 }
 \description{
 Pseudo Likelihood Ratio Test for determining significant AE-Drug pairs under
@@ -105,7 +119,6 @@ test3
 # use non-parametric bootstrap to evaluate the null distribution
 test4 <- pvlrt(statin46, null_boot_type = "non-parametric")
 test4
-
 \dontrun{
 # test zi probabilities (omegas)
 test5 <- pvlrt(statin46, test_omega = TRUE)

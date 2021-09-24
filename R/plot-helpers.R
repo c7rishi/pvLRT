@@ -16,8 +16,6 @@ process_plot_data <- function(object = object,
                               remove_outside = FALSE,
                               digits = 2,
                               ...) {
-
-
   stopifnot(
     is(object, "pvlrt"),
     fill_measure %in% c("p_value", "p.value", "lrstat", "n")
@@ -57,7 +55,8 @@ process_plot_data <- function(object = object,
   # get summary statistics, sort by decreasing lr statistic
   summ <- summary(
     object
-  )[,
+  )[
+    ,
     `:=`(
       AE = as.character(AE),
       Drug = as.character(Drug)
@@ -73,7 +72,7 @@ process_plot_data <- function(object = object,
   )
 
 
-  summ_AE_Drug <- summ #data.table::copy(summ)
+  summ_AE_Drug <- summ # data.table::copy(summ)
 
   # browser()
 
@@ -93,7 +92,9 @@ process_plot_data <- function(object = object,
   for (nm in measure_order) {
     tmp <- all_inputs[[nm]]
     if (is.null(tmp)) {
-      n_elem <- all_names[[nm]] %>% length(.) %>% min(50)
+      n_elem <- all_names[[nm]] %>%
+        length(.) %>%
+        min(50)
       processed[[nm]] <- all_names[[nm]][1:n_elem]
     } else if (all(is.numeric(tmp))) {
       if (length(tmp) > 1) {
@@ -102,8 +103,12 @@ process_plot_data <- function(object = object,
         )
         stop(msg)
       }
-      n_elem <- all_names[[nm]] %>% length(.) %>% min(tmp)
-      processed[[nm]] <- summ_AE_Drug[[nm]] %>% unique() %>% .[1:n_elem]
+      n_elem <- all_names[[nm]] %>%
+        length(.) %>%
+        min(tmp)
+      processed[[nm]] <- summ_AE_Drug[[nm]] %>%
+        unique() %>%
+        .[1:n_elem]
     } else if (all(is.character(tmp))) {
       if (!grep) {
         extra <- setdiff(tmp, all_names[[nm]])
@@ -118,7 +123,9 @@ process_plot_data <- function(object = object,
           )
           warning(msg)
         }
-        matches <- tmp %>% intersect(all_names[[nm]]) %>% unique(.)
+        matches <- tmp %>%
+          intersect(all_names[[nm]]) %>%
+          unique(.)
         if (length(matches) < 1) {
           msg <- glue::glue(
             "No {nm}s found in pvlrt object \\
@@ -211,7 +218,9 @@ process_plot_data <- function(object = object,
 
   summ_pval_lrt <- filter_char %>%
     # data table filtering statement as character
-    {glue::glue("summ_AE_Drug[{.}]")} %>%
+    {
+      glue::glue("summ_AE_Drug[{.}]")
+    } %>%
     # parse and eval text
     parse(text = .) %>%
     eval()
@@ -235,7 +244,7 @@ process_plot_data <- function(object = object,
 
   # defined inside data.table using NSE
   p_value <- n <- .N <- .SD <-
-    threshold <- display_text_color <-  NULL
+    threshold <- display_text_color <- NULL
 
   dat_pl <- dat_pl[
     ,
@@ -259,24 +268,27 @@ process_plot_data <- function(object = object,
       p_value_text = p_value %>%
         format_pval_(digits = digits) %>%
         paste0("p", .),
-
       lrstat_text = lrstat %>%
-        {ifelse(
-          . >= 1e4,
-          format(., digits = digits, scientific = TRUE),
-          as.character(round(., digits = digits))
-        )} %>%
+        {
+          ifelse(
+            . >= 1e4,
+            format(., digits = digits, scientific = TRUE),
+            as.character(round(., digits = digits))
+          )
+        } %>%
         paste0("LR=", .),
-
       n_text = n %>%
-        {ifelse(
-          . >= 1e4,
-          format(., digits = digits, scientific = TRUE),
-          as.character(round(., digits = digits))
-        )} %>%
+        {
+          ifelse(
+            . >= 1e4,
+            format(., digits = digits, scientific = TRUE),
+            as.character(round(., digits = digits))
+          )
+        } %>%
         paste0("n=", .)
     )
-  ][,
+  ][
+    ,
     `:=`(
       text = rep("", .N) %>%
         {
@@ -293,7 +305,8 @@ process_plot_data <- function(object = object,
         # trim white space
         trimws()
     )
-  ][,
+  ][
+    ,
     threshold := .SD[[fill_measure]] %>%
       unlist() %>%
       c() %>%
@@ -301,16 +314,21 @@ process_plot_data <- function(object = object,
       # {./2}
       range(.) %>%
       mean(.)
-  ][,
+  ][
+    ,
     text_color := .SD[[fill_measure]] %>%
-      {ifelse(
-        . >= threshold,
-        "black",
-        "orange"
-      )}
+      {
+        ifelse(
+          . >= threshold,
+          "black",
+          "orange"
+        )
+      }
   ][,
-    c("AE", "Drug", "n", "lrstat",
-      "p_value", "text", "text_color"),
+    c(
+      "AE", "Drug", "n", "lrstat",
+      "p_value", "text", "text_color"
+    ),
     with = FALSE
   ]
 
@@ -320,7 +338,9 @@ process_plot_data <- function(object = object,
       "{meas_all} = NA"
     ) %>%
       paste(collapse = ", ") %>%
-      {glue::glue("`:=`({.})")}
+      {
+        glue::glue("`:=`({.})")
+      }
 
     glue::glue(
       "dat_pl[
