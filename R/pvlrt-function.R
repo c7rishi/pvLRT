@@ -655,7 +655,7 @@ pvlrt <- function(contin_table,
   #     {./(nsim + 1)}
   # }
 
-  lr_stat_pvalue <- pval
+  lr_stat_p_value <- pval
 
 
   # log likelihoods under 4 possible setups
@@ -751,11 +751,12 @@ pvlrt <- function(contin_table,
   }
 
   attrs <- list(
-    lrstat = lr_stat_obs,
+    p_value = lr_stat_p_value,
+    # lrstat = lr_stat_obs,
     omega = omega_vec,
     test_omega = test_omega,
     omega_lrstat = omega_lrstat_vec,
-    omega_pvalue = omega_pval_vec,
+    omega_p_value = omega_pval_vec,
     omega_qvalue = p.adjust(omega_pval_vec),
     do_omega_estimation = do_omega_estimation,
     parametrization = parametrization,
@@ -770,9 +771,13 @@ pvlrt <- function(contin_table,
     # need the names for loglik_df_comb
     c(list(loglik_df = loglik_df_comb))
 
-  attributes(lr_stat_pvalue) <- attributes(lr_stat_pvalue) %>% c(attrs)
+  # output <- lr_stat_p_value
+  output <- lr_stat_obs %>%
+    set_dimnames(dimnames(contin_table))
 
-  class(lr_stat_pvalue) <- c("pvlrt", class(lr_stat_pvalue))
+  attributes(output) <- attributes(output) %>% c(attrs)
 
-  lr_stat_pvalue
+  class(output) <- c("pvlrt", class(lr_stat_p_value))
+
+  output
 }

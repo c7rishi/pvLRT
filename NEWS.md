@@ -18,7 +18,7 @@ are created.
 * Changes in lrt_zi_poisson():
  - safer null statistics evaluation via tryCatch()
  - better print and summary methods for pvlrt objects 
- - functions for extracting pvalues, lrstat, zi probabilities from pvlrt object. (Documentation needs to be added.) 
+ - functions for extracting p_values, lrstat, zi probabilities from pvlrt object. (Documentation needs to be added.) 
 
 # version 0.1.0
 

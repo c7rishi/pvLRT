@@ -1,7 +1,7 @@
 #' Extract various summary measures from a pvlrt object
 #' @inheritParams summary.pvlrt
 #' @export
-extract_pvalue_matrix <- function(object, ...) {
+extract_lrstat_matrix <- function(object, ...) {
   if (!is.pvlrt(object)) {
     stop("object must be a 'pvlrt' object.")
   }
@@ -18,18 +18,18 @@ extract_pvalue_matrix <- function(object, ...) {
   as.matrix(object)
 }
 
-#' @rdname extract_pvalue_matrix
+#' @rdname extract_lrstat_matrix
 #' @export
-extract_lrstat_matrix <- function(object, ...) {
+extract_p_value_matrix <- function(object, ...) {
   if (!is.pvlrt(object)) {
     stop("object must be a 'pvlrt' object.")
   }
-  out <- attr(object, "lrstat") %>%
+  out <- attr(object, "p_value") %>%
     set_dimnames(dimnames(object))
   out
 }
 
-#' @rdname extract_pvalue_matrix
+#' @rdname extract_lrstat_matrix
 #' @export
 extract_zi_probability <- function(object, ...) {
   if (!is.pvlrt(object)) {
@@ -40,17 +40,17 @@ extract_zi_probability <- function(object, ...) {
   out
 }
 
-#' @rdname extract_pvalue_matrix
+#' @rdname extract_lrstat_matrix
 #' @param significance_level numeric. Level of significance.
 #' @export
 extract_significant_pairs <- function(object, significance_level = 0.05, ...) {
   if (!is.pvlrt(object)) {
     stop("object must be a 'pvlrt' object.")
   }
-  p.value <- NULL
+  p_value <- NULL
 
   out <- summary(object) %>%
-    subset(p.value < significance_level)
+    subset(p_value < significance_level)
 
   out
 }

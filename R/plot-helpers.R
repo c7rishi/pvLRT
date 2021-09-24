@@ -2,13 +2,13 @@ process_plot_data <- function(object = object,
                               AE = NULL,
                               Drug = NULL,
                               grep = FALSE,
-                              fill_measure = "p.value",
+                              fill_measure = "p_value",
                               show_n = FALSE,
-                              show_pvalue = FALSE,
+                              show_p_value = FALSE,
                               show_lrstat = FALSE,
                               arrange_alphabetical = FALSE,
-                              p.value_lower = p.value_lower,
-                              p.value_upper = p.value_upper,
+                              p_value_lower = p_value_lower,
+                              p_value_upper = p_value_upper,
                               lrstat_lower = lrstat_lower,
                               lrstat_upper = lrstat_upper,
                               n_lower = 0,
@@ -20,18 +20,39 @@ process_plot_data <- function(object = object,
 
   stopifnot(
     is(object, "pvlrt"),
-    fill_measure %in% c("p.value", "lrstat", "n")
+    fill_measure %in% c("p_value", "p.value", "lrstat", "n")
   )
 
+
+  if (fill_measure == "p.value") {
+    msg <- glue::glue(
+      'Use of fill_measure = "p.value" is deprecated.
+      Use fill_measure = "p_value" instead'
+    )
+    warning(msg)
+    fill_measure <- "p_value"
+  }
+
   . <- NULL
-  n_text <- p.value_text <- lrstat_text <- text_color <- NULL
+  n_text <- p_value_text <- lrstat_text <- text_color <- NULL
 
   dots <- list(...)
   all_inputs <- c(as.list(environment()), dots)
+
+  old_args <- c("show_pvalue", "show_p.value")
+  for (this_arg in old_args) {
+    if (!is.null(dots[[this_arg]])) {
+      msg <- glue::glue(
+        "The argument '{this_arg}' is deprecated. Use 'show_p_value' instead."
+      )
+      show_p_value <- all_inputs$show_p_value <- dots[[this_arg]]
+    }
+  }
+
   processed <- list()
 
   # defined inside data.table using NSE
-  lrstat <- p.value <- NULL
+  lrstat <- p_value <- NULL
 
   # get summary statistics, sort by decreasing lr statistic
   summ <- summary(
@@ -178,10 +199,10 @@ process_plot_data <- function(object = object,
   # next threshold by measure -- extract all AE's and
   # Drugs that satisfy the thresholds in at least one
   # comparison
-  meas_all <- c("p.value", "lrstat", "n")
+  meas_all <- c("p_value", "lrstat", "n")
 
   filter_char <-
-    # specify the ranges for p.value, lrstat and n
+    # specify the ranges for p_value, lrstat and n
     # as character
     glue::glue(
       "{meas_all} %between% c({meas_all}_lower, {meas_all}_upper)"
@@ -198,7 +219,7 @@ process_plot_data <- function(object = object,
 
   if (nrow(summ_pval_lrt) < 1) {
     msg <- glue::glue(
-      "no result at the provided p.value_lower, p.value_upper, \\
+      "no result at the provided p_value_lower, p_value_upper, \\
       lrstat_lower, and lrstat_upper combination"
     )
     stop(msg)
@@ -213,7 +234,7 @@ process_plot_data <- function(object = object,
 
 
   # defined inside data.table using NSE
-  p.value <- n <- .N <- .SD <-
+  p_value <- n <- .N <- .SD <-
     threshold <- display_text_color <-  NULL
 
   dat_pl <- dat_pl[
@@ -235,7 +256,7 @@ process_plot_data <- function(object = object,
   ][
     ,
     `:=`(
-      p.value_text = p.value %>%
+      p_value_text = p_value %>%
         format_pval_(digits = digits) %>%
         paste0("p", .),
 
@@ -265,7 +286,7 @@ process_plot_data <- function(object = object,
           if (show_lrstat) paste(., lrstat_text, sep = "\n") else .
         } %>%
         {
-          if (show_pvalue) paste(., p.value_text, sep = "\n") else .
+          if (show_p_value) paste(., p_value_text, sep = "\n") else .
         } %>%
         gsub("^\\,", "", .) %>%
         # gsub("^\\ ", "", .) %>%
@@ -289,7 +310,7 @@ process_plot_data <- function(object = object,
       )}
   ][,
     c("AE", "Drug", "n", "lrstat",
-      "p.value", "text", "text_color"),
+      "p_value", "text", "text_color"),
     with = FALSE
   ]
 

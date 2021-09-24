@@ -18,12 +18,12 @@ summary_zi_probs <- function(object, ...) {
   . <- NULL
 
   if (all_attr$test_omega) {
-    zi_lrstat <- zi_p.value <- zi_q.value <- NULL
+    zi_lrstat <- zi_p_value <- zi_q.value <- NULL
     out[
       ,
       `:=`(
         lrstat = all_attr$omega_lrstat,
-        p.value = all_attr$omega_pvalue,
+        p_value = all_attr$omega_p_value,
         q.value = all_attr$omega_qvalue
       )
     ]
@@ -66,7 +66,7 @@ summary.pvlrt <- function(object, show_zi = FALSE, ...) {
   tab_lrstat_pval <- list(
     n = extract_n_matrix,
     lrstat = extract_lrstat_matrix,
-    p.value = extract_pvalue_matrix
+    p_value = extract_p_value_matrix
   ) %>%
     mapply(
       function(measure_fn, measure) {
@@ -110,7 +110,7 @@ summary.pvlrt <- function(object, show_zi = FALSE, ...) {
 
 #' Print method for pvlrt objects
 #' @inheritParams summary.pvlrt
-#' @inheritParams extract_pvalue_matrix
+#' @inheritParams extract_p_value_matrix
 #' @param x a \code{pvlrt} object; an output of function \code{pvlrt}().
 #' @param topn number of top (with respect to likelihood ratio statistic value)
 #' pairs to show at the given significance level.
@@ -211,9 +211,9 @@ print.pvlrt <- function(x,
   if (topn >= 1) {
     top_signif_pairs <- signif_pairs %>%
       .[1:topn, ] %>%
-      .[, c("AE", "Drug", "lrstat", "p.value"), with = FALSE]
+      .[, c("AE", "Drug", "lrstat", "p_value"), with = FALSE]
 
-    top_signif_pairs$p.value <- top_signif_pairs$p.value %>%
+    top_signif_pairs$p_value <- top_signif_pairs$p_value %>%
       format.pval(digits = 3, eps = 1e-5)
 
     res_signif_pairs <- top_signif_pairs %>%

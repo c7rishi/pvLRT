@@ -12,13 +12,13 @@ heatmap_pvlrt <- function(object,
                           AE = NULL,
                           Drug = NULL,
                           grep = FALSE,
-                          fill_measure = "p.value",
+                          fill_measure = "p_value",
                           show_n = TRUE,
                           arrange_alphabetical = FALSE,
-                          show_pvalue = FALSE,
+                          show_p_value = FALSE,
                           show_lrstat = FALSE,
-                          p.value_lower = 0,
-                          p.value_upper = 1,
+                          p_value_lower = 0,
+                          p_value_upper = 1,
                           lrstat_lower = 0,
                           lrstat_upper = Inf,
                           n_lower = 0,
@@ -44,7 +44,7 @@ heatmap_pvlrt <- function(object,
   }
 
 
-  show_text <- show_pvalue | show_n | show_lrstat
+  show_text <- show_p_value | show_n | show_lrstat
 
   # heatmap engine specific codes
   # pheatmap support is turned off
@@ -74,8 +74,8 @@ heatmap_pvlrt <- function(object,
     ) +
     ggplot2::geom_tile(color = border_color) +
     ggplot2::scale_fill_gradient(
-      low = ifelse(fill_measure == "p.value", darkblue_col, "white"),
-      high = ifelse(fill_measure == "p.value", "white", darkblue_col)
+      low = ifelse(fill_measure == "p_value", darkblue_col, "white"),
+      high = ifelse(fill_measure == "p_value", "white", darkblue_col)
     ) +
     ggplot2::theme_bw() +
     ggplot2::theme(
@@ -114,7 +114,7 @@ heatmap_pvlrt <- function(object,
   #   Drug_sub <- levels(dat_pl$Drug)
   #
   #   plot_mats <- c(
-  #     "lrstat", "p.value",
+  #     "lrstat", "p_value",
   #     "text", "text_color"
   #   ) %>%
   #     setNames(., .) %>%
@@ -157,7 +157,7 @@ heatmap_pvlrt <- function(object,
   #         if (show_lrstat) paste(., "show_lrstat = TRUE", sep = ", ") else .
   #       } %>%
   #       {
-  #         if (show_pvalue) paste(., "show_pvalue = TRUE", sep = ", ") else .
+  #         if (show_p_value) paste(., "show_p_value = TRUE", sep = ", ") else .
   #       } %>%
   #       gsub("^\\,", "", .) %>%
   #       # gsub("^\\ ", "", .) %>%
@@ -169,7 +169,7 @@ heatmap_pvlrt <- function(object,
   #         if (show_n) paste(., "n's", sep = ", ") else .
   #       } %>%
   #       {
-  #         if (show_pvalue) paste(., "p-value's", sep = ", ") else .
+  #         if (show_p_value) paste(., "p-value's", sep = ", ") else .
   #       } %>%
   #       {
   #         if (show_lrstat) paste(., "lrstat's", sep = ", ") else .
@@ -240,13 +240,13 @@ barplot.pvlrt <- function(height,
                           Drug = NULL,
                           grep = FALSE,
                           x_axis_measure = "lrstat",
-                          fill_measure = "p.value",
+                          fill_measure = "p_value",
                           show_n = FALSE,
                           arrange_alphabetical = FALSE,
-                          show_pvalue = FALSE,
+                          show_p_value = FALSE,
                           show_lrstat = FALSE,
-                          p.value_lower = 0,
-                          p.value_upper = 1,
+                          p_value_lower = 0,
+                          p_value_upper = 1,
                           lrstat_lower = 0,
                           lrstat_upper = Inf,
                           n_lower = 0,
@@ -273,7 +273,7 @@ barplot.pvlrt <- function(height,
     stop(dat_pl$message)
   }
 
-  show_text <- show_pvalue | show_n | show_lrstat
+  show_text <- show_p_value | show_n | show_lrstat
 
   darkblue_col <- RColorBrewer::brewer.pal(8, "Blues") %>% tail(1)
 
