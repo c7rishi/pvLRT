@@ -2,11 +2,6 @@ is.pvlrt <- function(obj, ...) {
   is(obj, "pvlrt")
 }
 
-extract_n_matrix <- function(object, ...) {
-  attr(object, "contin_table") %>%
-    set_dimnames(dimnames(object))
-}
-
 
 summary_zi_probs <- function(object, ...) {
   all_attr <- attributes(object)
@@ -194,8 +189,8 @@ print.pvlrt <- function(x,
       paste(collapse = "")
   }
 
-  I <- nrow(all_attr$lrstat)
-  J <- ncol(all_attr$lrstat)
+  I <- nrow(object)
+  J <- ncol(object)
   n_drug_test_idx <- length(all_attr$test_drug_idx)
 
   signif_pairs <- extract_significant_pairs(
@@ -220,21 +215,27 @@ print.pvlrt <- function(x,
       capture.output() %>%
       paste(collapse = "\n")
 
-    signif_pairs_txt <- glue::glue(
-      "Total {n_signif_pair} AE-drug \\
+    signif_pairs_txt <- if (show_test_summary) {
+      glue::glue(
+        "Total {n_signif_pair} AE-drug \\
       {ifelse(n_signif_pair > 1, 'pairs are', 'pair is')} significant \\
       at level = {significance_level}.
       (FDR controlled) p-values for {ifelse(topn == n_signif_pair, '',  'top')} {topn} \\
       significant pairs:
       {res_signif_pairs}"
-    )
+      )
+    } else {
+      glue::glue(
+        "Total {n_signif_pair} AE-drug \\
+      {ifelse(n_signif_pair > 1, 'pairs are', 'pair is')} significant \\
+      at level = {significance_level}."
+      )
+    }
   } else {
     signif_pairs_txt <- glue::glue(
       "No significant pair at level = {significance_level}."
     )
   }
-
-  signif_pairs_txt_final <- if (show_test_summary) signif_pairs_txt else ""
 
   lrt_type <- ifelse(
     do_omega_estimation &
@@ -262,8 +263,8 @@ print.pvlrt <- function(x,
     "{top_text}
 
     {zi_text}
-    {signif_pairs_txt_final}
-    Extract all LR statistics and p-values using `summary()`
+    {signif_pairs_txt}
+    Extract all LR statistics and p-values using `summary().`
     "
   )
   cat(msg)
@@ -279,6 +280,9 @@ as.matrix.pvlrt <- function(x, ...) {
   if (!is.pvlrt(object)) {
     stop("x must be a 'pvlrt' object.")
   }
+  attributes(object) <- attributes(
+    object
+    )[c("dim", "dimnames", "class")]
   class(object) <- "matrix"
   object
 }

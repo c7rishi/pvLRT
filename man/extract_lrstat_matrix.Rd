@@ -4,6 +4,7 @@
 \alias{extract_lrstat_matrix}
 \alias{extract_p_value_matrix}
 \alias{extract_zi_probability}
+\alias{extract_n_matrix}
 \alias{extract_significant_pairs}
 \title{Extract various summary measures from a pvlrt object}
 \usage{
@@ -12,6 +13,8 @@ extract_lrstat_matrix(object, ...)
 extract_p_value_matrix(object, ...)
 
 extract_zi_probability(object, ...)
+
+extract_n_matrix(object, ...)
 
 extract_significant_pairs(object, significance_level = 0.05, ...)
 }
@@ -26,4 +29,19 @@ extract_significant_pairs(object, significance_level = 0.05, ...)
 }
 \description{
 Extract various summary measures from a pvlrt object
+}
+\details{
+\itemize{
+\item \code{extract_lrstat_matrix} extracts the matrix of
+the computed log-likelihood ratio test statistics. This produces
+a result identical to applying \code{as.matrix}.
+\item \code{extract_p_value_matrix} extracts the matrix of
+computed p-values
+\item \code{extract_zi_probability} extracts a vector of (estimated)
+zero-inflation probabilities
+\item \code{extract_n_matrix} extracts the original contingency table
+used.
+\item \code{extract_significant_pairs} extract the AE/drug
+pairs determined to be significant at the provided significance level
+}
 }

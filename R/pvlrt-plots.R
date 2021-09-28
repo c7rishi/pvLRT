@@ -302,6 +302,7 @@ barplot.pvlrt <- function(height,
                           border_color = "white",
                           ...) {
   . <- NULL
+  object <- height
   dots <- list(...)
   all_inputs <- c(as.list(environment()), dots)
 

@@ -18,18 +18,9 @@ process_plot_data <- function(object = object,
                               ...) {
   stopifnot(
     is(object, "pvlrt"),
-    fill_measure %in% c("p_value", "p.value", "lrstat", "n")
+    fill_measure %in% c("p_value", "lrstat", "n")
   )
 
-
-  if (fill_measure == "p.value") {
-    msg <- glue::glue(
-      'Use of fill_measure = "p.value" is deprecated.
-      Use fill_measure = "p_value" instead'
-    )
-    warning(msg)
-    fill_measure <- "p_value"
-  }
 
   . <- NULL
   n_text <- p_value_text <- lrstat_text <- text_color <- NULL

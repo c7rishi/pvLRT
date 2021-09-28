@@ -1,20 +1,30 @@
 #' Extract various summary measures from a pvlrt object
+#'
 #' @inheritParams summary.pvlrt
+#'
+#' @details
+#'
+#' - \code{extract_lrstat_matrix} extracts the matrix of
+#' the computed log-likelihood ratio test statistics. This produces
+#' a result identical to applying \code{as.matrix}.
+#'
+#' - \code{extract_p_value_matrix} extracts the matrix of
+#' computed p-values
+#'
+#' - \code{extract_zi_probability} extracts a vector of (estimated)
+#' zero-inflation probabilities
+#'
+#' - \code{extract_n_matrix} extracts the original contingency table
+#' used.
+#'
+#' - \code{extract_significant_pairs} extract the AE/drug
+#' pairs determined to be significant at the provided significance level
+#'
 #' @export
 extract_lrstat_matrix <- function(object, ...) {
   if (!is.pvlrt(object)) {
     stop("object must be a 'pvlrt' object.")
   }
-  . <- NULL
-
-  unnecessary_attrs <- attributes(object) %>%
-    names(.) %>%
-    setdiff(c("dim", "dimnames", "class"))
-
-  for (nm in unnecessary_attrs) {
-    attr(object, nm) <- NULL
-  }
-
   as.matrix(object)
 }
 
@@ -39,6 +49,15 @@ extract_zi_probability <- function(object, ...) {
     setNames(colnames(object))
   out
 }
+
+
+#' @rdname extract_lrstat_matrix
+#' @export
+extract_n_matrix <- function(object, ...) {
+  attr(object, "contin_table") %>%
+    set_dimnames(dimnames(object))
+}
+
 
 #' @rdname extract_lrstat_matrix
 #' @param significance_level numeric. Level of significance.
