@@ -3,6 +3,7 @@
 \name{heatmap_pvlrt}
 \alias{heatmap_pvlrt}
 \alias{barplot.pvlrt}
+\alias{bubbleplot_pvlrt}
 \title{Heatmap showing LR test results}
 \usage{
 heatmap_pvlrt(
@@ -11,7 +12,7 @@ heatmap_pvlrt(
   Drug = NULL,
   grep = FALSE,
   fill_measure = "p_value",
-  show_n = TRUE,
+  show_n = FALSE,
   show_lrstat = FALSE,
   show_p_value = FALSE,
   p_value_lower = 0,
@@ -23,7 +24,7 @@ heatmap_pvlrt(
   arrange_alphabetical = FALSE,
   remove_outside = FALSE,
   digits = 2,
-  border_color = "white",
+  border_color = "black",
   ...
 )
 
@@ -47,12 +48,40 @@ heatmap_pvlrt(
   remove_outside = FALSE,
   digits = 2,
   Drug_nrow = 1,
-  border_color = "white",
+  border_color = "black",
+  x_axis_logscale = TRUE,
+  ...
+)
+
+bubbleplot_pvlrt(
+  object,
+  AE = NULL,
+  Drug = NULL,
+  grep = FALSE,
+  x_axis_measure = "lrstat",
+  fill_measure = "p_value",
+  size_measure = "n",
+  show_n = FALSE,
+  arrange_alphabetical = FALSE,
+  show_p_value = FALSE,
+  show_lrstat = FALSE,
+  p_value_lower = 0,
+  p_value_upper = 1,
+  lrstat_lower = 0,
+  lrstat_upper = Inf,
+  n_lower = 0,
+  n_upper = Inf,
+  remove_outside = FALSE,
+  digits = 2,
+  Drug_nrow = 1,
+  border_color = "black",
+  x_axis_logscale = TRUE,
+  size_logscale = TRUE,
   ...
 )
 }
 \arguments{
-\item{object}{pvlrt object; output of \code{pvlrt}()}
+\item{object, height}{pvlrt object; output of \code{pvlrt}()}
 
 \item{AE}{input parameter determining which adverse effects to show in
 the plot. This can be a numeric scalar  specifying the
@@ -78,7 +107,8 @@ Set Drug = Inf to force display all drugs.}
 Ignores if neither AE nor Drug is a character vector.}
 
 \item{fill_measure}{Measure to govern the filling color in each cell
-(drug/AE combination). Defaults to "p_value". Available choices are:
+(in heatmap) or bar (in barplot) or circle/bubble (in bubbleplot) for each
+drug/AE combination. Defaults to "p_value". Available choices are:
 "p.value", "lrstat", and "n".}
 
 \item{show_n}{logical. show the sample size as inscribed text on each cell?}
@@ -114,12 +144,13 @@ inscribed texts on the plot.}
 
 \item{...}{Other arguments. Currently ignored}
 
-\item{height}{a \code{pvlrt} object; output of \code{pvlrt}().}
-
 \item{x_axis_measure}{measure to show on the x-axis of the (horizontal) bar
 plots. Defaults to "lrstat" available choices are "lrstat", "p_value" and "n".}
 
 \item{Drug_nrow}{Number of rows in the panels for Drugs for the barplots.}
+
+\item{size_measure}{measure to govern sizes of the circles in the bubble plots.
+Defaults to "n". Available choices are "lrstat", "p_value" and "n".}
 }
 \description{
 Heatmap showing LR test results

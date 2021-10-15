@@ -1,8 +1,9 @@
 #' Heatmap showing LR test results
-#' @param object pvlrt object; output of \code{pvlrt}()
+#' @param object,height pvlrt object; output of \code{pvlrt}()
 #' @param ... Other arguments. Currently ignored
 #' @param fill_measure Measure to govern the filling color in each cell
-#' (drug/AE combination). Defaults to "p_value". Available choices are:
+#' (in heatmap) or bar (in barplot) or circle/bubble (in bubbleplot) for each
+#' drug/AE combination. Defaults to "p_value". Available choices are:
 #'  "p.value", "lrstat", and "n".
 #' @param AE input parameter determining which adverse effects to show in
 #' the plot. This can be a numeric scalar  specifying the
@@ -45,6 +46,18 @@
 #' @param digits numeric. Number of decimal places to show on the
 #' inscribed texts on the plot.
 #' @param border_color character string. Specifies the border color of cells/bars.
+#' @param Drug_nrow Number of rows in the panels for Drugs for the barplots.
+#' @param x_axis_measure measure to show on the x-axis of the (horizontal) bar
+#' plots and bubble plots. Defaults to "lrstat". Available choices are "lrstat", "p_value" and "n".
+#' @param size_measure measure to govern sizes of the circles in the bubble plots.
+#' Defaults to "n". Available choices are "lrstat", "p_value" and "n".
+#' @x_axis_logscale logical. Should the x axis measure in the bar plot or the bubble plot
+#' be log transformed (more precisely, "log1p" transformed with the function
+#' f(x) = log(1 + x))? Defaults to TRUE.
+#' @size_axis_logscale logical. Should the circle size measure in the the bubble plot
+#' be log transformed (more precisely, "log1p" transformed with the function
+#' f(x) = log(1 + x)). Defaults to TRUE.
+#'
 #'
 #' @examples
 #' test1 <- pvlrt(statin46)
@@ -56,7 +69,7 @@ heatmap_pvlrt <- function(object,
                           Drug = NULL,
                           grep = FALSE,
                           fill_measure = "p_value",
-                          show_n = TRUE,
+                          show_n = FALSE,
                           show_lrstat = FALSE,
                           show_p_value = FALSE,
                           p_value_lower = 0,
@@ -69,7 +82,7 @@ heatmap_pvlrt <- function(object,
                           remove_outside = FALSE,
                           digits = 2,
                           # engine = "ggplot2",
-                          border_color = "white",
+                          border_color = "black",
                           ...) {
   . <- NULL
   dots <- list(...)
@@ -111,7 +124,7 @@ heatmap_pvlrt <- function(object,
         y = "AE",
         x = "Drug",
         fill = fill_measure,
-        label = "text"
+        label = "info"
       )
     ) +
     ggplot2::geom_tile(color = border_color) +
@@ -134,6 +147,7 @@ heatmap_pvlrt <- function(object,
     out <- out +
       ggplot2::geom_text(
         ggplot2::aes_string(
+          ggplot2::aes_string(label = "text"),
           color = "text_color"
         ),
         show.legend = FALSE
@@ -275,10 +289,6 @@ heatmap_pvlrt <- function(object,
 
 
 #' @rdname heatmap_pvlrt
-#' @param height a \code{pvlrt} object; output of \code{pvlrt}().
-#' @param Drug_nrow Number of rows in the panels for Drugs for the barplots.
-#' @param x_axis_measure measure to show on the x-axis of the (horizontal) bar
-#' plots. Defaults to "lrstat" available choices are "lrstat", "p_value" and "n".
 #' @export
 barplot.pvlrt <- function(height,
                           AE = NULL,
@@ -299,10 +309,130 @@ barplot.pvlrt <- function(height,
                           remove_outside = FALSE,
                           digits = 2,
                           Drug_nrow = 1,
-                          border_color = "white",
+                          border_color = "black",
+                          x_axis_logscale = TRUE,
                           ...) {
   . <- NULL
   object <- height
+  dots <- list(...)
+  all_inputs <- c(as.list(environment()), dots)
+
+  # processed plotting data from process_plot_data
+  dat_pl <- tryCatch(
+    do.call(process_plot_data, all_inputs),
+    error = function(e) e
+  )
+
+  if (is(dat_pl, "error")) {
+    stop(dat_pl$message)
+  }
+
+  show_text <- show_p_value | show_n | show_lrstat
+
+  darkblue_col <- RColorBrewer::brewer.pal(8, "Blues") %>% tail(1)
+
+
+  dat_pl[
+    ,
+    AE := AE %>%
+      factor(levels = rev(levels(.)))
+  ]
+
+  fill_range <- RColorBrewer::brewer.pal(n = 10, name = "RdBu") %>%
+    rev()
+
+  n_uniq_fill_meas <- dat_pl[[fill_measure]] %>%
+    unique() %>%
+    length()
+
+  if (n_uniq_fill_meas == 1) {
+    fill_range <- fill_range[1]
+  }
+
+
+  out <- dat_pl %>%
+    ggplot2::ggplot(
+      ggplot2::aes_string(
+        y = "AE",
+        x = x_axis_measure,
+        fill = fill_measure,
+        label = "info"
+      )
+    ) +
+    ggplot2::geom_bar(stat = "identity", color = border_color) +
+    ggplot2::facet_wrap(~Drug, nrow = Drug_nrow) +
+    ggplot2::theme_bw() +
+    ggplot2::scale_fill_gradientn(colors = fill_range) +
+    ggplot2::theme(
+      axis.text.x = ggplot2::element_text(
+        angle = 90, vjust = 0.5, hjust = 1
+      ),
+      panel.grid.major = ggplot2::element_blank(),
+      panel.grid.minor = ggplot2::element_blank(),
+      panel.border = ggplot2::element_blank()
+    ) +
+    ggplot2::labs(y = "")
+
+
+  if (x_axis_logscale) {
+    out <- out +
+      ggplot2::scale_x_continuous(trans = "log1p")
+  }
+
+  if (show_text) {
+    out <- out +
+      ggplot2::geom_text(
+        ggplot2::aes_string(label = "text"),
+        hjust = "inward",
+        position = ggplot2::position_dodge(width = 1),
+        inherit.aes = TRUE,
+        show.legend = FALSE
+      ) +
+      ggplot2::scale_color_manual(
+        values = c(dat_pl$text_color) %>%
+          unique() %>%
+          rev(),
+        guide = "none"
+      )
+  }
+
+  out
+}
+
+
+
+
+
+#' @rdname heatmap_pvlrt
+#' @param Drug_nrow Number of rows in the panels for Drugs for the barplots.
+#' @param x_axis_measure measure to show on the x-axis of the (horizontal) bar
+#' plots. Defaults to "lrstat" available choices are "lrstat", "p_value" and "n".
+#' @export
+bubbleplot_pvlrt <- function(object,
+                             AE = NULL,
+                             Drug = NULL,
+                             grep = FALSE,
+                             x_axis_measure = "lrstat",
+                             fill_measure = "p_value",
+                             size_measure = "n",
+                             show_n = FALSE,
+                             arrange_alphabetical = FALSE,
+                             show_p_value = FALSE,
+                             show_lrstat = FALSE,
+                             p_value_lower = 0,
+                             p_value_upper = 1,
+                             lrstat_lower = 0,
+                             lrstat_upper = Inf,
+                             n_lower = 0,
+                             n_upper = Inf,
+                             remove_outside = FALSE,
+                             digits = 2,
+                             Drug_nrow = 1,
+                             border_color = "black",
+                             x_axis_logscale = TRUE,
+                             size_logscale = TRUE,
+                             ...) {
+  . <- NULL
   dots <- list(...)
   all_inputs <- c(as.list(environment()), dots)
 
@@ -344,10 +474,11 @@ barplot.pvlrt <- function(height,
         y = "AE",
         x = x_axis_measure,
         fill = fill_measure,
-        label = "text"
+        size = size_measure,
+        label = "info"
       )
     ) +
-    ggplot2::geom_bar(stat = "identity", color = border_color) +
+    ggplot2::geom_point(stat = "identity", color = border_color, shape = 21) +
     ggplot2::facet_wrap(~Drug, nrow = Drug_nrow) +
     ggplot2::theme_bw() +
     ggplot2::scale_fill_gradientn(colors = fill_range) +
@@ -361,10 +492,21 @@ barplot.pvlrt <- function(height,
     ) +
     ggplot2::labs(y = "")
 
+  if (x_axis_logscale) {
+    out <- out +
+      ggplot2::scale_x_continuous(trans = "log1p")
+  }
+
+  if (size_logscale) {
+    out <- out +
+      ggplot2::scale_size_continuous(trans = "log1p")
+  }
+
 
   if (show_text) {
     out <- out +
       ggplot2::geom_text(
+        ggplot2::aes_string(label = "text"),
         hjust = "inward",
         position = ggplot2::position_dodge(width = 1),
         inherit.aes = TRUE,
@@ -380,3 +522,5 @@ barplot.pvlrt <- function(height,
 
   out
 }
+
+

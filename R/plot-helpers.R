@@ -65,7 +65,6 @@ process_plot_data <- function(object = object,
 
   summ_AE_Drug <- summ # data.table::copy(summ)
 
-  # browser()
 
   # first subset on AEs and Drugs #
   # keeps the above decreasing LRstat orders
@@ -79,6 +78,7 @@ process_plot_data <- function(object = object,
   } else {
     c("Drug", "AE")
   }
+
 
   for (nm in measure_order) {
     tmp <- all_inputs[[nm]]
@@ -180,7 +180,6 @@ process_plot_data <- function(object = object,
       eval(.)
   }
 
-  # browser()
 
   # summ_AE_Drug <- summ[
   #   AE %in% unique(processed$AE) &
@@ -281,6 +280,12 @@ process_plot_data <- function(object = object,
   ][
     ,
     `:=`(
+      info = paste(
+        n_text,
+        lrstat_text,
+        p_value_text,
+        sep = "; "
+      ),
       text = rep("", .N) %>%
         {
           if (show_n) paste(., n_text) else .
@@ -318,7 +323,7 @@ process_plot_data <- function(object = object,
   ][,
     c(
       "AE", "Drug", "n", "lrstat",
-      "p_value", "text", "text_color"
+      "p_value", "info", "text", "text_color"
     ),
     with = FALSE
   ]

@@ -51,10 +51,15 @@
 #' @examples
 #'
 #' data("statin46")
+#'
+#' # 500 bootstrap iterations (nsim) in each example below
+#' # are for quick demonstration only --
+#' # we recommended setting nsim to 10000 (default) or bigger
+#'
 #' # no grouping -- each drug forms its own class,
-#  # default "rrr" (lambda) parametrization, possible zi,
-#  # null distribution evaluated using parametric bootstrap
-#' test1 <- pvlrt(statin46)
+#' # default "rrr" (lambda) parametrization, possible zi,
+#' # null distribution evaluated using parametric bootstrap
+#' test1 <- pvlrt(statin46, nsim = 500)
 #' test1
 #' ## extract the observed LRT statistic
 #' extract_lrstat_matrix(test1)
@@ -66,7 +71,7 @@
 #' # group 2: drug 3, drug 4
 #' # drug 5, 6, 7 in their own groups
 #' drug_groups <- list(c(1, 2), c(3, 4), 5, 6, 7)
-#' test2 <- pvlrt(statin46, drug_class_idx = drug_groups)
+#' test2 <- pvlrt(statin46, drug_class_idx = drug_groups, nsim = 500)
 #' test2
 #'
 #' # specify no zero inflation at the entirety of the last row and the last column
@@ -77,6 +82,7 @@
 #' # use non-parametric bootstrap to evaluate the null distribution
 #' test4 <- pvlrt(statin46, null_boot_type = "non-parametric")
 #' test4
+#'
 #' \dontrun{
 #' # test zi probabilities (omegas)
 #' test5 <- pvlrt(statin46, test_omega = TRUE)
