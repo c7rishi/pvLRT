@@ -149,8 +149,16 @@ plots. Defaults to "lrstat" available choices are "lrstat", "p_value" and "n".}
 
 \item{Drug_nrow}{Number of rows in the panels for Drugs for the barplots.}
 
-\item{size_measure}{measure to govern sizes of the circles in the bubble plots.
+\item{x_axis_logscale}{logical. Should the x axis measure in the bar plot or the bubble plot
+be log transformed (more precisely, "log1p" transformed with the function
+f(x) = log(1 + x))? Defaults to TRUE.}
+
+\item{size_measure}{measure to govern sizes of the circles in the bubble plot.
 Defaults to "n". Available choices are "lrstat", "p_value" and "n".}
+
+\item{size_axis_logscale}{logical. Should the circle size measure in the the bubble plot
+be log transformed (more precisely, "log1p" transformed with the function
+f(x) = log(1 + x)). Defaults to TRUE.}
 }
 \description{
 Heatmap showing LR test results

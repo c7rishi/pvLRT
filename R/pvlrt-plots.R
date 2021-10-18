@@ -49,12 +49,12 @@
 #' @param Drug_nrow Number of rows in the panels for Drugs for the barplots.
 #' @param x_axis_measure measure to show on the x-axis of the (horizontal) bar
 #' plots and bubble plots. Defaults to "lrstat". Available choices are "lrstat", "p_value" and "n".
-#' @param size_measure measure to govern sizes of the circles in the bubble plots.
+#' @param size_measure measure to govern sizes of the circles in the bubble plot.
 #' Defaults to "n". Available choices are "lrstat", "p_value" and "n".
-#' @x_axis_logscale logical. Should the x axis measure in the bar plot or the bubble plot
+#' @param x_axis_logscale logical. Should the x axis measure in the bar plot or the bubble plot
 #' be log transformed (more precisely, "log1p" transformed with the function
 #' f(x) = log(1 + x))? Defaults to TRUE.
-#' @size_axis_logscale logical. Should the circle size measure in the the bubble plot
+#' @param size_axis_logscale logical. Should the circle size measure in the the bubble plot
 #' be log transformed (more precisely, "log1p" transformed with the function
 #' f(x) = log(1 + x)). Defaults to TRUE.
 #'
