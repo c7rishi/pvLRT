@@ -11,7 +11,8 @@
 
 \item{type}{character string determining the type of plot to show.
 Available choices are "heatmap" (default) which calls \link{heatmap_pvlrt},
-and "barplot" which calls \link{barplot.pvlrt} with the additional arguments
+"barplot" which calls \link{barplot.pvlrt}, and "bubbleplot" which calls
+\link{bubbleplot_pvlrt} with the additional arguments
 supplied in ...}
 
 \item{...}{additional arguments passed to heatmap_pvlrt or barplot.pvlrt

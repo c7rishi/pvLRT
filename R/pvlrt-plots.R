@@ -146,10 +146,11 @@ heatmap_pvlrt <- function(object,
   if (show_text) {
     out <- out +
       ggplot2::geom_text(
-        ggplot2::aes_string(
-          ggplot2::aes_string(label = "text"),
+        mapping = ggplot2::aes_string(
+          label = "text",
           color = "text_color"
         ),
+        data = dat_pl,
         show.legend = FALSE
       ) +
       ggplot2::scale_color_manual(
