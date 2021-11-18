@@ -25,4 +25,6 @@ Imports:
 Depends: 
     R (>= 3.6.0)
 suggests:
-    furrr
+    furrr,
+    plotly
+BugReports: https://github.com/c7rishi/pvLRT/issues
