@@ -156,7 +156,7 @@ f(x) = log(1 + x))? Defaults to TRUE.}
 \item{size_measure}{measure to govern sizes of the circles in the bubble plot.
 Defaults to "n". Available choices are "lrstat", "p_value" and "n".}
 
-\item{size_axis_logscale}{logical. Should the circle size measure in the the bubble plot
+\item{size_logscale}{logical. Should the circle size measure in the the bubble plot
 be log transformed (more precisely, "log1p" transformed with the function
 f(x) = log(1 + x)). Defaults to TRUE.}
 }

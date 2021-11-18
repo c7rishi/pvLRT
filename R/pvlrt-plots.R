@@ -54,7 +54,7 @@
 #' @param x_axis_logscale logical. Should the x axis measure in the bar plot or the bubble plot
 #' be log transformed (more precisely, "log1p" transformed with the function
 #' f(x) = log(1 + x))? Defaults to TRUE.
-#' @param size_axis_logscale logical. Should the circle size measure in the the bubble plot
+#' @param size_logscale logical. Should the circle size measure in the the bubble plot
 #' be log transformed (more precisely, "log1p" transformed with the function
 #' f(x) = log(1 + x)). Defaults to TRUE.
 #'
@@ -81,7 +81,6 @@ heatmap_pvlrt <- function(object,
                           arrange_alphabetical = FALSE,
                           remove_outside = FALSE,
                           digits = 2,
-                          # engine = "ggplot2",
                           border_color = "black",
                           ...) {
   . <- NULL

@@ -4,7 +4,7 @@ Version: 0.1.5
 Author: Saptarshi Chakraborty, Marianthi Markatou
 Maintainer: Saptarshi Chakraborty <chakra.saptarshi@gmail.com>
 Date: 2021-09-24
-Description: An R package implemeting a suit of likelihood ratio test based methods to use in pharmacovigilance. Contains various testing and postprocessing functions.
+Description: An R package implementing a suite of likelihood ratio test based methods to use in pharmacovigilance. Contains various testing and postprocessing functions.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

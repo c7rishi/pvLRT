@@ -27,3 +27,8 @@ set_Drug_names(object, old, new)
 \description{
 Extracting and setting AE and Drug names from a pvlrt object
 }
+\note{
+Because a \code{pvlrt} object is simply a reclassified matrix, the AE (rows)
+and Drug (columns) names can also be modified through \link{rownames} and
+\link{colnames} respectively.
+}

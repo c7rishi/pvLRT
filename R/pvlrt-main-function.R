@@ -1,4 +1,4 @@
-#' Pseudo Likelihood Ratio Test for determining significant AE-Drug pairs under
+#' #' Pseudo Likelihood Ratio Test for determining significant AE-Drug pairs under
 #' Poisson and zero-inflated Poisson models for pharmacovigilance
 #' @inheritParams r_contin_table_zip
 #' @param contin_table IxJ contingency table showing pairwise counts of adverse
@@ -48,6 +48,58 @@
 #'
 #' @note \code{lrt_poisson} is a wrapper function on \code{lrt_zi_poisson} with \code{omega_vec = rep(0, ncol(contin_table))}
 #'
+#' @returns
+#'
+#' The function returns an S3 object of class `pvlrt` containing  test results. A `pvlrt`
+#' object is simply a re-classified matrix containing log likelihood ratio test statistics
+#' for cells in the input contingency table, with various other test and input data information (including
+#' p-values, estimated zero inflation parameters, overall log-likelihood etc.) embedded
+#' as attributes. The following S3 methods and functions are available for an `pvlrt` object:
+#'
+#'
+#'
+#' Various postprocessing methods for `pvlrt` objects are available. This includes:
+#'
+#' * \link{bubbleplot_pvlrt}
+#'
+#' * \link{extract_AE_names}
+#'
+#' * \link{extract_Drug_names}
+#'
+#' * \link{extract_lrstat_matrix}
+#'
+#' * \link{extract_n_matrix}
+#'
+#' * \link{extract_p_value_matrix}
+#'
+#' * \link{extract_significant_pairs}
+#'
+#' * \link{extract_zi_probability}
+#'
+#' * \link{heatmap_pvlrt}
+#'
+#' * \link{lrt_poisson}
+#'
+#' * \link{lrt_vanilla_poisson}
+#'
+#' * \link{lrt_zi_poisson}
+#'
+#' * \link{r_contin_table_zip}
+#'
+#' * \link{set_AE_names}
+#'
+#' * \link{set_Drug_names}
+#'
+#' * \link{print.pvlrt}
+#'
+#' * \link{plot.pvlrt}
+#'
+#' * \link{summary.pvlrt}
+#'
+#' * \link{logLik.pvlrt}
+#'
+#'
+#'
 #' @examples
 #'
 #' data("statin46")
@@ -74,6 +126,7 @@
 #' test2 <- pvlrt(statin46, drug_class_idx = drug_groups, nsim = 500)
 #' test2
 #'
+#' \dontrun{
 #' # specify no zero inflation at the entirety of the last row and the last column
 #' no_zi_idx <- list(c(nrow(statin46), 0), c(0, ncol(statin46)))
 #' test3 <- pvlrt(statin46, no_zi_idx = no_zi_idx)
@@ -82,6 +135,7 @@
 #' # use non-parametric bootstrap to evaluate the null distribution
 #' test4 <- pvlrt(statin46, null_boot_type = "non-parametric")
 #' test4
+#' }
 #'
 #' \dontrun{
 #' # test zi probabilities (omegas)
@@ -89,6 +143,7 @@
 #' test5
 #' }
 #'
+#' @md
 #' @export
 pvlrt <- function(contin_table,
                   nsim = 1e4,

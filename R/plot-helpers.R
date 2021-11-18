@@ -266,7 +266,7 @@ process_plot_data <- function(object = object,
             as.character(round(., digits = digits))
           )
         } %>%
-        paste0("LR=", .),
+        paste0("logLR=", .),
       n_text = n %>%
         {
           ifelse(

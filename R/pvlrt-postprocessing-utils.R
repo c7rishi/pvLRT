@@ -76,6 +76,12 @@ extract_significant_pairs <- function(object, significance_level = 0.05, ...) {
 
 #' Extracting and setting AE and Drug names from a pvlrt object
 #' @inheritParams summary.pvlrt
+#'
+#' @note
+#' Because a `pvlrt` object is simply a reclassified matrix, the AE (rows)
+#' and Drug (columns) names can also be modified through \link{rownames} and
+#' \link{colnames} respectively.
+#'
 #' @export
 extract_AE_names <- function(object) {
   if (!is.pvlrt(object)) {
