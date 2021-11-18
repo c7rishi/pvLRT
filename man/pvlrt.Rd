@@ -113,6 +113,7 @@ Various postprocessing methods for \code{pvlrt} objects are available. This incl
 \item \link{plot.pvlrt}
 \item \link{summary.pvlrt}
 \item \link{logLik.pvlrt}
+\item \link{as.matrix.pvlrt}
 }
 }
 \description{

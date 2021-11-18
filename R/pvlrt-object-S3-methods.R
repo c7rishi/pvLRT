@@ -271,9 +271,12 @@ print.pvlrt <- function(x,
   invisible(object)
 }
 
-
+#' Casting a `pvlrt` object as a matrix of log LR statistics
+#'
 #' @inheritParams summary.pvlrt
 #' @inheritParams print.pvlrt
+#' @method as.matrix pvlrt
+#' @md
 #' @export
 as.matrix.pvlrt <- function(x, ...) {
   object <- x

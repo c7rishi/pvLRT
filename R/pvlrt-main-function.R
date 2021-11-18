@@ -98,6 +98,9 @@
 #'
 #' * \link{logLik.pvlrt}
 #'
+#' * \link{as.matrix.pvlrt}
+#'
+#'
 #'
 #'
 #' @examples
