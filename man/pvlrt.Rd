@@ -2,7 +2,7 @@
 % Please edit documentation in R/pvlrt-main-function.R
 \name{pvlrt}
 \alias{pvlrt}
-\title{#' Pseudo Likelihood Ratio Test for determining significant AE-Drug pairs under
+\title{Pseudo Likelihood Ratio Test for determining significant AE-Drug pairs under
 Poisson and zero-inflated Poisson models for pharmacovigilance}
 \usage{
 pvlrt(
@@ -117,7 +117,7 @@ Various postprocessing methods for \code{pvlrt} objects are available. This incl
 }
 }
 \description{
-#' Pseudo Likelihood Ratio Test for determining significant AE-Drug pairs under
+Pseudo Likelihood Ratio Test for determining significant AE-Drug pairs under
 Poisson and zero-inflated Poisson models for pharmacovigilance
 }
 \note{
