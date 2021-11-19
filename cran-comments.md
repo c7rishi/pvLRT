@@ -1,6 +1,8 @@
-# pvLRT v0.2
+# pvLRT v0.2.1
 
-This is a new CRAN submission for R package pvLRT, which provides a suite of functions implementing likelihood ratio test-based approaches to pharmacovigilance.
+This is a new CRAN submission for R package pvLRT, which provides a suite of functions implementing likelihood ratio test-based approaches to pharmacovigilance. In this version we have made sure that:
+
+* all examples take < 10s time to pass the CRAN check. One example failed this test during initial CRAN submission.
 
 
 ## Test environments
@@ -24,3 +26,4 @@ Possibly mis-spelled words in DESCRIPTION:
   Pharmacovigilance (3:23)
   pharmacovigilance (8:97)
 
+We believe this NOTE is a false alarm, as 'pharmacovigilance' refers to the field relating to the collection, detection, assessment, monitoring, and prevention of adverse effects with pharmaceutical products (Wikipedia; https://en.wikipedia.org/wiki/Pharmacovigilance). 

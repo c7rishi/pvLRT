@@ -164,7 +164,12 @@ f(x) = log(1 + x)). Defaults to TRUE.}
 Heatmap showing LR test results
 }
 \examples{
-test1 <- pvlrt(statin46)
+# 500 bootstrap iterations (nsim) in the example below
+ # are for quick demonstration only --
+ # we recommended setting nsim to 10000 (default) or bigger
+test1 <- pvlrt(statin46, nsim = 500)
+bubbleplot_pvlrt(test1)
 heatmap_pvlrt(test1)
-heatmap_pvlrt(test1, arrange_alphabetical = TRUE)
+barplot(test1)
+
 }

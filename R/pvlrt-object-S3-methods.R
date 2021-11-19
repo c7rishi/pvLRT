@@ -297,14 +297,15 @@ as.matrix.pvlrt <- function(x, ...) {
 #' @inheritParams summary.pvlrt
 #' @inheritParams print.pvlrt
 #' @param type character string determining the type of plot to show.
-#' Available choices are "heatmap" (default) which calls \link{heatmap_pvlrt},
-#' "barplot" which calls \link{barplot.pvlrt}, and "bubbleplot" which calls
-#' \link{bubbleplot_pvlrt} with the additional arguments
+#' Available choices are `"bubbleplot"` which calls \link{bubbleplot_pvlrt},
+#' `"heatmap"` which calls \link{heatmap_pvlrt}, and
+#' `"barplot"` which calls \link{barplot.pvlrt}, with the additional arguments
 #' supplied in ...
 #' @param ... additional arguments passed to heatmap_pvlrt or barplot.pvlrt
 #' depending on \code{type}.
+#' @md
 #' @export
-plot.pvlrt <- function(x, type = "heatmap", ...) {
+plot.pvlrt <- function(x, type = "bubbleplot", ...) {
   object <- x
   . <- NULL
 

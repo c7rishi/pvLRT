@@ -60,9 +60,14 @@
 #'
 #'
 #' @examples
-#' test1 <- pvlrt(statin46)
+#' # 500 bootstrap iterations (nsim) in the example below
+#'  # are for quick demonstration only --
+#'  # we recommended setting nsim to 10000 (default) or bigger
+#' test1 <- pvlrt(statin46, nsim = 500)
+#' bubbleplot_pvlrt(test1)
 #' heatmap_pvlrt(test1)
-#' heatmap_pvlrt(test1, arrange_alphabetical = TRUE)
+#' barplot(test1)
+#'
 #' @export
 heatmap_pvlrt <- function(object,
                           AE = NULL,
@@ -486,9 +491,9 @@ bubbleplot_pvlrt <- function(object,
       axis.text.x = ggplot2::element_text(
         angle = 90, vjust = 0.5, hjust = 1
       ),
+      # panel.border = ggplot2::element_blank(),
       panel.grid.major = ggplot2::element_blank(),
-      panel.grid.minor = ggplot2::element_blank(),
-      panel.border = ggplot2::element_blank()
+      panel.grid.minor = ggplot2::element_blank()
     ) +
     ggplot2::labs(y = "")
 

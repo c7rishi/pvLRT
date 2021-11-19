@@ -33,10 +33,14 @@ are both wrappers for \code{pvlrt()} with
 }
 \examples{
 
-data("lovastatin")
+data("statin46")
+
+# 500 bootstrap iterations (nsim) in the example below
+# are for quick demonstration only --
+# we recommended setting nsim to 10000 (default) or bigger
 
 # no grouping -- each drug forms its own class
-test1 <- lrt_poisson(lovastatin)
+test1 <- lrt_poisson(lovastatin, nsim = 500)
 }
 \seealso{
 \link{pvlrt}

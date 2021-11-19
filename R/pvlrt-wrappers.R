@@ -11,8 +11,12 @@
 #'
 #' @examples
 #'
-#' data("lovastatin")
-#' test1 <- lrt_zi_poisson(lovastatin)
+#' data("statin46")
+#'
+#' # 500 bootstrap iterations (nsim) in the example below
+#' # are for quick demonstration only --
+#' # we recommended setting nsim to 10000 (default) or bigger
+#' test1 <- lrt_zi_poisson(statin46, nsim = 500)
 #' test1
 #' @export
 lrt_zi_poisson <- function(contin_table,
@@ -62,10 +66,14 @@ lrt_zi_poisson <- function(contin_table,
 #'
 #' @examples
 #'
-#' data("lovastatin")
+#' data("statin46")
+#'
+#' # 500 bootstrap iterations (nsim) in the example below
+#' # are for quick demonstration only --
+#' # we recommended setting nsim to 10000 (default) or bigger
 #'
 #' # no grouping -- each drug forms its own class
-#' test1 <- lrt_poisson(lovastatin)
+#' test1 <- lrt_poisson(lovastatin, nsim = 500)
 #' @export
 lrt_poisson <- function(contin_table,
                         nsim = 1e4,

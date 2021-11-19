@@ -26,8 +26,12 @@ zero-inflated Poisson model with relative reporting rate parametrization
 }
 \examples{
 
-data("lovastatin")
-test1 <- lrt_zi_poisson(lovastatin)
+data("statin46")
+
+# 500 bootstrap iterations (nsim) in the example below
+# are for quick demonstration only --
+# we recommended setting nsim to 10000 (default) or bigger
+test1 <- lrt_zi_poisson(statin46, nsim = 500)
 test1
 }
 \seealso{
