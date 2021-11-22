@@ -13,13 +13,13 @@ summary_zi_probs <- function(object, ...) {
   . <- NULL
 
   if (all_attr$test_omega) {
-    zi_lrstat <- zi_p_value <- zi_q.value <- NULL
+    zi_lrstat <- zi_p_value <- zi_q_value <- NULL
     out[
       ,
       `:=`(
         lrstat = all_attr$omega_lrstat,
         p_value = all_attr$omega_p_value,
-        q.value = all_attr$omega_qvalue
+        q_value = all_attr$omega_qvalue
       )
     ]
   }
@@ -38,13 +38,32 @@ summary_zi_probs <- function(object, ...) {
 #' Defaults to FALSE. If TRUE, then the zero inflation summary is included
 #' as an attribute with name "zi". See examples.
 #'
+#' @return
+#' Returns a data.table with rows corresponding to all possible AE/Drug pairs
+#' as obtained from the input contingency table, and columns titled "AE", "Drug", "n", "lrstat" (log-likelihood ratio
+#' test statistic) and "p_value". Additionally, if `show_zi` is set to `TRUE`, then as
+#' an attribute named "zi" a data.table with rows
+#' corresponding to Drugs (columns in the input contingency table), and columns titled
+#' "AE", "zi", "lrstat" (log-likelihood ratio test statistic for zero-inflation),
+#' "p_value" and "q_value" (Benjamini-Hochberg adjusted p-values, as obtained through
+#' \link[stats]{p.adjust}) is returned.
+#'
 #' @examples
-#' \dontrun{
-#' test1 <- pvlrt(statin46, test_zi = TRUE)
+#'
+#' # 500 bootstrap iterations (nsim) in the example below
+#' # are for quick demonstration only --
+#' # we recommended setting nsim to 10000 (default) or bigger
+#'
+#' test1 <- pvlrt(statin46, test_zi = TRUE, nsim = 500)
 #' summary(test1)
 #' tmp <- summary(test1, show_zi = TRUE)
-#' attr(tmp, "zi")
-#' }
+#' tmp_zi <- attr(tmp, "zi")
+#' print(tmp_zi)
+#'
+#' @seealso
+#' \link{pvlrt}
+#'
+#' @md
 #' @export
 summary.pvlrt <- function(object, show_zi = FALSE, ...) {
   if (!is.pvlrt(object)) {
@@ -113,6 +132,23 @@ summary.pvlrt <- function(object, show_zi = FALSE, ...) {
 #' @param show_test_summary logical. Should a brief summary showing the top few
 #' test results be displayed? defaults to FALSE.
 #'
+#' @return
+#' Invisibly returns the input `pvlrt` object.
+#'
+#'
+#' @examples
+#'
+#' # 500 bootstrap iterations (nsim) in the example below
+#' # are for quick demonstration only --
+#' # we recommended setting nsim to 10000 (default) or bigger
+#'
+#' test1 <- pvlrt(statin46, nsim = 500)
+#' print(test1)
+#'
+#' @seealso
+#' \link{pvlrt}
+#'
+#' @md
 #' @export
 print.pvlrt <- function(x,
                         significance_level = 0.05,
@@ -276,6 +312,25 @@ print.pvlrt <- function(x,
 #' @inheritParams summary.pvlrt
 #' @inheritParams print.pvlrt
 #' @method as.matrix pvlrt
+#'
+#' @return
+#' Returns a matrix with the same dimensions as the input contingency
+#' table in the original `pvlrt` call, with each cell providing
+#' the corresponding value of the observed log-likelihood ratio
+#' test statistic.
+#'
+#' @examples
+#'
+#' # 500 bootstrap iterations (nsim) in the example below
+#' # are for quick demonstration only --
+#' # we recommended setting nsim to 10000 (default) or bigger
+#'
+#' test1 <- pvlrt(statin46, nsim = 500)
+#' as.matrix(test1)
+#'
+#' @seealso
+#' \link{pvlrt}
+#'
 #' @md
 #' @export
 as.matrix.pvlrt <- function(x, ...) {
@@ -303,6 +358,24 @@ as.matrix.pvlrt <- function(x, ...) {
 #' supplied in ...
 #' @param ... additional arguments passed to heatmap_pvlrt or barplot.pvlrt
 #' depending on \code{type}.
+#'
+#' @return
+#' A \link[ggplot2]{ggplot} object.
+#'
+#' @examples
+#'
+#' # 500 bootstrap iterations (nsim) in the example below
+#' # are for quick demonstration only --
+#' # we recommended setting nsim to 10000 (default) or bigger
+#'
+#' test1 <- pvlrt(statin46, nsim = 500)
+#' plot(test1, type = "bubbleplot")
+#' plot(test1, type = "barplot")
+#' plot(test1, type = "heatmap")
+#'
+#' @seealso
+#' \link{pvlrt}; \link{bubbleplot_pvlrt}; \link{heatmap_pvlrt}; \link{barplot.pvlrt}
+#'
 #' @md
 #' @export
 plot.pvlrt <- function(x, type = "bubbleplot", ...) {
@@ -361,11 +434,18 @@ plot.pvlrt <- function(x, type = "bubbleplot", ...) {
 #' type = "full-poisson" and type = "null-poisson"
 #' respectively. See examples.
 #'
+#' @return
+#' An object of class \link[stats]{logLik}. See Details.
+#'
 #' @examples
-#' \dontrun{
+#'
+#' # 500 bootstrap iterations (nsim) in each example below
+#' # are for quick demonstration only --
+#' # we recommended setting nsim to 10000 (default) or bigger
+#'
 #' set.seed(100)
 #' # estimates zero inflation probabilities
-#' test1 <- pvlrt(statin46)
+#' test1 <- pvlrt(statin46, nsim = 500)
 #' logLik(test1)
 #' AIC(test1)
 #' BIC(test1)
@@ -375,12 +455,15 @@ plot.pvlrt <- function(x, type = "bubbleplot", ...) {
 #' BIC(logLik(test1, type = "full-poisson"))
 #'
 #' # ordinary poisson model
-#' ## equivalent to pvlrt(statin46, zi_prob = 0)
-#' test2 <- lrt_poisson(statin46)
+#' ## equivalent to pvlrt(statin46, zi_prob = 0, nsim = 500)
+#' test2 <- lrt_poisson(statin46, nsim = 500)
 #'
 #' all.equal(logLik(test2, "full-zip"), logLik(test2, "full-poisson"))
-#' }
 #'
+#' @seealso
+#' \link{pvlrt}; \link[stats]{AIC}
+#'
+#' @md
 #' @export
 logLik.pvlrt <- function(object, type = "full-zip", ...) {
   if (!is.pvlrt(object)) {

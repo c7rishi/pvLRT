@@ -9,6 +9,11 @@
 #' \code{lrt_zi_poisson()} is a wrapper for \code{pvlrt()} with
 #' \code{parametrization = "rrr"}.
 #'
+#' @returns
+#'
+#' Returns a `pvlrt` object. See \link{pvlrt} for more details.
+#'
+#'
 #' @examples
 #'
 #' data("statin46")
@@ -18,6 +23,8 @@
 #' # we recommended setting nsim to 10000 (default) or bigger
 #' test1 <- lrt_zi_poisson(statin46, nsim = 500)
 #' test1
+#'
+#' @md
 #' @export
 lrt_zi_poisson <- function(contin_table,
                            nsim = 1e4,
@@ -74,6 +81,13 @@ lrt_zi_poisson <- function(contin_table,
 #'
 #' # no grouping -- each drug forms its own class
 #' test1 <- lrt_poisson(lovastatin, nsim = 500)
+#'
+#'
+#' @returns
+#'
+#' Returns a `pvlrt` object. See \link{pvlrt} for more details.
+#'
+#' @md
 #' @export
 lrt_poisson <- function(contin_table,
                         nsim = 1e4,

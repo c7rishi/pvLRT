@@ -4,7 +4,8 @@
 \alias{heatmap_pvlrt}
 \alias{barplot.pvlrt}
 \alias{bubbleplot_pvlrt}
-\title{Heatmap showing LR test results}
+\title{Heatmap, barplot and bubbleplot displaying liklihood ratio test results in
+a \code{pvlrt} object}
 \usage{
 heatmap_pvlrt(
   object,
@@ -160,16 +161,24 @@ Defaults to "n". Available choices are "lrstat", "p_value" and "n".}
 be log transformed (more precisely, "log1p" transformed with the function
 f(x) = log(1 + x)). Defaults to TRUE.}
 }
+\value{
+A \link[ggplot2]{ggplot} object.
+}
 \description{
-Heatmap showing LR test results
+Heatmap, barplot and bubbleplot displaying liklihood ratio test results in
+a \code{pvlrt} object
 }
 \examples{
 # 500 bootstrap iterations (nsim) in the example below
- # are for quick demonstration only --
- # we recommended setting nsim to 10000 (default) or bigger
+# are for quick demonstration only --
+# we recommended setting nsim to 10000 (default) or bigger
 test1 <- pvlrt(statin46, nsim = 500)
 bubbleplot_pvlrt(test1)
 heatmap_pvlrt(test1)
 barplot(test1)
 
+
+}
+\seealso{
+\link{pvlrt}
 }

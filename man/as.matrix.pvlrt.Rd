@@ -11,6 +11,25 @@
 
 \item{...}{other input parameters. Currently unused.}
 }
+\value{
+Returns a matrix with the same dimensions as the input contingency
+table in the original \code{pvlrt} call, with each cell providing
+the corresponding value of the observed log-likelihood ratio
+test statistic.
+}
 \description{
 Casting a \code{pvlrt} object as a matrix of log LR statistics
+}
+\examples{
+
+# 500 bootstrap iterations (nsim) in the example below
+# are for quick demonstration only --
+# we recommended setting nsim to 10000 (default) or bigger
+
+test1 <- pvlrt(statin46, nsim = 500)
+as.matrix(test1)
+
+}
+\seealso{
+\link{pvlrt}
 }

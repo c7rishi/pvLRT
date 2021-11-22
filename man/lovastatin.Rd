@@ -14,9 +14,12 @@ An object of class \code{matrix} (inherits from \code{array}) with 47 rows and 3
 lovastatin
 }
 \description{
-FAERS 2014Q3 - 2020Q4
+Lovastatin Drug-AE dataset (contingency table) obtained from the FAERS
+databases for the quarters 2014Q3 - 2020Q4
 }
 \details{
-Includes 1 column for lovastatin, and one column for other:
+Drugs are stored across columns, and the 46 AEs are stored across the rows
+
+Includes 1 column for lovastatin, and one combined column for all other drugs.
 }
 \keyword{datasets}

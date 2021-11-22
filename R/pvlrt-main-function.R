@@ -46,7 +46,6 @@
 #' handled properly in a non-parametric bootstrap resampling.
 #' @param ... additional arguments. Currently unused.
 #'
-#' @note \code{lrt_poisson} is a wrapper function on \code{lrt_zi_poisson} with \code{omega_vec = rep(0, ncol(contin_table))}
 #'
 #' @returns
 #'
@@ -129,22 +128,24 @@
 #' test2 <- pvlrt(statin46, drug_class_idx = drug_groups, nsim = 500)
 #' test2
 #'
-#' \dontrun{
+#'
 #' # specify no zero inflation at the entirety of the last row and the last column
 #' no_zi_idx <- list(c(nrow(statin46), 0), c(0, ncol(statin46)))
-#' test3 <- pvlrt(statin46, no_zi_idx = no_zi_idx)
+#' test3 <- pvlrt(statin46, no_zi_idx = no_zi_idx, nsim = 500)
 #' test3
 #'
+#' \donttest{
 #' # use non-parametric bootstrap to evaluate the null distribution
-#' test4 <- pvlrt(statin46, null_boot_type = "non-parametric")
+#' # takes longer, due to computational costs with non-parametric
+#' # contigency table generation
+#' test4 <- pvlrt(statin46, null_boot_type = "non-parametric", nsim = 500)
 #' test4
 #' }
 #'
-#' \dontrun{
 #' # test zi probabilities (omegas)
-#' test5 <- pvlrt(statin46, test_omega = TRUE)
+#' test5 <- pvlrt(statin46, test_omega = TRUE, nsim = 500)
 #' test5
-#' }
+#'
 #'
 #' @md
 #' @export

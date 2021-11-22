@@ -18,14 +18,32 @@ as an attribute with name "zi". See examples.}
 
 \item{...}{other input parameters. Currently unused.}
 }
+\value{
+Returns a data.table with rows corresponding to all possible AE/Drug pairs
+as obtained from the input contingency table, and columns titled "AE", "Drug", "n", "lrstat" (log-likelihood ratio
+test statistic) and "p_value". Additionally, if \code{show_zi} is set to \code{TRUE}, then as
+an attribute named "zi" a data.table with rows
+corresponding to Drugs (columns in the input contingency table), and columns titled
+"AE", "zi", "lrstat" (log-likelihood ratio test statistic for zero-inflation),
+"p_value" and "q_value" (Benjamini-Hochberg adjusted p-values, as obtained through
+\link[stats]{p.adjust}) is returned.
+}
 \description{
 Summary method for a pvlrt object
 }
 \examples{
-\dontrun{
-test1 <- pvlrt(statin46, test_zi = TRUE)
+
+# 500 bootstrap iterations (nsim) in the example below
+# are for quick demonstration only --
+# we recommended setting nsim to 10000 (default) or bigger
+
+test1 <- pvlrt(statin46, test_zi = TRUE, nsim = 500)
 summary(test1)
 tmp <- summary(test1, show_zi = TRUE)
-attr(tmp, "zi")
+tmp_zi <- attr(tmp, "zi")
+print(tmp_zi)
+
 }
+\seealso{
+\link{pvlrt}
 }

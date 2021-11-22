@@ -2,24 +2,45 @@
 #'
 #' @inheritParams summary.pvlrt
 #'
-#' @details
+#' @returns
 #'
-#' - \code{extract_lrstat_matrix} extracts the matrix of
-#' the computed log-likelihood ratio test statistics. This produces
+#' - \code{extract_lrstat_matrix} returns the matrix of
+#' the computed log-likelihood ratio test statistics for signals. This produces
 #' a result identical to applying \code{as.matrix}.
 #'
-#' - \code{extract_p_value_matrix} extracts the matrix of
-#' computed p-values
+#' - \code{extract_p_value_matrix} returns the matrix of
+#' computed p-values associated with the likelihood ratio tests.
 #'
-#' - \code{extract_zi_probability} extracts a vector of (estimated)
-#' zero-inflation probabilities
+#' - \code{extract_zi_probability} returns a vector of (estimated)
+#' zero-inflation probabilities.
 #'
-#' - \code{extract_n_matrix} extracts the original contingency table
+#' - \code{extract_n_matrix} returns the original contingency table (matrix)
 #' used.
 #'
-#' - \code{extract_significant_pairs} extract the AE/drug
-#' pairs determined to be significant at the provided significance level
+#' - \code{extract_significant_pairs} returns a data.table listing the AE/drug
+#' pairs determined to be significant at the provided significance level. This
+#' is essentially a subset of the data.table obtained through summary.pvlrt()
+#' that satisfies the provided significance threshold.
 #'
+#'
+#' @examples
+#'
+#' # 500 bootstrap iterations (nsim) in the example below
+#' # are for quick demonstration only --
+#' # we recommended setting nsim to 10000 (default) or bigger
+#'
+#' test1 <- pvlrt(statin46, test_zi = TRUE, nsim = 500)
+#' extract_lrstat_matrix(test1)
+#' extract_p_value_matrix(test1)
+#' extract_zi_probability(test1)
+#' extract_n_matrix(test1)
+#' extract_significant_pairs(test1)
+#'
+#'
+#' @seealso
+#' \link{pvlrt}
+#'
+#' @md
 #' @export
 extract_lrstat_matrix <- function(object, ...) {
   if (!is.pvlrt(object)) {
@@ -79,9 +100,40 @@ extract_significant_pairs <- function(object, significance_level = 0.05, ...) {
 #'
 #' @note
 #' Because a `pvlrt` object is simply a reclassified matrix, the AE (rows)
-#' and Drug (columns) names can also be modified through \link{rownames} and
+#' and Drug (columns) names can also be extracted/modified through \link{rownames} and
 #' \link{colnames} respectively.
 #'
+#' @returns
+#'
+#' - `extract_AE_names` returns a character vector of the names of the
+#' AEs in the input `pvlrt` object
+#'
+#' - `extract_Drug_names` returns a character vector of the names of the Drugs
+#' in the input `pvlrt` object
+#'
+#' - `set_AE_names` returns a new `pvlrt` object with updated AE names as
+#' specified through the arguments `old` and `new`.
+#'
+#' - `set_Drug_names` returns a new `pvlrt` object with updated Drug names as
+#' specified through the arguments `old` and `new`.
+#'
+#' @examples
+#' # 500 bootstrap iterations (nsim) in the example below
+#' # are for quick demonstration only --
+#' # we recommended setting nsim to 10000 (default) or bigger
+#'
+#' test1 <- pvlrt(statin46, test_zi = TRUE, nsim = 500)
+#' extract_AE_names(test1)
+#' extract_Drug_names(test1)
+#'
+#' set_AE_names(test1, old = "Rhabdomyolysis", new = "Rhabdo")
+#' set_Drug_names(test1, old = "other", new = "Other-Drugs")
+#'
+#'
+#' @seealso
+#' \link{pvlrt}
+#'
+#' @md
 #' @export
 extract_AE_names <- function(object) {
   if (!is.pvlrt(object)) {

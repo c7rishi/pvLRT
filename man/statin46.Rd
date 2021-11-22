@@ -14,13 +14,16 @@ An object of class \code{matrix} (inherits from \code{array}) with 47 rows and 7
 statin46
 }
 \description{
-FAERS 2014Q3 - 2020Q4
+Drug-AE dataset (contingency table) obtained from the FAERS
+databases for the quarters 2014Q3 - 2020Q4
 }
 \details{
-Includes 6 Statins:
+Drugs are stored across columns, and the 46 AEs are stored across the rows
+
+The dataset include 6 statin drugs:
 
 Atorvastatin, Fluvastatin, Lovastatin, Pravastatin, Rosuvastatin, Simvastatin
 
-Corresponding to 46 adverse effects (PTs) as given by FDA
+Corresponding to 46 important adverse effects (PTs) as specified by FDA.
 }
 \keyword{datasets}

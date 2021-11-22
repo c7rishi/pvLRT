@@ -1,4 +1,5 @@
-#' Heatmap showing LR test results
+#' Heatmap, barplot and bubbleplot displaying liklihood ratio test results in
+#' a `pvlrt` object
 #' @param object,height pvlrt object; output of \code{pvlrt}()
 #' @param ... Other arguments. Currently ignored
 #' @param fill_measure Measure to govern the filling color in each cell
@@ -61,13 +62,21 @@
 #'
 #' @examples
 #' # 500 bootstrap iterations (nsim) in the example below
-#'  # are for quick demonstration only --
-#'  # we recommended setting nsim to 10000 (default) or bigger
+#' # are for quick demonstration only --
+#' # we recommended setting nsim to 10000 (default) or bigger
 #' test1 <- pvlrt(statin46, nsim = 500)
 #' bubbleplot_pvlrt(test1)
 #' heatmap_pvlrt(test1)
 #' barplot(test1)
 #'
+#'
+#' @seealso
+#' \link{pvlrt}
+#'
+#' @return
+#' A \link[ggplot2]{ggplot} object.
+#'
+#' @md
 #' @export
 heatmap_pvlrt <- function(object,
                           AE = NULL,

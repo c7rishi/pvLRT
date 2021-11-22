@@ -16,6 +16,9 @@ the p-value of the test}
 
 \item{...}{additional arguments passed to pvlrt}
 }
+\value{
+Returns a \code{pvlrt} object. See \link{pvlrt} for more details.
+}
 \description{
 Pseudo Likelihood Ratio Test under the
 zero-inflated Poisson model with relative reporting rate parametrization
@@ -33,6 +36,7 @@ data("statin46")
 # we recommended setting nsim to 10000 (default) or bigger
 test1 <- lrt_zi_poisson(statin46, nsim = 500)
 test1
+
 }
 \seealso{
 \link{pvlrt}

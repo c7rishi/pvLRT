@@ -14,14 +14,17 @@ An object of class \code{matrix} (inherits from \code{array}) with 1707 rows and
 gbca
 }
 \description{
-FAERS 2014Q3 - 2020Q4
+Drug-AE dataset (contingency table) obtained from the FAERS
+databases for the quarters 2014Q3 - 2020Q4
 }
 \details{
-Includes 6 GBCA's:
+Drugs are stored across columns, and the 1491 AEs are stored across the rows
+
+The dataset include 6 GBCA drugs:
 
 gadobenate, gadobutrol, gadodiamide, gadofosveset, gadopentetate, gadoterate,
 gadoteridol, gadoversetamide, gadoxetate
 
-Corresponding to all 1707 observed adverse effects (PTs) observed in statins
+Corresponding to all 1707 observed adverse effects (PTs) as curated in FAERS database.
 }
 \keyword{datasets}

@@ -23,6 +23,9 @@ otherwise. NOTE: zero inflation can be handled only for the relative reporting r
 
 \item{...}{additional arguments. Currently unused.}
 }
+\value{
+Returns a \code{pvlrt} object. See \link{pvlrt} for more details.
+}
 \description{
 Likelihood Ratio Test under the (vanilla, non-zero-inflated) Poisson model
 }
@@ -41,6 +44,8 @@ data("statin46")
 
 # no grouping -- each drug forms its own class
 test1 <- lrt_poisson(lovastatin, nsim = 500)
+
+
 }
 \seealso{
 \link{pvlrt}

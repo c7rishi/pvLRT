@@ -28,6 +28,22 @@ test results be displayed? defaults to FALSE.}
 
 \item{...}{other input parameters. Currently unused.}
 }
+\value{
+Invisibly returns the input \code{pvlrt} object.
+}
 \description{
 Print method for pvlrt objects
+}
+\examples{
+
+# 500 bootstrap iterations (nsim) in the example below
+# are for quick demonstration only --
+# we recommended setting nsim to 10000 (default) or bigger
+
+test1 <- pvlrt(statin46, nsim = 500)
+print(test1)
+
+}
+\seealso{
+\link{pvlrt}
 }

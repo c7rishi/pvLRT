@@ -14,10 +14,13 @@ An object of class \code{matrix} (inherits from \code{array}) with 1491 rows and
 statin1491
 }
 \description{
-FAERS 2014Q3 - 2020Q4
+Drug-AE dataset (contingency table) obtained from the FAERS
+databases for the quarters 2014Q3 - 2020Q4
 }
 \details{
-Includes 6 Statins:
+Drugs are stored across columns, and the 1491 AEs are stored across the rows
+
+The dataset include 6 statin drugs:
 
 Atorvastatin, Fluvastatin, Lovastatin, Pravastatin, Rosuvastatin, Simvastatin
 

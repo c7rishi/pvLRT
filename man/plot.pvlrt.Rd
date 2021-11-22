@@ -18,6 +18,24 @@ supplied in ...}
 \item{...}{additional arguments passed to heatmap_pvlrt or barplot.pvlrt
 depending on \code{type}.}
 }
+\value{
+A \link[ggplot2]{ggplot} object.
+}
 \description{
 Plotting method for a pvlrt object
+}
+\examples{
+
+# 500 bootstrap iterations (nsim) in the example below
+# are for quick demonstration only --
+# we recommended setting nsim to 10000 (default) or bigger
+
+test1 <- pvlrt(statin46, nsim = 500)
+plot(test1, type = "bubbleplot")
+plot(test1, type = "barplot")
+plot(test1, type = "heatmap")
+
+}
+\seealso{
+\link{pvlrt}; \link{bubbleplot_pvlrt}; \link{heatmap_pvlrt}; \link{barplot.pvlrt}
 }

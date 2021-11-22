@@ -17,6 +17,9 @@ Available choices are "full-poisson", "null-poisson", "full-zip" (default), and
 
 \item{...}{other input parameters. Currently unused.}
 }
+\value{
+An object of class \link[stats]{logLik}. See Details.
+}
 \description{
 Overall Log-likelihood for a pvlrt object
 }
@@ -46,10 +49,14 @@ ensured by setting  \code{return_overall_loglik = TRUE}, and
 \code{parametrization = "lambda"} (or \code{parametrization = "rrr"}) while running pvlrt().
 }
 \examples{
-\dontrun{
+
+# 500 bootstrap iterations (nsim) in each example below
+# are for quick demonstration only --
+# we recommended setting nsim to 10000 (default) or bigger
+
 set.seed(100)
 # estimates zero inflation probabilities
-test1 <- pvlrt(statin46)
+test1 <- pvlrt(statin46, nsim = 500)
 logLik(test1)
 AIC(test1)
 BIC(test1)
@@ -59,10 +66,12 @@ BIC(logLik(test1, type = "full-zip"))
 BIC(logLik(test1, type = "full-poisson"))
 
 # ordinary poisson model
-## equivalent to pvlrt(statin46, zi_prob = 0)
-test2 <- lrt_poisson(statin46)
+## equivalent to pvlrt(statin46, zi_prob = 0, nsim = 500)
+test2 <- lrt_poisson(statin46, nsim = 500)
 
 all.equal(logLik(test2, "full-zip"), logLik(test2, "full-poisson"))
-}
 
+}
+\seealso{
+\link{pvlrt}; \link[stats]{AIC}
 }

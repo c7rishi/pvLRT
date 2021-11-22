@@ -24,11 +24,40 @@ set_Drug_names(object, old, new)
 
 \item{new}{character vector containing the new names}
 }
+\value{
+\itemize{
+\item \code{extract_AE_names} returns a character vector of the names of the
+AEs in the input \code{pvlrt} object
+\item \code{extract_Drug_names} returns a character vector of the names of the Drugs
+in the input \code{pvlrt} object
+\item \code{set_AE_names} returns a new \code{pvlrt} object with updated AE names as
+specified through the arguments \code{old} and \code{new}.
+\item \code{set_Drug_names} returns a new \code{pvlrt} object with updated Drug names as
+specified through the arguments \code{old} and \code{new}.
+}
+}
 \description{
 Extracting and setting AE and Drug names from a pvlrt object
 }
 \note{
 Because a \code{pvlrt} object is simply a reclassified matrix, the AE (rows)
-and Drug (columns) names can also be modified through \link{rownames} and
+and Drug (columns) names can also be extracted/modified through \link{rownames} and
 \link{colnames} respectively.
+}
+\examples{
+# 500 bootstrap iterations (nsim) in the example below
+# are for quick demonstration only --
+# we recommended setting nsim to 10000 (default) or bigger
+
+test1 <- pvlrt(statin46, test_zi = TRUE, nsim = 500)
+extract_AE_names(test1)
+extract_Drug_names(test1)
+
+set_AE_names(test1, old = "Rhabdomyolysis", new = "Rhabdo")
+set_Drug_names(test1, old = "other", new = "Other-Drugs")
+
+
+}
+\seealso{
+\link{pvlrt}
 }
