@@ -1,8 +1,8 @@
-# pvLRT v0.2.2
+# pvLRT v0.3
 
-This is a CRAN submission for the (new) R package pvLRT 0.2.2, which provides a suite of functions implementing likelihood ratio test-based approaches to pharmacovigilance. We have ensured that all examples take < 10s time to pass the CRAN check in this version. (One example failed this test during the initial CRAN submission of v0.2.0.) 
+This is a CRAN submission for the (new) R package pvLRT v0.3, which provides a suite of functions implementing likelihood ratio test-based approaches to pharmacovigilance. We have ensured that all examples take < 10s time to pass the CRAN check in this version. (One example failed this test during the initial CRAN submission of v0.2.) 
 
-In addition, we have taken into account all the helpful comments and suggestions provided by Gregor Seyer on behalf of CRAN during the submission of pvLRT v0.2.1. We greatly appreciate the comments; we have made all the necessary changes in v0.2.2, and our point-by-point responses are provided below.
+In addition, we have taken into account all the helpful comments and suggestions provided by Gregor Seyer on behalf of CRAN during the submission of pvLRT v0.2.1. We greatly appreciate the comments; we have made all the necessary changes in v0.3, and our point-by-point responses are provided below.
 
 ## Point-by-point responses addressing Greg Seyer's comments on pvLRT v0.2.1
 
@@ -14,7 +14,7 @@ Authors@R: c(person("Alice", "Developer", role = c("aut", "cre","cph"),
                       email = "alice.developer@some.domain.net"),
                person("Bob", "Dev", role = "aut") )
 
---> Response: Thanks for the suggestion. In v0.2.2, we have updated the DESCRIPTION with an appropriately populated Authors@R filed.              
+--> Response: Thanks for the suggestion. In v0.3, we have updated the DESCRIPTION with an appropriately populated Authors@R filed.              
 
 
 * Please reduce the length of the title to less than 65 characters.
@@ -54,7 +54,7 @@ Missing Rd-tags in up to 11 .Rd files, e.g.:
       lrt_poisson.Rd: \value
       ...
       
---> Response: Thank you for the suggestion. In pvLRT v0.2.2, we have added 
+--> Response: Thank you for the suggestion. In pvLRT v0.3, we have added 
 a \value tag to each exported method, which describes the output structure and what the output means.  
       
 
@@ -81,16 +81,16 @@ Please unwrap the examples if they are executable in < 5 sec, or replace
 
 - There were no ERRORs or WARNINGs.
 - There were no NOTEs in local Windows 10 and Ubuntu 20.04.3 checks
-- There was one note in win-builder: 
+- There was one NOTE in win-builder: 
 
 * checking CRAN incoming feasibility ... NOTE
 Maintainer: 'Saptarshi Chakraborty <chakra.saptarshi@gmail.com>'
 
 New submission
 
-Possibly mis-spelled words in DESCRIPTION:
-  Pharmacovigilance (3:23)
-  pharmacovigilance (8:97)
+Possibly misspelled words in DESCRIPTION:
+  Pharmacovigilance (2:50)
+  pharmacovigilance (11:71)
 
 We believe this NOTE is a false alarm. 
 

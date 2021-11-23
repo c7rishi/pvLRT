@@ -20,7 +20,7 @@ databases for the quarters 2014Q3 - 2020Q4
 \details{
 Drugs are stored across columns, and the 6039 AEs are stored across the rows
 
-The dataset include 6 statin drugs
+the dataset includes 6 statin drugs
 
 Atorvastatin, Fluvastatin, Lovastatin, Pravastatin, Rosuvastatin, Simvastatin
 

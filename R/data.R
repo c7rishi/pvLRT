@@ -5,7 +5,7 @@
 #'
 #' Drugs are stored across columns, and the 46 AEs are stored across the rows
 #'
-#' The dataset include 6 statin drugs:
+#' the dataset includes 6 statin drugs:
 #'
 #' Atorvastatin, Fluvastatin, Lovastatin, Pravastatin, Rosuvastatin, Simvastatin
 #'
@@ -22,7 +22,7 @@
 #'
 #' Drugs are stored across columns, and the 1491 AEs are stored across the rows
 #'
-#' The dataset include 6 statin drugs:
+#' the dataset includes 6 statin drugs:
 #'
 #' Atorvastatin, Fluvastatin, Lovastatin, Pravastatin, Rosuvastatin, Simvastatin
 #'
@@ -40,7 +40,7 @@
 #'
 #' Drugs are stored across columns, and the 6039 AEs are stored across the rows
 #'
-#' The dataset include 6 statin drugs
+#' the dataset includes 6 statin drugs
 #'
 #' Atorvastatin, Fluvastatin, Lovastatin, Pravastatin, Rosuvastatin, Simvastatin
 #'
@@ -73,7 +73,7 @@
 #'
 #' Drugs are stored across columns, and the 1491 AEs are stored across the rows
 #'
-#' The dataset include 6 GBCA drugs:
+#' the dataset includes 6 GBCA drugs:
 #'
 #' gadobenate, gadobutrol, gadodiamide, gadofosveset, gadopentetate, gadoterate,
 #' gadoteridol, gadoversetamide, gadoxetate

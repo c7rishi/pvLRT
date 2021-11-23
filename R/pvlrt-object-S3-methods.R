@@ -57,6 +57,7 @@ summary_zi_probs <- function(object, ...) {
 #' test1 <- pvlrt(statin46, test_zi = TRUE, nsim = 500)
 #' summary(test1)
 #' tmp <- summary(test1, show_zi = TRUE)
+#' print(tmp)
 #' tmp_zi <- attr(tmp, "zi")
 #' print(tmp_zi)
 #'

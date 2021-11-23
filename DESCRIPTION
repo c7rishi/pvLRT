@@ -1,12 +1,11 @@
 Package: pvLRT
 Title: Likelihood Ratio Test-Based Approaches to Pharmacovigilance 
-Version: 0.2.2
+Version: 0.3
 Authors@R: c(
     person("Saptarshi", "Chakraborty", email = "chakra.saptarshi@gmail.com", role = c("aut", "cre")),
     person("Marianthi", "Markatou", role = "aut"),
     person("Anran", "Liu", role = "ctb")
     )
-Author: Saptarshi Chakraborty, Marianthi Markatou
 Maintainer: Saptarshi Chakraborty <chakra.saptarshi@gmail.com>
 Date: 2021-11-22
 Description: A suite of likelihood ratio test based methods to use in pharmacovigilance. Contains various testing and post-processing functions.

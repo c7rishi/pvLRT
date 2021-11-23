@@ -83,33 +83,38 @@ sim_statin <- r_contin_table_zip(
     c(0, ncol(statin46)) # the entire last column
   )
 )[[1]]
-\dontrun{
+
 # now analyze the above simulated data
 
-test1 <- lrt_zi_poisson(
+# using a pseudo LRT with a ZIP model
+test1 <- pvlrt(
   contin_table = sim_statin,
-  skip_null_omega_estimation = TRUE
-  # set to TRUE for speed, should be FALSE in the final analysis
+  nsim = 500
+  # set to 500 for demonstration purposes only,
+  # we recommend the default 10000 or bigger
 )
-attr(test1, "omega") \%>\% round(3)
-which(test1 < 0.05, arr.ind = TRUE)
+extract_zi_probability(test1)
+extract_significant_pairs(test1)
 
-test2 <- lrt_zi_poisson(
+# LRT with a poisson model
+test2 <- lrt_poisson(
   contin_table = sim_statin,
-  use_gamma_smooth_omega = TRUE,
-  skip_null_omega_estimation = TRUE
-  # set to TRUE for speed, should be FALSE in the final analysis
+  nsim = 500
+  # set to 500 for demonstration purposes only,
+  # we recommend the default 10000 or bigger
 )
-attr(test2, "omega") \%>\% round(3)
-which(test2 < 0.05, arr.ind = TRUE)
+extract_zi_probability(test2)
+extract_significant_pairs(test2)
 
-# true omega supplied
-test3 <- lrt_zi_poisson(
+# LRT with true omega supplied
+test3 <- pvlrt(
   contin_table = sim_statin,
-  omega_est_vec = omega_tru,
+  zi_prob = omega_tru,
+  nsim = 500
+  # set to 500 for demonstration purposes only,
+  # we recommend the default 10000 or bigger
 )
-attr(test3, "omega") \%>\% round(2)
-which(test3 < 0.05, arr.ind = TRUE)
-}
+extract_zi_probability(test3)
+extract_significant_pairs(test3)
 
 }
