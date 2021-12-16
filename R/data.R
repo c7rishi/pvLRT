@@ -71,7 +71,7 @@
 #' Drug-AE dataset (contingency table) obtained from the FAERS
 #' databases for the quarters 2014Q3 - 2020Q4
 #'
-#' Drugs are stored across columns, and the 1491 AEs are stored across the rows
+#' Drugs are stored across columns, and the 1707 AEs are stored across the rows
 #'
 #' the dataset includes 6 GBCA drugs:
 #'
