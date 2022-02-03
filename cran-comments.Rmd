@@ -3,6 +3,7 @@
 - A new function 'extract_run_time' for pvlrt objects. Run times are also shown when a pvlrt object is printed.
 - Add argument 'fill_gradient_range' to all plotting functions.
 - use ggfittext to fit texts inside pvlrt plots
+- add rotavirus vaccine data
 
 # pvLRT v0.3
 
