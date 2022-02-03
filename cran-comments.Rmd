@@ -1,8 +1,8 @@
 # pvLRT v0.3.1
 
 - A new function 'extract_run_time' for pvlrt objects. Run times are also shown when a pvlrt object is printed.
-
 - Add argument 'fill_gradient_range' to all plotting functions.
+- use ggfittext to fit texts inside pvlrt plots
 
 # pvLRT v0.3
 
