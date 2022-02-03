@@ -167,6 +167,9 @@ pvlrt <- function(contin_table,
                   ...) {
   . <- NULL
 
+
+  start_time <- Sys.time() # start the clock
+
   contin_table <- tryCatch(
     data.matrix(contin_table),
     error = function(e) e
@@ -824,6 +827,10 @@ pvlrt <- function(contin_table,
     ]
   }
 
+  # output <- lr_stat_p_value
+  output <- lr_stat_obs %>%
+    set_dimnames(dimnames(contin_table))
+
   attrs <- list(
     p_value = lr_stat_p_value,
     # lrstat = lr_stat_obs,
@@ -845,13 +852,24 @@ pvlrt <- function(contin_table,
     # need the names for loglik_df_comb
     c(list(loglik_df = loglik_df_comb))
 
-  # output <- lr_stat_p_value
-  output <- lr_stat_obs %>%
-    set_dimnames(dimnames(contin_table))
 
   attributes(output) <- attributes(output) %>% c(attrs)
 
   class(output) <- c("pvlrt", class(lr_stat_p_value))
+
+  end_time <- Sys.time() # end the clock
+
+  run_time <- difftime(end_time, start_time)
+
+  attributes(output) <- attributes(output) %>%
+    c(list(run_time = run_time))
+
+  run_time_txt <- print(run_time) %>%
+    capture.output() %>%
+    gsub("Time difference of ", "", .) %>%
+    paste("Total running time:", .)
+
+  message(run_time_txt)
 
   output
 }

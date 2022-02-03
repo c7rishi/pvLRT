@@ -6,6 +6,7 @@
 \alias{extract_zi_probability}
 \alias{extract_n_matrix}
 \alias{extract_significant_pairs}
+\alias{extract_run_time}
 \title{Extract various summary measures from a pvlrt object}
 \usage{
 extract_lrstat_matrix(object, ...)
@@ -17,6 +18,8 @@ extract_zi_probability(object, ...)
 extract_n_matrix(object, ...)
 
 extract_significant_pairs(object, significance_level = 0.05, ...)
+
+extract_run_time(object, ...)
 }
 \arguments{
 \item{object}{a \code{pvlrt} object, which is the output of the function
@@ -42,6 +45,8 @@ used.
 pairs determined to be significant at the provided significance level. This
 is essentially a subset of the data.table obtained through summary.pvlrt()
 that satisfies the provided significance threshold.
+\item \code{extract_run_time} returns a \link[package=base]{difftime} object measuring the
+total CPU time needed to run the original \link{pvlrt} call.
 }
 }
 \description{

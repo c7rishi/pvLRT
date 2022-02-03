@@ -180,6 +180,12 @@ print.pvlrt <- function(x,
     is.logical(show_test_summary)
   )
 
+  run_time_txt <- extract_run_time(object) %>%
+    capture.output() %>%
+    gsub("Time difference of ", "", .) %>%
+    paste("Running time of the original pvlrt call:", .)
+
+
   if (!do_omega_estimation & all(omega == 0)) {
     zi_text <- "No zi considered in the model."
   } else {
@@ -299,8 +305,11 @@ print.pvlrt <- function(x,
   msg <- glue::glue(
     "{top_text}
 
+    {run_time_txt}
+
     {zi_text}
     {signif_pairs_txt}
+
     Extract all LR statistics and p-values using `summary().`
     "
   )

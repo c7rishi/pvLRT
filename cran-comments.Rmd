@@ -1,3 +1,9 @@
+# pvLRT v0.3.1
+
+- A new function 'extract_run_time' for pvlrt objects. Run times are also shown when a pvlrt object is printed.
+
+- Add argument 'fill_gradient_range' to all plotting functions.
+
 # pvLRT v0.3
 
 This is a CRAN submission for the (new) R package pvLRT v0.3, which provides a suite of functions implementing likelihood ratio test-based approaches to pharmacovigilance. We have ensured that all examples take < 10s time to pass the CRAN check in this version. (One example failed this test during the initial CRAN submission of v0.2.) 

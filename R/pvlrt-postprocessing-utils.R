@@ -22,6 +22,8 @@
 #' is essentially a subset of the data.table obtained through summary.pvlrt()
 #' that satisfies the provided significance threshold.
 #'
+#' - \code{extract_run_time} returns a \link[package=base]{difftime} object measuring the
+#'  total CPU time needed to run the original \link{pvlrt} call.
 #'
 #' @examples
 #'
@@ -94,6 +96,22 @@ extract_significant_pairs <- function(object, significance_level = 0.05, ...) {
 
   out
 }
+
+
+
+#' @rdname extract_lrstat_matrix
+#' @export
+extract_run_time <- function(object, ...) {
+  if (!is.pvlrt(object)) {
+    stop("object must be a 'pvlrt' object.")
+  }
+  p_value <- NULL
+
+  out <- attr(object, "run_time")
+
+  out
+}
+
 
 #' Extracting and setting AE and Drug names from a pvlrt object
 #' @inheritParams summary.pvlrt

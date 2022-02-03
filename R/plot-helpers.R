@@ -15,10 +15,12 @@ process_plot_data <- function(object = object,
                               n_upper = Inf,
                               remove_outside = FALSE,
                               digits = 2,
+                              fill_gradient_range = c("red", "white"),
                               ...) {
   stopifnot(
     is(object, "pvlrt"),
-    fill_measure %in% c("p_value", "lrstat", "n")
+    fill_measure %in% c("p_value", "lrstat", "n"),
+    all(is.character(fill_gradient_range))
   )
 
 
@@ -291,10 +293,10 @@ process_plot_data <- function(object = object,
           if (show_n) paste(., n_text) else .
         } %>%
         {
-          if (show_lrstat) paste(., lrstat_text, sep = "\n") else .
+          if (show_lrstat) paste(., lrstat_text, sep = "; ") else .
         } %>%
         {
-          if (show_p_value) paste(., p_value_text, sep = "\n") else .
+          if (show_p_value) paste(., p_value_text, sep = "; ") else .
         } %>%
         gsub("^\\,", "", .) %>%
         # gsub("^\\ ", "", .) %>%

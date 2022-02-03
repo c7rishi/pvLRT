@@ -24,7 +24,8 @@ Imports:
     bit64,
     glue,
     RColorBrewer,
-    ggplot2
+    ggplot2,
+    ggfittext
 Depends: 
     R (>= 3.6.0)
 Suggests:

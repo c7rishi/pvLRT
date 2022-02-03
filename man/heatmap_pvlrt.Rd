@@ -26,6 +26,7 @@ heatmap_pvlrt(
   remove_outside = FALSE,
   digits = 2,
   border_color = "black",
+  fill_gradient_range = c("darkred", "white"),
   ...
 )
 
@@ -51,6 +52,7 @@ heatmap_pvlrt(
   Drug_nrow = 1,
   border_color = "black",
   x_axis_logscale = TRUE,
+  fill_gradient_range = c("darkred", "white"),
   ...
 )
 
@@ -78,6 +80,7 @@ bubbleplot_pvlrt(
   border_color = "black",
   x_axis_logscale = TRUE,
   size_logscale = TRUE,
+  fill_gradient_range = c("darkred", "white"),
   ...
 )
 }
@@ -142,6 +145,10 @@ outside of the provided ranges better.}
 inscribed texts on the plot.}
 
 \item{border_color}{character string. Specifies the border color of cells/bars.}
+
+\item{fill_gradient_range}{character vector. Specifies the range of gradient colors used
+for \code{fill_measure}. Passed into the \code{colours} argument of
+\link[package=ggplot2]{scale_fill_gradientn} from \code{ggplot2}.}
 
 \item{...}{Other arguments. Currently ignored}
 
