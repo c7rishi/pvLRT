@@ -3,7 +3,7 @@
 \docType{data}
 \name{gbca}
 \alias{gbca}
-\title{FDA GBCA dataset with all observed 1707 adverse effects}
+\title{FDA GBCA dataset with all observed 1707 adverse events}
 \format{
 An object of class \code{matrix} (inherits from \code{array}) with 1707 rows and 10 columns.
 }
@@ -25,6 +25,6 @@ the dataset includes 6 GBCA drugs:
 gadobenate, gadobutrol, gadodiamide, gadofosveset, gadopentetate, gadoterate,
 gadoteridol, gadoversetamide, gadoxetate
 
-Corresponding to all 1707 observed adverse effects (PTs) as curated in FAERS database.
+Corresponding to all 1707 observed adverse events (PTs) as curated in FAERS database.
 }
 \keyword{datasets}

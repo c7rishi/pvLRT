@@ -3,7 +3,7 @@
 \docType{data}
 \name{statin}
 \alias{statin}
-\title{FDA Statin dataset with all observed 6039 adverse effects}
+\title{FDA Statin dataset with 6039 adverse events}
 \format{
 An object of class \code{matrix} (inherits from \code{array}) with 6039 rows and 7 columns.
 }
@@ -14,16 +14,21 @@ An object of class \code{matrix} (inherits from \code{array}) with 6039 rows and
 statin
 }
 \description{
-Drug-AE dataset (contingency table) obtained from the FAERS
-databases for the quarters 2014Q3 - 2020Q4
+A Drug-Adverse event (AE) count dataset (contingency table)
+obtained from the FAERS databases for the
+quarters 2014Q3 - 2020Q4
 }
 \details{
-Drugs are stored across columns, and the 6039 AEs are stored across the rows
+Data are stored in the form of a contingency table, with
+drugs listed across the columns and the 6039 AEs presented across
+the rows. Each cell in the contingency table represents the total
+report counts associated with that drug/AE pair and detected
+in the FDA FAERS database during 2014Q3 - 2020Q4.
 
-the dataset includes 6 statin drugs
+The dataset catalogs 6 statin drugs (across columns):
 
 Atorvastatin, Fluvastatin, Lovastatin, Pravastatin, Rosuvastatin, Simvastatin
 
-Corresponding to all 6039 observed adverse effects (PTs) observed in statins
+Corresponding to all 6039 observed adverse events (PTs) observed in statins
 }
 \keyword{datasets}
