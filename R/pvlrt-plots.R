@@ -368,11 +368,22 @@ barplot.pvlrt <- function(height,
     dat_pl$info <- dat_pl$text
   }
 
+  if (x_axis_logscale) {
+    x_axis_measure_new <- paste0("log1p_", x_axis_measure)
+    # x_axis_label <- bquote('log'[10](1 + .(x_axis_measure)))
+    x_axis_label <- glue::glue("log10(1 + {x_axis_measure})") %>% as.character()
+    dat_pl[[x_axis_measure_new]] <- log(1 + dat_pl[[x_axis_measure]], base = 10)
+  } else {
+    x_axis_measure_new <- x_axis_label <- x_axis_measure
+    dat_pl[[x_axis_measure_new]] <- dat_pl[[x_axis_measure]]
+  }
+
+
   out <- dat_pl %>%
     ggplot2::ggplot(
       ggplot2::aes_string(
         y = "AE",
-        x = x_axis_measure,
+        x = x_axis_measure_new,
         fill = fill_measure,
         label = "info"
       )
@@ -389,22 +400,13 @@ barplot.pvlrt <- function(height,
       panel.grid.minor = ggplot2::element_blank(),
       panel.border = ggplot2::element_blank()
     ) +
-    ggplot2::labs(y = "")
-
-
-  if (x_axis_logscale) {
-    out <- out +
-      ggplot2::scale_x_continuous(trans = "log1p")
-  }
+    ggplot2::labs(y = "", x = x_axis_label)
 
 
   if (show_text) {
     out <- out +
-      ggfittext::geom_fit_text(
-        reflow = TRUE,
-        contrast = TRUE,
-        grow = TRUE
-      )
+      ggfittext::geom_bar_text(contrast = TRUE, grow = TRUE)
+
   }
 
   out
@@ -476,13 +478,11 @@ bubbleplot_pvlrt <- function(object,
     unique() %>%
     length()
 
-  # if (n_uniq_fill_meas == 1) {
-  #   fill_range <- fill_range[1]
-  # }
 
   if (show_text) {
     dat_pl$info <- dat_pl$text
   }
+
 
   out <- dat_pl %>%
     ggplot2::ggplot(
@@ -520,12 +520,7 @@ bubbleplot_pvlrt <- function(object,
 
 
   if (show_text) {
-    out <- out +
-      ggfittext::geom_fit_text(
-        reflow = TRUE,
-        contrast = TRUE,
-        grow = TRUE
-      )
+    out <- out + geom_text()
   }
 
   out
