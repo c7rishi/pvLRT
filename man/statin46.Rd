@@ -15,7 +15,7 @@ statin46
 }
 \description{
 A Drug-Adverse event (AE) count dataset (contingency table)
-obtained from the FAERS databases for the
+obtained from the FDA FAERS database for the
 quarters 2014Q3 - 2020Q4
 }
 \details{

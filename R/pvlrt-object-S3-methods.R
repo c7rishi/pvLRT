@@ -310,7 +310,7 @@ print.pvlrt <- function(x,
     {zi_text}
     {signif_pairs_txt}
 
-    Extract all LR statistics and p-values using `summary().`
+    Extract all LR statistics and p-values using `summary()`.
     "
   )
   cat(msg)

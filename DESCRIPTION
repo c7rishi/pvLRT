@@ -30,5 +30,6 @@ Depends:
     R (>= 3.6.0)
 Suggests:
     furrr,
-    plotly
+    plotly,
+    patchwork
 BugReports: https://github.com/c7rishi/pvLRT/issues

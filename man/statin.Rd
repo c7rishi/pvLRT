@@ -15,7 +15,7 @@ statin
 }
 \description{
 A Drug-Adverse event (AE) count dataset (contingency table)
-obtained from the FAERS databases for the
+obtained from the FDA FAERS database for the
 quarters 2014Q3 - 2020Q4
 }
 \details{
@@ -29,6 +29,6 @@ The dataset catalogs 6 statin drugs (across columns):
 
 Atorvastatin, Fluvastatin, Lovastatin, Pravastatin, Rosuvastatin, Simvastatin
 
-Corresponding to all 6039 observed adverse events (PTs) observed in statins
+Corresponding to all 6039 observed adverse events (AEs) observed in statins
 }
 \keyword{datasets}

@@ -405,7 +405,7 @@ barplot.pvlrt <- function(height,
 
   if (show_text) {
     out <- out +
-      ggfittext::geom_bar_text(contrast = TRUE, grow = TRUE)
+      ggfittext::geom_bar_text(contrast = TRUE)
 
   }
 
@@ -520,7 +520,7 @@ bubbleplot_pvlrt <- function(object,
 
 
   if (show_text) {
-    out <- out + geom_text()
+    out <- out + ggplot2::geom_text()
   }
 
   out

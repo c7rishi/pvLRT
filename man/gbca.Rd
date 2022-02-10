@@ -14,17 +14,22 @@ An object of class \code{matrix} (inherits from \code{array}) with 1707 rows and
 gbca
 }
 \description{
-Drug-AE dataset (contingency table) obtained from the FAERS
-databases for the quarters 2014Q3 - 2020Q4
+A Drug-Adverse event (AE) count dataset (contingency table)
+obtained from the FDA FAERS database for the
+quarters 2014Q3 - 2020Q4
 }
 \details{
-Drugs are stored across columns, and the 1707 AEs are stored across the rows
+Data are stored in the form of a contingency table, with
+drugs listed across the columns and the 1707 AEs presented across
+the rows. Each cell in the contingency table represents the total
+report counts associated with that drug/AE pair and detected
+in the FDA FAERS database during 2014Q3 - 2020Q4.
 
-the dataset includes 6 GBCA drugs:
+The dataset contains 6 Gadolinium-Based Contrast Agents (GBCAs) as drugs:
 
 gadobenate, gadobutrol, gadodiamide, gadofosveset, gadopentetate, gadoterate,
 gadoteridol, gadoversetamide, gadoxetate
 
-Corresponding to all 1707 observed adverse events (PTs) as curated in FAERS database.
+Corresponding to all 1707 observed adverse events (AEs) as curated in FAERS database.
 }
 \keyword{datasets}
