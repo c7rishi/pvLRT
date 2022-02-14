@@ -21,7 +21,15 @@ all_data <- here::here("data-raw/") %>%
       as.data.frame() %>%
       magrittr::set_rownames(.$pt) %>%
       select(-pt) %>%
-      data.matrix()
+      data.matrix() %>%
+      magrittr::set_rownames(
+        rownames(.) %>%
+          str_to_title()
+      ) %>%
+      magrittr::set_colnames(
+        colnames(.) %>%
+          str_to_title()
+      )
   )
 
 
