@@ -1,9 +1,28 @@
-# pvLRT v0.3.1
+# pvLRT v0.4
 
-- A new function 'extract_run_time' for pvlrt objects. Run times are also shown when a pvlrt object is printed.
+## Resubmission
+
+This is a re-submission of the package pvLRT. In this version we have made the following changes: 
+
+- Add a new function 'extract_run_time' for pvlrt objects. Run times are also shown when a pvlrt object is printed.
 - Add argument 'fill_gradient_range' to all plotting functions.
 - use ggfittext to fit texts inside pvlrt plots
 - add rotavirus vaccine data
+- Default colors are unified across all plots (bubble, bar, heatmap)
+
+
+## Test environments
+
+* local Windows 10 install, R 4.1.2
+* Ubuntu 20.04.3 LTS, R 4.1.2
+* win-builder (devel, release, oldrelease)
+
+## R CMD Check Results
+
+- There were no ERRORs or WARNINGs or NOTEs.
+
+
+
 
 # pvLRT v0.3
 

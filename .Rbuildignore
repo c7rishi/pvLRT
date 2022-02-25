@@ -2,6 +2,6 @@
 ^\.Rproj\.user$
 ^LICENSE\.md$
 ^NEWS\.md$
-^cran-comments\.Rmd$
+^cran-comments\.md$
 ^README\.md$
 ^data-raw$

@@ -45,7 +45,7 @@ used.
 pairs determined to be significant at the provided significance level. This
 is essentially a subset of the data.table obtained through summary.pvlrt()
 that satisfies the provided significance threshold.
-\item \code{extract_run_time} returns a \link[package=base]{difftime} object measuring the
+\item \code{extract_run_time} returns a \link{difftime} object measuring the
 total CPU time needed to run the original \link{pvlrt} call.
 }
 }

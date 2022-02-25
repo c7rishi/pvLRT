@@ -60,7 +60,7 @@
 #' f(x) = log(1 + x)). Defaults to TRUE.
 #' @param fill_gradient_range character vector. Specifies the range of gradient colors used
 #' for `fill_measure`. Passed into the \code{colours} argument of
-#' \link[package=ggplot2]{scale_fill_gradientn} from \code{ggplot2}.
+#' `scale_fill_gradientn` from \code{ggplot2}.
 #'
 #'
 #' @examples

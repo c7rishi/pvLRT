@@ -22,7 +22,7 @@
 #' is essentially a subset of the data.table obtained through summary.pvlrt()
 #' that satisfies the provided significance threshold.
 #'
-#' - \code{extract_run_time} returns a \link[package=base]{difftime} object measuring the
+#' - \code{extract_run_time} returns a \link{difftime} object measuring the
 #'  total CPU time needed to run the original \link{pvlrt} call.
 #'
 #' @examples

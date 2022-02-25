@@ -148,7 +148,7 @@ inscribed texts on the plot.}
 
 \item{fill_gradient_range}{character vector. Specifies the range of gradient colors used
 for \code{fill_measure}. Passed into the \code{colours} argument of
-\link[package=ggplot2]{scale_fill_gradientn} from \code{ggplot2}.}
+\code{scale_fill_gradientn} from \code{ggplot2}.}
 
 \item{...}{Other arguments. Currently ignored}
 
