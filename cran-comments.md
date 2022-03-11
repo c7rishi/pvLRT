@@ -1,8 +1,8 @@
-# pvLRTextra v0.4
+# pvLRT v0.4
 
 ## Resubmission
 
-This is a re-submission of the package pvLRTextra. In this version we have made the following changes: 
+This is a re-submission of the package pvLRT. In this version we have made the following changes: 
 
 - Add a new function 'extract_run_time' for pvlrt objects. Run times are also shown when a pvlrt object is printed.
 - Add argument 'fill_gradient_range' to all plotting functions.
@@ -24,13 +24,13 @@ This is a re-submission of the package pvLRTextra. In this version we have made 
 
 
 
-# pvLRTextra v0.3
+# pvLRT v0.3
 
-This is a CRAN submission for the (new) R package pvLRTextra v0.3, which provides a suite of functions implementing likelihood ratio test-based approaches to pharmacovigilance. We have ensured that all examples take < 10s time to pass the CRAN check in this version. (One example failed this test during the initial CRAN submission of v0.2.) 
+This is a CRAN submission for the (new) R package pvLRT v0.3, which provides a suite of functions implementing likelihood ratio test-based approaches to pharmacovigilance. We have ensured that all examples take < 10s time to pass the CRAN check in this version. (One example failed this test during the initial CRAN submission of v0.2.) 
 
-In addition, we have taken into account all the helpful comments and suggestions provided by Gregor Seyer on behalf of CRAN during the submission of pvLRTextra v0.2.1. We greatly appreciate the comments; we have made all the necessary changes in v0.3, and our point-by-point responses are provided below.
+In addition, we have taken into account all the helpful comments and suggestions provided by Gregor Seyer on behalf of CRAN during the submission of pvLRT v0.2.1. We greatly appreciate the comments; we have made all the necessary changes in v0.3, and our point-by-point responses are provided below.
 
-## Point-by-point responses addressing Greg Seyer's comments on pvLRTextra v0.2.1
+## Point-by-point responses addressing Greg Seyer's comments on pvLRT v0.2.1
 
 * Please consider the use of the Authors@R field where you can declare
 Maintainer, Authors and Contributors with their appropriate roles with
@@ -80,7 +80,7 @@ Missing Rd-tags in up to 11 .Rd files, e.g.:
       lrt_poisson.Rd: \value
       ...
       
---> Response: Thank you for the suggestion. In pvLRTextra v0.3, we have added 
+--> Response: Thank you for the suggestion. In pvLRT v0.3, we have added 
 a \value tag to each exported method, which describes the output structure and what the output means.  
       
 
@@ -127,9 +127,9 @@ We believe this NOTE is a false alarm.
 
 
 
-# pvLRTextra v0.2.1
+# pvLRT v0.2.1
 
-This is a new CRAN submission for R package pvLRTextra, which provides a suite of functions implementing likelihood ratio test-based approaches to pharmacovigilance. In this version we have made sure that:
+This is a new CRAN submission for R package pvLRT, which provides a suite of functions implementing likelihood ratio test-based approaches to pharmacovigilance. In this version we have made sure that:
 
 * all examples take < 10s time to pass the CRAN check. One example failed this test during initial CRAN submission.
 

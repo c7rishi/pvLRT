@@ -1,8 +1,10 @@
-Package: pvLRTextra
-Title: Likelihood Ratio Test-Based Approaches to Pharmacovigilance and others
-Version: 0.5
+Package: pvLRT
+Title: Likelihood Ratio Test-Based Approaches to Pharmacovigilance 
+Version: 0.4
 Authors@R: c(
-    person("Saptarshi", "Chakraborty", email = "chakra.saptarshi@gmail.com", role = c("aut", "cre"))
+    person("Saptarshi", "Chakraborty", email = "chakra.saptarshi@gmail.com", role = c("aut", "cre")),
+    person("Marianthi", "Markatou", role = "aut"),
+    person("Anran", "Liu", role = "ctb")
     )
 Maintainer: Saptarshi Chakraborty <chakra.saptarshi@gmail.com>
 Date: 2022-02-25
@@ -30,4 +32,4 @@ Suggests:
     furrr,
     plotly,
     patchwork
-BugReports: https://github.com/c7rishi/pvLRTextra/issues
+BugReports: https://github.com/c7rishi/pvLRT/issues

@@ -236,12 +236,9 @@ pvlrt <- function(contin_table,
   n_i_0_all <- rowSums(contin_table)
   n_0_j_all <- colSums(contin_table)
 
+  Eij_mat <- (tcrossprod(n_i_0_all, n_0_j_all) / n_0_0) %>%
+    set_dimnames(dimnames(contin_table))
 
-
-  if (is.null(dots$Eij)) {
-    Eij_mat <- (tcrossprod(n_i_0_all, n_0_j_all) / n_0_0) %>%
-      set_dimnames(dimnames(contin_table))
-  }
 
   if (!is.null(dots$no_zero_inflation_idx)) {
     msg <- glue::glue(
