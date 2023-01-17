@@ -196,3 +196,22 @@
 "rvyoung"
 
 
+#' FDA FAERS dataset for 2022 Q3
+#'
+#'
+#' The raw FDA FAERS dataset for 2022 Q3; downloaded from FDA's website
+#' and then subsetted to inlcude incidences with `ROLE_COD == "PS"`.
+#'
+#' obtained from the FDA FAERS database for the
+#' quarters 2014Q3 - 2020Q4
+#'
+#' @details
+#' This is a raw incidence data stored as a data.table with each row corresponding
+#' to a specific incidence index by case ids. It contains the following
+#' columns:
+#' * `CASEID` - case ids for each incidence
+#' * `DRUG` - names of the drugs
+#' * `AE` - names of the adverse events
+#' @source \url{https://fis.fda.gov/extensions/FPD-QDE-FAERS/FPD-QDE-FAERS.html}
+#' @md
+"faers22q3raw"

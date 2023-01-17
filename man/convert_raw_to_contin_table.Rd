@@ -37,37 +37,42 @@ in \code{rawdata}? If \code{TRUE} then then \code{COUNT} column is used to produ
 contingency table. If \code{FALSE} (default) incidences are first aggregated into counts
 before converting to contingency tables.}
 
+\item{create_other_Drug_col}{logical. Add a column in the contingency table for "Other Drugs"? This
+column plays the role of a "baseline" group of drugs against which significance of AEs in specific drug/drug
+combinations are tested in the \link{pvlrt} implementation. Care should be taken while determining which Drugs to
+include in this group; See Ding et al (2014) for guidance.}
+
+\item{other_Drug_excludes}{character vector cataloging Drugs that are NOT to be included in the
+column for Other Drugs. If NULL (default) then then no Drugs are included in Other Drugs (i.e.,
+\code{other_Drug_excludes} contains all Drugs in the raw data). Ignored if
+\code{create_other_Drug_col = FALSE}.}
+
+\item{other_Drug_colname}{character. Row name for the "Other Drug" column created. Ignored if
+\code{create_other_Drug_col = FALSE}.}
+
 \item{create_other_AE_row}{logical. Add a row in the contingency table for "Other AEs"?}
+
+\item{other_AE_excludes}{character vector cataloging AEs that are NOT to be included in the
+row for Other AEs. If NULL (default) then then no AEs are included in Other AEs (i.e.,
+\code{other_AE_excludes} contains all AEs in the raw data). Ignored if
+\code{create_other_AE_row = FALSE}.}
 
 \item{other_AE_rowname}{character. Row name for the "Other AE" row created. Ignored if
 \code{create_other_AE_row = FALSE}.}
 
 \item{...}{unused.}
-
-\item{other_AE_excludess}{character vector cataloging AEs that are NOT to be included in the
-row for Other AEs. If NULL (default) then then no AEs are included in Other AEs (i.e.,
-\code{other_AE_excludes} includes all AEs in the raw data). Ignored if
-\code{create_other_AE_row = FALSE}.}
-
-\item{create_other_Drug_column}{logical. Add a column in the contingency table for "Other Drugs"? This
-column plays the role of a "baseline" group of drugs against which significance of AEs in specific drug/drug
-combinations are tested in the \link{pvlrt} implementation. Care should be taken while determining which Drugs to
-include in this group; See Ding et al (2014) for guidance.}
-
-\item{other_Drug_exlcude}{character vector cataloging Drugs that are NOT to be included in the
-column for Other Drugs. If NULL (default) then then no Drugs are included in Other Drugs (i.e.,
-\code{other_Drug_excludes} includes all Drugs in the raw data). Ignored if
-\code{create_other_Drug_column = FALSE}.}
-
-\item{other_Drug_columnname}{character. Row name for the "Other Drug" column created. Ignored if
-\code{create_other_Drug_column = FALSE}.}
 }
 \description{
 Convert raw AE-Drug incidence data into a contingency table
 }
 \details{
-This function creates a contingency table cataloging counts of AE-Drug incidences from raw Drug/AE incidence data.
-The output can be fed into \link{pvlrt} or its wrappers.
+This is a convenience function that creates a contingency table cataloging counts of
+AE-Drug incidences from a raw Drug/AE incidence data frames.
+It accepts both raw incidence data (each row is one incidence of a Drug-AE combination,
+indexed by case ids) and summarized count data (each row catalogs the total counts of incidences
+of each Drug-AE pair). See the examples for more details.
+
+The output can be fed into \link{pvlrt} or its wrappers as \code{contin_table}
 }
 \examples{
 

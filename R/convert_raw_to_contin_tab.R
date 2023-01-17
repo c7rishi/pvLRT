@@ -18,30 +18,36 @@
 #' before converting to contingency tables.
 #'
 #' @param create_other_AE_row logical. Add a row in the contingency table for "Other AEs"?
-#' @param other_AE_excludess character vector cataloging AEs that are NOT to be included in the
+#' @param other_AE_excludes character vector cataloging AEs that are NOT to be included in the
 #' row for Other AEs. If NULL (default) then then no AEs are included in Other AEs (i.e.,
-#' `other_AE_excludes` includes all AEs in the raw data). Ignored if
+#' `other_AE_excludes` contains all AEs in the raw data). Ignored if
 #' `create_other_AE_row = FALSE`.
 #' @param other_AE_rowname character. Row name for the "Other AE" row created. Ignored if
 #' `create_other_AE_row = FALSE`.
 #'
-#' @param create_other_Drug_column logical. Add a column in the contingency table for "Other Drugs"? This
+#' @param create_other_Drug_col logical. Add a column in the contingency table for "Other Drugs"? This
 #' column plays the role of a "baseline" group of drugs against which significance of AEs in specific drug/drug
 #' combinations are tested in the \link{pvlrt} implementation. Care should be taken while determining which Drugs to
 #' include in this group; See Ding et al (2014) for guidance.
-#' @param other_Drug_exlcude character vector cataloging Drugs that are NOT to be included in the
+#' @param other_Drug_excludes character vector cataloging Drugs that are NOT to be included in the
 #' column for Other Drugs. If NULL (default) then then no Drugs are included in Other Drugs (i.e.,
-#' `other_Drug_excludes` includes all Drugs in the raw data). Ignored if
-#' `create_other_Drug_column = FALSE`.
-#' @param other_Drug_columnname character. Row name for the "Other Drug" column created. Ignored if
-#' `create_other_Drug_column = FALSE`.
+#' `other_Drug_excludes` contains all Drugs in the raw data). Ignored if
+#' `create_other_Drug_col = FALSE`.
+#' @param other_Drug_colname character. Row name for the "Other Drug" column created. Ignored if
+#' `create_other_Drug_col = FALSE`.
 #'
 #' @param ... unused.
 #'
 #' @details
 #'
-#' This function creates a contingency table cataloging counts of AE-Drug incidences from raw Drug/AE incidence data.
-#' The output can be fed into \link{pvlrt} or its wrappers.
+#' This is a convenience function that creates a contingency table cataloging counts of
+#' AE-Drug incidences from a raw Drug/AE incidence data frames.
+#' It accepts both raw incidence data (each row is one incidence of a Drug-AE combination,
+#' indexed by case ids) and summarized count data (each row catalogs the total counts of incidences
+#' of each Drug-AE pair). See the examples for more details.
+#'
+#'
+#' The output can be fed into \link{pvlrt} or its wrappers as `contin_table`
 #'
 #'
 #'
@@ -147,7 +153,7 @@ convert_raw_to_contin_table <- function(rawdata,
 
 
   # for safer handling with data.table variables in package
-  AE <- DRUG <-
+  . <- AE <- DRUG <-
     AE_mod <- DRUG_mod <-
     COUNT <- CASEID <-
     ncases <- NULL
