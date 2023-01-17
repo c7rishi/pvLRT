@@ -54,7 +54,15 @@ extract_AE_names(test1)
 extract_Drug_names(test1)
 
 set_AE_names(test1, old = "Rhabdomyolysis", new = "Rhabdo")
-set_Drug_names(test1, old = "other", new = "Other-Drugs")
+set_Drug_names(test1, old = "Other", new = "Other-Drugs")
+
+## can be chained with pipes `\%>\%`:
+test2 <- test1 \%>\%
+  set_AE_names(old = "Rhabdomyolysis", new = "Rhabdo") \%>\%
+  set_Drug_names(old = "Other", new = "Other-Drugs")
+
+# see the summary for changed labels
+summary(test2)
 
 
 }

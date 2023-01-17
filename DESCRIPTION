@@ -1,6 +1,6 @@
 Package: pvLRT
 Title: Likelihood Ratio Test-Based Approaches to Pharmacovigilance 
-Version: 0.4
+Version: 0.5
 Authors@R: c(
     person("Saptarshi", "Chakraborty", email = "chakra.saptarshi@gmail.com", role = c("aut", "cre")),
     person("Marianthi", "Markatou", role = "aut"),
@@ -13,7 +13,7 @@ License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3
 Imports: 
     stats,
     methods,
