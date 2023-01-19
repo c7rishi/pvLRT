@@ -520,3 +520,18 @@ logLik.pvlrt <- function(object, type = "full-zip", ...) {
 
   val
 }
+
+
+#' Test if two pvlrt objects are (Nearly) Equal
+#' @param target First pvlrt object (output of \link{pvlrt}).
+#' @param current Second pvlrt object.
+#' @param ... Arguments passed to \link{all.equal.default}.
+#' @details
+#' Compares all values and attributes of target and current `pvlrt` objects except running times.
+#' See \link{all.equal.default} for details on the generic function.
+#' @seealso all.equal.default
+#' @export
+all.equal.pvlrt <- function(target, current, ...) {
+  attributes(target)$run_time <- attributes(current)$run_time <- NULL
+  all.equal.default(target, current, ...)
+}

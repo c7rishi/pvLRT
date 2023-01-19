@@ -5,9 +5,16 @@
 #' effects for I AE and J Drugs
 #' @param nsim Number of simulated null contingency table to use for computing
 #' the p-value of the test
+#' @param test_drug_idx integer (position) or character (names) vector indicating the columns
+#' (drugs indices or drug labels) of contin_table to be tested for signal using LRT.
+#' Defaults to all except the last columns (which is typically the column for "Other Drugs").
 #' @param drug_class_idx a list, with the h-th entry providing the h-th group/class
-#' of drugs. By default, each drug forms its own class. If more than one drug is
-#' present in a class, an extended LRT is performed. See examples.
+#' of drugs. Relevant only for drugs used for testing (supplied through `test_drug_idx`).
+#' By default all drugs provided in `test_drug_idx` are included in the same class, which is
+#' ensured by supplying `drug_class_idx = list(test_drug_idx)`. If more than one drug is
+#' present in a class, an extended LRT is performed for the class (which ensures the correct
+#' Type I error rate is preserved). If `drug_class_idx` excludes any drug present in `test_drug_idx`,
+#' each remaining drug is made to form its own class. See examples.
 #' @param zi_prob,omega_vec Alias, determining zero inflation probabilities
 #' in the model. Can be a vector, providing different zero inflation
 #' probabilities for different drugs, or a scalar, providing the common zero
@@ -26,8 +33,6 @@
 #' if \code{omega_vec} is supplied (is non-NULL). Defaults to FALSE.
 #' NOTE: \code{test_omega} and \code{test_zi} are aliases.
 #' @param pval_ineq_strict logical. Use a strict inequality in the definition of the p-values?  Defaults to FALSE.
-#' @param test_drug_idx integer vector representing the columns (drug indices) of contin_table to be tested for signal.
-#' Defaults to all columns.
 #' @param is_zi_structural logical. Do the inflated zeros correspond to structural
 #' zeros (indicating impossible AE-Drug combination)? This determines how the
 #' bootstrap null zero-inflation indicators are generated. If TRUE (default),
@@ -57,7 +62,7 @@
 #'
 #'
 #'
-#' Various postprocessing methods for `pvlrt` objects are available. This includes:
+#' Various post processing methods for `pvlrt` objects are available. This includes:
 #'
 #' * \link{bubbleplot_pvlrt}
 #'
@@ -123,10 +128,30 @@
 #' # grouped drugs --
 #' # group 1: drug 1, drug 2
 #' # group 2: drug 3, drug 4
-#' # drug 5, 6, 7 in their own groups
-#' drug_groups <- list(c(1, 2), c(3, 4), 5, 6, 7)
+#' # drug 5, 6, in their own groups
+#' ## 7 is not tested, so excluded from test_drug_idx (default)
+#' ## if needed, include 7 in test_drug_idx
+#' drug_groups <- list(c(1, 2), c(3, 4))
+#' ## 5, 6 not present in drug_groups, so each will form their own groups
+#' set.seed(50)
+#' ##
 #' test2 <- pvlrt(statin46, drug_class_idx = drug_groups, nsim = 500)
 #' test2
+#'
+#' # instead of column positions column names can also be supplied
+#' # in drug_class_idx and/or test_drug_idx
+#' ## column name version of drug_groups
+#' drug_groups_colnames <- lapply(drug_groups, function(i) colnames(statin46)[i])
+#' test_drug_colnames <- head(colnames(statin46), -1)
+#' set.seed(50)
+#' test20 <- pvlrt(
+#'   statin46,
+#'   test_drug_idx = test_drug_colnames,
+#'   drug_class_idx = drug_groups_colnames,
+#'   nsim = 500
+#' )
+#' test20
+#' all.equal(test2, test20)
 #'
 #'
 #' # specify no zero inflation at the entirety of the last row and the last column
@@ -154,8 +179,8 @@ pvlrt <- function(contin_table,
                   omega_vec = NULL,
                   zi_prob = NULL,
                   no_zi_idx = NULL,
-                  drug_class_idx = as.list(1:ncol(contin_table)),
-                  test_drug_idx = 1:ncol(contin_table),
+                  test_drug_idx = seq_len(max(ncol(contin_table) - 1, 0)),
+                  drug_class_idx = list(test_drug_idx),
                   grouped_omega_est = FALSE,
                   test_zi = NULL,
                   test_omega = NULL,
@@ -168,7 +193,6 @@ pvlrt <- function(contin_table,
   . <- NULL
 
 
-  start_time <- Sys.time() # start the clock
 
   contin_table <- tryCatch(
     data.matrix(contin_table),
@@ -195,8 +219,11 @@ pvlrt <- function(contin_table,
       msg <- glue::glue(
         "'contin_table' has no {nm_type[kk]} names. \\
         Created {nm_type[kk]} names: {charc_type[kk]}_1, {charc_type[kk]}_2 etc. \\
-        You can replace them posthoc using `set_{charc_type[kk]}_names()` \\
-        or `{nm_type[kk]}names()` on the generated pvlrt object."
+        You can replace these names post hoc using `set_{charc_type[kk]}_names()` \\
+        or `{nm_type[kk]}names()` on the generated pvlrt object. \\
+        Consider also help(convert_raw_to_contin_table) to see how raw AE-drug \\
+        incidence data can be converted into a contin_table that appropriately \\
+        preserves {nm_type[kk]}names."
       )
       message(msg)
       nm_type_fn(contin_table) <- paste(
@@ -206,6 +233,7 @@ pvlrt <- function(contin_table,
       )
     }
   }
+
   stopifnot(
     is.list(drug_class_idx),
     is.logical(grouped_omega_est),
@@ -217,12 +245,22 @@ pvlrt <- function(contin_table,
     null_boot_type %in% c("parametric", "non-parametric"),
     length(null_boot_type) == 1,
     is.logical(is_zi_structural),
-    length(is_zi_structural) == 1
+    length(is_zi_structural) == 1,
+    is.vector(test_drug_idx),
+    length(test_drug_idx) > 1
   )
+
+  test_drug_idx <- unique(test_drug_idx)
 
   if (!is.null(no_zi_idx)) {
     stopifnot(
       is.list(no_zi_idx)
+    )
+  }
+
+  if (is.character(test_drug_idx)) {
+    stopifnot(
+      all(test_drug_idx %in% colnames(contin_table))
     )
   }
 
@@ -309,6 +347,7 @@ pvlrt <- function(contin_table,
     }
   }
 
+
   if (!is.null(omega_vec)) {
     omega_vec <- zi_prob <- as.numeric(omega_vec)
 
@@ -359,25 +398,45 @@ pvlrt <- function(contin_table,
 
 
   len_check_1 <- sort(unlist(drug_class_idx)) %>%
-    setdiff(1:ncol(contin_table)) %>%
+    {
+      if (is.character(.)) setdiff(., colnames(contin_table))
+      else setdiff(., 1:ncol(contin_table))
+    } %>%
     length() %>%
     {
       . == 0
     }
 
   if (!len_check_1) {
-    stop("'drug_class_idx' contains more columns than 'contin_table'")
+    stop("'drug_class_idx' contains more columns than in 'contin_table'")
   }
 
 
-  len_check_2 <- c(1:ncol(contin_table)) %>%
-    setdiff(sort(unlist(drug_class_idx))) %>%
-    length() %>%
+  drug_class_missing_idx <- sort(unlist(drug_class_idx)) %>%
     {
-      . == 0
+      if (is.character(.)) setdiff(colnames(contin_table), .)
+      else setdiff(1:ncol(contin_table), .)
     }
-  if (!len_check_2) {
-    stop("'drug_class_idx' does not contain all columns of 'contin_table'")
+
+  if (length(drug_class_missing_idx) > 0) {
+    drug_class_idx <- drug_class_idx %>% c(as.list(drug_class_missing_idx))
+  }
+
+
+  # if character, convert test_drug_idx & drug_class_idx to numeric (positions)
+
+  drugnames_positions <- seq_len(ncol(contin_table)) %>%
+    setNames(colnames(contin_table))
+
+  if (is.character(test_drug_idx)) {
+    test_drug_idx_orig <- test_drug_idx
+    test_drug_idx <- drugnames_positions[test_drug_idx]
+  }
+
+  if (is.character(unlist(drug_class_idx))) {
+    drug_class_idx_orig <- drug_class_idx
+    drug_class_idx <- drug_class_idx %>%
+      lapply(function(x) drugnames_positions[x])
   }
 
 
@@ -412,6 +471,8 @@ pvlrt <- function(contin_table,
   }
 
   omega_lrstat_vec <- omega_pval_vec <- NULL
+
+  start_time <- Sys.time() # start the clock
 
   if (do_omega_estimation) {
     omega_vec_obj <- .est_zi_1tab_rrr(

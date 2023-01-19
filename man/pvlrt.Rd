@@ -11,8 +11,8 @@ pvlrt(
   omega_vec = NULL,
   zi_prob = NULL,
   no_zi_idx = NULL,
-  drug_class_idx = as.list(1:ncol(contin_table)),
-  test_drug_idx = 1:ncol(contin_table),
+  test_drug_idx = seq_len(max(ncol(contin_table) - 1, 0)),
+  drug_class_idx = list(test_drug_idx),
   grouped_omega_est = FALSE,
   test_zi = NULL,
   test_omega = NULL,
@@ -42,12 +42,17 @@ are alias.}
 \item{no_zi_idx}{List of pairs {(i, j)} where zero inflation is not allowed. To
 specify the entirety i-th row (or j-th column) use c(i, 0) (or c(0, j)). See examples.}
 
-\item{drug_class_idx}{a list, with the h-th entry providing the h-th group/class
-of drugs. By default, each drug forms its own class. If more than one drug is
-present in a class, an extended LRT is performed. See examples.}
+\item{test_drug_idx}{integer (position) or character (names) vector indicating the columns
+(drugs indices or drug labels) of contin_table to be tested for signal using LRT.
+Defaults to all except the last columns (which is typically the column for "Other Drugs").}
 
-\item{test_drug_idx}{integer vector representing the columns (drug indices) of contin_table to be tested for signal.
-Defaults to all columns.}
+\item{drug_class_idx}{a list, with the h-th entry providing the h-th group/class
+of drugs. Relevant only for drugs used for testing (supplied through \code{test_drug_idx}).
+By default all drugs provided in \code{test_drug_idx} are included in the same class, which is
+ensured by supplying \code{drug_class_idx = list(test_drug_idx)}. If more than one drug is
+present in a class, an extended LRT is performed for the class (which ensures the correct
+Type I error rate is preserved). If \code{drug_class_idx} excludes any drug present in \code{test_drug_idx},
+each remaining drug is made to form its own class. See examples.}
 
 \item{grouped_omega_est}{Logical. When performing a test with grouped drug classes (extended LRT),
 should the estimated zero-inflation parameter "omega" reflect
@@ -92,7 +97,7 @@ for cells in the input contingency table, with various other test and input data
 p-values, estimated zero inflation parameters, overall log-likelihood etc.) embedded
 as attributes. The following S3 methods and functions are available for an \code{pvlrt} object:
 
-Various postprocessing methods for \code{pvlrt} objects are available. This includes:
+Various post processing methods for \code{pvlrt} objects are available. This includes:
 \itemize{
 \item \link{bubbleplot_pvlrt}
 \item \link{extract_AE_names}
@@ -141,10 +146,30 @@ extract_zi_probability(test1)
 # grouped drugs --
 # group 1: drug 1, drug 2
 # group 2: drug 3, drug 4
-# drug 5, 6, 7 in their own groups
-drug_groups <- list(c(1, 2), c(3, 4), 5, 6, 7)
+# drug 5, 6, in their own groups
+## 7 is not tested, so excluded from test_drug_idx (default)
+## if needed, include 7 in test_drug_idx
+drug_groups <- list(c(1, 2), c(3, 4))
+## 5, 6 not present in drug_groups, so each will form their own groups
+set.seed(50)
+##
 test2 <- pvlrt(statin46, drug_class_idx = drug_groups, nsim = 500)
 test2
+
+# instead of column positions column names can also be supplied
+# in drug_class_idx and/or test_drug_idx
+## column name version of drug_groups
+drug_groups_colnames <- lapply(drug_groups, function(i) colnames(statin46)[i])
+test_drug_colnames <- head(colnames(statin46), -1)
+set.seed(50)
+test20 <- pvlrt(
+  statin46,
+  test_drug_idx = test_drug_colnames,
+  drug_class_idx = drug_groups_colnames,
+  nsim = 500
+)
+test20
+all.equal(test2, test20)
 
 
 # specify no zero inflation at the entirety of the last row and the last column

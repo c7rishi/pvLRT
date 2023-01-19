@@ -17,17 +17,17 @@
 #' contingency table. If `FALSE` (default) incidences are first aggregated into counts
 #' before converting to contingency tables.
 #'
-#' @param create_other_AE_row logical. Add a row in the contingency table for "Other AEs"?
+#' @param create_other_AE_row logical. Add a row in the contingency table for "Other AEs"? This can aid computation
+#' in situations where there are certain AEs of primary interest. See `other_AE_excludes` for details on
+#' how to specify the "Other AE" row.
 #' @param other_AE_excludes character vector cataloging AEs that are NOT to be included in the
 #' row for Other AEs. If NULL (default) then then no AEs are included in Other AEs (i.e.,
-#' `other_AE_excludes` contains all AEs in the raw data). Ignored if
-#' `create_other_AE_row = FALSE`.
-#' @param other_AE_rowname character. Row name for the "Other AE" row created. Ignored if
+#' `other_AE_excludes` contains all AEs in the raw data). Ignored if  `create_other_AE_row = FALSE`.
+#' @param other_AE_rowname character. Row name for the "Other AE" row created. Defaults to "Other AE". Ignored if
 #' `create_other_AE_row = FALSE`.
 #'
 #' @param create_other_Drug_col logical. Add a column in the contingency table for "Other Drugs"? This
-#' column plays the role of a "baseline" group of drugs against which significance of AEs in specific drug/drug
-#' combinations are tested in the \link{pvlrt} implementation. Care should be taken while determining which Drugs to
+#' column typically plays the role of a "baseline" group of drugs. Care should be taken while determining which Drugs to
 #' include in this group; See Ding et al (2014) for guidance.
 #' @param other_Drug_excludes character vector cataloging Drugs that are NOT to be included in the
 #' column for Other Drugs. If NULL (default) then then no Drugs are included in Other Drugs (i.e.,
@@ -44,12 +44,17 @@
 #' AE-Drug incidences from a raw Drug/AE incidence data frames.
 #' It accepts both raw incidence data (each row is one incidence of a Drug-AE combination,
 #' indexed by case ids) and summarized count data (each row catalogs the total counts of incidences
-#' of each Drug-AE pair). See the examples for more details.
+#' of each Drug-AE pair). The output is a matrix (contingency table) enumerating total count of cases for
+#' each pair of AE (along the rows) and drug (along the column) with appropriately
+#' specified row and column names, and can be passed to a pvlrt() call. See the examples for more details.
 #'
 #'
 #' The output can be fed into \link{pvlrt} or its wrappers as `contin_table`
 #'
+#' @references
+#' Ding, Y., Markatou, M. and Ball, R., 2020. An evaluation of statistical approaches to postmarketing surveillance. Statistics in Medicine, 39(7), pp.845-874.
 #'
+#' Chakraborty, S., Liu, A., Ball, R. and Markatou, M., 2022. On the use of the likelihood ratio test methodology in pharmacovigilance. Statistics in Medicine, 41(27), pp.5395-5420.
 #'
 #' @examples
 #'
