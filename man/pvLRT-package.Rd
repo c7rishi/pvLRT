@@ -7,7 +7,7 @@ approaches to pharmacovigilance}
 \description{
 \code{pvLRT} is an R package that implements a suite of
 likelihood ratio test based methods to use in pharmacovigilance.
-It can handle adverse effects data on several simultaneous drugs,
+It can handle adverse events data on several simultaneous drugs,
 with possibly zero inflated report counts. Several testing and post-processing
 functions are implemented.
 }

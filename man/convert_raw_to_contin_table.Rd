@@ -38,8 +38,9 @@ contingency table. If \code{FALSE} (default) incidences are first aggregated int
 before converting to contingency tables.}
 
 \item{create_other_Drug_col}{logical. Add a column in the contingency table for "Other Drugs"? This
-column typically plays the role of a "baseline" group of drugs. Care should be taken while determining which Drugs to
-include in this group; See Ding et al (2014) for guidance.}
+column plays the role of a "baseline" group of drugs that typically do not indicate an adverse event
+association with the signal of interest. Care should be taken while determining which drugs to
+include in this group; See Ding et al (2020) for guidance.}
 
 \item{other_Drug_excludes}{character vector cataloging Drugs that are NOT to be included in the
 column for Other Drugs. If NULL (default) then then no Drugs are included in Other Drugs (i.e.,
@@ -67,11 +68,11 @@ Convert raw AE-Drug incidence data into a contingency table
 }
 \details{
 This is a convenience function that creates a contingency table cataloging counts of
-AE-Drug incidences from a raw Drug/AE incidence data frames.
+AE-Drug incidences from a raw Drug/AE incidence data frame.
 It accepts both raw incidence data (each row is one incidence of a Drug-AE combination,
 indexed by case ids) and summarized count data (each row catalogs the total counts of incidences
 of each Drug-AE pair). The output is a matrix (contingency table) enumerating total count of cases for
-each pair of AE (along the rows) and drug (along the column) with appropriately
+each pair of AE (along the rows) and drug (along the columns) with appropriately
 specified row and column names, and can be passed to a pvlrt() call. See the examples for more details.
 
 The output can be fed into \link{pvlrt} or its wrappers as \code{contin_table}

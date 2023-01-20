@@ -2,7 +2,7 @@
 #' Poisson and zero-inflated Poisson models for pharmacovigilance
 #' @inheritParams r_contin_table_zip
 #' @param contin_table IxJ contingency table showing pairwise counts of adverse
-#' effects for I AE and J Drugs
+#' events for I AE (along the rows) and J Drugs (along the columns)
 #' @param nsim Number of simulated null contingency table to use for computing
 #' the p-value of the test
 #' @param test_drug_idx integer (position) or character (names) vector indicating the columns

@@ -1,4 +1,4 @@
-#' Heatmap, barplot and bubbleplot displaying liklihood ratio test results in
+#' Heatmap, barplot and bubbleplot displaying likelihood ratio test results in
 #' a `pvlrt` object
 #' @param object,height pvlrt object; output of \code{pvlrt}()
 #' @param ... Other arguments. Currently ignored
@@ -6,15 +6,15 @@
 #' (in heatmap) or bar (in barplot) or circle/bubble (in bubbleplot) for each
 #' drug/AE combination. Defaults to "p_value". Available choices are:
 #'  "p.value", "lrstat", and "n".
-#' @param AE input parameter determining which adverse effects to show in
+#' @param AE input parameter determining which adverse events to show in
 #' the plot. This can be a numeric scalar  specifying the
-#' number of *top* (in terms of computed LRT values) adverse effects to show.
+#' number of *top* (in terms of computed LRT values) adverse events to show.
 #' Alternatively, it can be a character vector, specifying the exact
-#' adverse effects to show. It can also be a vector of patterns to match
-#' (ignores cases) against the full names of all available adverse effects,
-#' provided \code{grep} is set to TRUE. Defaults to adverse effects
+#' adverse events to show. It can also be a vector of patterns to match
+#' (ignores cases) against the full names of all available adverse events,
+#' provided \code{grep} is set to TRUE. Defaults to adverse events
 #' corresponding to the top M pairs where M = max(number of possible pairs, 50).
-#' Set AE = Inf to force display of all adverse effects.
+#' Set AE = Inf to force display of all adverse events.
 #' @param Drug input parameter determining which drugs to show in
 #' the plot. This can be a numeric scalar  specifying the
 #' number of *top* (in terms of computed LRT values) drugs to show.

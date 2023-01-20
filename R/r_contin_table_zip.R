@@ -52,7 +52,7 @@
 }
 
 
-#' Generate random contingency tables for adverse effect
+#' Generate random contingency tables for adverse event
 #' (across rows) and drug (across columns) combinations
 #' given row and column marginal totals, embedded signals,
 #' and possibly with zero inflation
@@ -63,7 +63,7 @@
 #' on to the randomly generated matrix/matrices.
 #' @param signal_mat numeric matrix of dimension
 #' length(row_marginals) x length(col_marginals). The (i, j)-th entry of
-#' signal_mat determines the signal stregth of the i-th adverse effect and
+#' signal_mat determines the signal strength of the i-th adverse event and
 #' j-th drug pair. The default is 1 for each pair, which means no signal for the pair.
 #' @param omega_vec vector of zero inflation probabilities. Must be of the same length
 #' as col_marginals.

@@ -2,7 +2,7 @@
 % Please edit documentation in R/r_contin_table_zip.R
 \name{r_contin_table_zip}
 \alias{r_contin_table_zip}
-\title{Generate random contingency tables for adverse effect
+\title{Generate random contingency tables for adverse event
 (across rows) and drug (across columns) combinations
 given row and column marginal totals, embedded signals,
 and possibly with zero inflation}
@@ -26,7 +26,7 @@ on to the randomly generated matrix/matrices.}
 
 \item{signal_mat}{numeric matrix of dimension
 length(row_marginals) x length(col_marginals). The (i, j)-th entry of
-signal_mat determines the signal stregth of the i-th adverse effect and
+signal_mat determines the signal strength of the i-th adverse event and
 j-th drug pair. The default is 1 for each pair, which means no signal for the pair.}
 
 \item{omega_vec}{vector of zero inflation probabilities. Must be of the same length
@@ -42,7 +42,7 @@ A list of length \code{n}, with each entry being a
 \code{length(row_marginal)} by \code{length(col_marginal)} matrix.
 }
 \description{
-Generate random contingency tables for adverse effect
+Generate random contingency tables for adverse event
 (across rows) and drug (across columns) combinations
 given row and column marginal totals, embedded signals,
 and possibly with zero inflation

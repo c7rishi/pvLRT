@@ -5,7 +5,9 @@
 This is a re-submission of the package pvLRT. In this version we have made the following changes:
 
 -   Add a new function 'convert_raw_to_contin_table' to create contingency table from raw Drug-AE incidence data frames.
--   fix typos in the docuementation texts
+-   fix typos in the documentation texts
+-   change defaults for the arguments 'test_drug_idx' and 'drug_class_idx' in pvlrt().
+-   create an all.equal method for pvlrt objects
 
 ## Test environments
 
@@ -121,4 +123,4 @@ New submission
 
 Possibly mis-spelled words in DESCRIPTION: Pharmacovigilance (3:23) pharmacovigilance (8:97)
 
-We believe this NOTE is a false alarm, as 'pharmacovigilance' refers to the field relating to the collection, detection, assessment, monitoring, and prevention of adverse effects with pharmaceutical products (Wikipedia; <https://en.wikipedia.org/wiki/Pharmacovigilance>).
+We believe this NOTE is a false alarm, as 'pharmacovigilance' refers to the field relating to the collection, detection, assessment, monitoring, and prevention of adverse events with pharmaceutical products (Wikipedia; <https://en.wikipedia.org/wiki/Pharmacovigilance>).

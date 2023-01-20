@@ -9,7 +9,7 @@ lrt_zi_poisson(contin_table, nsim = 10000, ...)
 }
 \arguments{
 \item{contin_table}{IxJ contingency table showing pairwise counts of adverse
-effects for I AE and J Drugs}
+events for I AE (along the rows) and J Drugs (along the columns)}
 
 \item{nsim}{Number of simulated null contingency table to use for computing
 the p-value of the test}
