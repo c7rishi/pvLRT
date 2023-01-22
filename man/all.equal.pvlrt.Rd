@@ -4,7 +4,7 @@
 \alias{all.equal.pvlrt}
 \title{Test if two pvlrt objects are (Nearly) Equal}
 \usage{
-\method{all}{equal.pvlrt}(target, current, ...)
+\method{all.equal}{pvlrt}(target, current, ...)
 }
 \arguments{
 \item{target}{First pvlrt object (output of \link{pvlrt}).}

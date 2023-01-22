@@ -5,19 +5,26 @@
 This is a re-submission of the package pvLRT. In this version we have made the following changes:
 
 -   Add a new function 'convert_raw_to_contin_table' to create contingency table from raw Drug-AE incidence data frames.
--   fix typos in the documentation texts
+-   fix typos in the documentation texts, and add more details on several examples
 -   change defaults for the arguments 'test_drug_idx' and 'drug_class_idx' in pvlrt().
--   create an all.equal method for pvlrt objects
+-   create an 'all.equal' method for pvlrt objects
 
 ## Test environments
 
--   local Windows 10 install, R 4.2.2
--   Ubuntu 20.04.3 LTS, R 4.2.2
--   win-builder (devel, release, oldrelease)
+-   local Windows 10 install, R version 4.2.2 (2022-10-31 ucrt)
+-   Ubuntu 20.04.3 LTS, R version 4.2.2 Patched (2022-11-10 r83330)
+-   online win-builder (devel, release, oldrelease)
 
 ## R CMD Check Results
 
--   There were no ERRORs or WARNINGs or NOTEs.
+-   There were no ERRORs or WARNINGs or NOTEs on local Windows 10, Ubuntu 20.04 LTS, and winbuilder devel and release
+-   There was one NOTE on winbuilder oldrelease:
+
+    Possibly mis-spelled words in DESCRIPTION:
+      Pharmacovigilance (2:50)
+      pharmacovigilance (11:71)
+
+which we believe is a false alarm.
 
 # pvLRT v0.4
 

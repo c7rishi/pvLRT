@@ -530,6 +530,7 @@ logLik.pvlrt <- function(object, type = "full-zip", ...) {
 #' Compares all values and attributes of target and current `pvlrt` objects except running times.
 #' See \link{all.equal.default} for details on the generic function.
 #' @seealso all.equal.default
+#' @method all.equal pvlrt
 #' @export
 all.equal.pvlrt <- function(target, current, ...) {
   attributes(target)$run_time <- attributes(current)$run_time <- NULL
