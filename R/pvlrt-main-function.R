@@ -247,7 +247,7 @@ pvlrt <- function(contin_table,
     is.logical(is_zi_structural),
     length(is_zi_structural) == 1,
     is.vector(test_drug_idx),
-    length(test_drug_idx) > 1
+    length(test_drug_idx) >= 1
   )
 
   test_drug_idx <- unique(test_drug_idx)
