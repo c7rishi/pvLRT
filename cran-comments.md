@@ -1,3 +1,41 @@
+# pvLRT v0.5.1
+
+## Resubmission
+
+This is a re-submission of the package pvLRT. In this version we have made the following changes:
+
+-   Fixed a bug arising out of a faulty length check for the argument `test_drug_idx` in `pvlrt()`
+-   fixed typos in the documentation texts
+
+## Test environments
+
+-   local Windows 10 install, R version 4.2.2 (2022-10-31 ucrt)
+-   Ubuntu 20.04.3 LTS, R version 4.2.2 Patched (2022-11-10 r83330)
+-   online win-builder (devel, release, oldrelease)
+
+## R CMD Check Results
+
+-   There were no ERRORs or WARNINGs or NOTEs on local Windows 10, Ubuntu 20.04 LTS, and winbuilder devel and release
+-   There was one NOTE on winbuilder oldrelease, which we believe is a false alarm.
+
+Possibly mis-spelled words in DESCRIPTION:
+  Pharmacovigilance (2:50)
+  pharmacovigilance (21:71)
+
+Found the following (possibly) invalid URLs:
+  URL: https://fis.fda.gov/extensions/FPD-QDE-FAERS/FPD-QDE-FAERS.html
+    From: man/faers22q3raw.Rd
+          man/gbca.Rd
+          man/lovastatin.Rd
+          man/statin.Rd
+          man/statin1491.Rd
+          man/statin46.Rd
+    Status: Error
+    Message: SSL certificate problem: self signed certificate in certificate chain
+    
+    
+
+
 # pvLRT v0.5
 
 ## Resubmission
