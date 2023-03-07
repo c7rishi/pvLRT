@@ -16,7 +16,8 @@ This is a re-submission of the package pvLRT. In this version we have made the f
 ## R CMD Check Results
 
 -   There were no ERRORs or WARNINGs or NOTEs on local Windows 10, Ubuntu 20.04 LTS, and winbuilder devel and release
--   There was one NOTE on winbuilder oldrelease, which we believe is a false alarm.
+
+-   There was one NOTE on winbuilder oldrelease, which we believe is a false alarm:
 
 Possibly mis-spelled words in DESCRIPTION:
   Pharmacovigilance (2:50)
